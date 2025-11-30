@@ -106,7 +106,8 @@ export default function Home() {
               </button>
             ))}
             <a
-              href="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69278c2a9ef8968226639adc/b36c31051_Justin-Hatch-Resume2.pdf"
+              href="/resume.pdf"
+              download="Justin_Hatch_Resume.pdf"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-cyan-600 to-blue-700 hover:from-cyan-500 hover:to-blue-600 text-white text-sm font-medium transition-all duration-300"
