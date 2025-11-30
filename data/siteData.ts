@@ -20,12 +20,14 @@ export const skills: Record<string, string[]> = {
     "Pandas",
     "NumPy",
     "Scikit-Learn",
-    "Data Analytics",
     "Predictive Modeling",
+    "Feature Engineering", 
+    "Model tuning",
     "A/B Testing",
     "Data Visualization",
-    "Feature Engineering", 
-    "ETL/ELT"
+    "Data Analytics",
+    "ETL/ELT",
+    "Excel",
 
   ],
   "Frameworks & Tools": [
@@ -40,7 +42,8 @@ export const skills: Record<string, string[]> = {
     "PowerBI",
     "ChatGPT",
     "Claude",
-    "Base-44"
+    "Base-44",
+    "Microsoft 365 Apps"
   ],
   Databases: [
     "MySQL",
@@ -56,7 +59,7 @@ export interface Project {
   tech: string[];
   description: string;
   gradient: string;
-  category: "Data Science" | "Machine Learning" | "Software";
+  category: "Data Science" | "Machine Learning / AI" | "Software";
   image?: string;
   github?: string;
   demo?: string; 
@@ -69,7 +72,7 @@ export const projects: Project[] = [
     awards: ["1st Place (Solana Track)", "2nd Place (Polymarket Track)"],
     tech: ["Python", "Solana", "LLM Agents", "Gemini"],
     description:
-      "Designed an AI-driven decentralized hedge fund using Polymarket API, multi-agent LLM decision systems, and Solana-based staking. Built a six-agent Gemini debate system for market research, proposal evaluation, and autonomous trading.",
+  "Designed an AI-driven decentralized hedge fund using Polymarket API, multi-agent LLM decision systems, and Solana-based staking.\n\nBuilt a six-agent Gemini debate system for market research, proposal evaluation, and autonomous trading.",
     gradient: "from-amber-500 to-orange-600",
     category: "Software",
     image:
@@ -93,19 +96,19 @@ export const projects: Project[] = [
     subtitle: "Supervised ML Classification",
     tech: ["Python", "Decision Trees", "KNN", "SVM", "MLP"],
     description:
-      "Performed data cleaning, feature engineering, EDA, and applied multiple ML models. Achieved 91% accuracy through hyperparameter tuning and model validation.",
+      "Performed data cleaning, feature engineering, EDA, and applied multiple ML models (Decision Trees, KNN, SVM, MLP). Improved performance with hyperparameter tuning and model validation. Achieved 91% accuracy, enabling proactive churn detection. Authored a technical report covering methodology and performance analysis.",
     gradient: "from-emerald-500 to-teal-600",
-    category: "Machine Learning",
+    category: "Machine Learning / AI",
     image:
       "https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=800",
     github: "https://github.com/jhatch3/ML-Churn_Report",
   },
   {
-    title: "Monte Carlo Stock Modeling",
+    title: "Monte Carlo Stock Price Simulator (Black–Scholes GBM) ",
     subtitle: "Finance Simulations",
     tech: ["Python", "Pandas", "GBM"],
     description:
-      "Implemented GBM-based Monte Carlo simulations for stock price prediction and scenario testing. Designed modular code for rapid financial experimentation.",
+      "Implemented Black–Scholes GBM–based Monte Carlo simulations to model stock price paths for prediction and scenario testing. Built a Streamlit dashboard for interactive experimentation, letting users choose tickers, set simulation parameters, and visualize expected prices, confidence intervals, and outcome distributions. Designed modular code for data ingestion, log-return computation, parameter estimation, and simulation to enable rapid iteration and future model extensions.",
     gradient: "from-violet-500 to-purple-600",
     category: "Data Science",
     image:
@@ -118,7 +121,7 @@ export const projects: Project[] = [
     subtitle: "Data Analytics & A/B Testing",
     tech: ["Excel", "Statistical Analysis", "Data Visualization"],
     description:
-      "Analyzed Intel sustainability data for high-ROI improvements. Conducted rigorous A/B testing for GRAMMY U CTA optimization. Delivered narrative-driven visualizations.",
+    "Analyzed Intel sustainability data to identify high-ROI improvements and presented actionable insights. Conducted a statistically rigorous A/B test to determine the best CTA button for increasing GRAMMY U membership. Delivered narrative-driven visualizations aligned with industry reporting standards. Completed as part of the Global Career Accelerator program.",
     gradient: "from-rose-500 to-pink-600",
     category: "Data Science",
     image:
@@ -149,12 +152,23 @@ export const projects: Project[] = [
     github:
       "https://github.com/jhatch3/Cleaning-Bank-Marketing-Campaign-Data",
   },
+    {
+    title: "Freelane AI Annotation Work",
+    subtitle: "",
+    tech: [],
+    description:
+        "Freelance AI Annotation Work Produced high-quality screen-recorded demonstrations using OBS to train AI models on Microsoft Office workflows. Created detailed task walk-throughs with step-by-step reasoning and instructional clarity. Reviewed and annotated system-captured actions, providing structured “thought-process” explanations to improve LLM reasoning.",
+    gradient: "from-teal-500 to-green-600",
+    category: "Machine Learning / AI",
+    image:
+      "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=800",
+  },
 ];
 
 export const projectCategories = [
   "All",
   "Data Science",
-  "Machine Learning",
+  "Machine Learning / AI",
   "Software",
 ];
 

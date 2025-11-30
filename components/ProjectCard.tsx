@@ -4,9 +4,22 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { ChevronDown, Github, Award, ExternalLink } from "lucide-react";
+import { Github, ExternalLink, ChevronDown, Award } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import type { Project } from "@/data/siteData";
+
+export interface Project {
+  title: string;
+  subtitle?: string;
+  awards?: string[];
+  tech: string[];
+  description: string;
+  gradient: string;
+  category: string;
+  image?: string;
+  github?: string;
+  demo?: string;
+}
+
 interface ProjectCardProps {
   project: Project;
   index: number;
@@ -14,6 +27,10 @@ interface ProjectCardProps {
 
 export default function ProjectCard({ project, index }: ProjectCardProps) {
   const [expanded, setExpanded] = useState(false);
+
+  const hasGithub = Boolean(project.github);
+  const hasDemo = Boolean(project.demo);
+  const hasLinks = hasGithub || hasDemo;
 
   return (
     <motion.div
@@ -39,58 +56,65 @@ export default function ProjectCard({ project, index }: ProjectCardProps) {
       />
 
       <div className="relative z-10 p-6">
-        <div className="flex items-start justify-between gap-2 mb-3">
+        <div className="flex items-start justify-between gap-3 mb-3">
           <div>
             <h3 className="text-lg font-semibold text-white mb-1">
               {project.title}
             </h3>
-            <p className="text-gray-500 text-sm">{project.subtitle}</p>
-          </div>
-            <div className="flex gap-3 mt-4">
-            {/* GitHub Link */}
-            <a
-                href={project.github}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 transition-all group"
-            >
-                <Github
-                size={18}
-                className="text-gray-300 group-hover:text-cyan-400 transition-colors"
-                />
-            </a>
-
-            {/* Live Demo Link — only shows if demo exists */}
-            {project.demo && (
-                <a
-                href={project.demo}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 transition-all group"
-                >
-                <ExternalLink
-                    size={18}
-                    className="text-gray-300 group-hover:text-blue-400 transition-colors"
-                />
-                </a>
+            {project.subtitle && (
+              <p className="text-gray-500 text-sm">{project.subtitle}</p>
             )}
+          </div>
+
+          {/* Icon row – only render if there is at least one link */}
+          {hasLinks && (
+            <div className="flex items-center gap-2 flex-shrink-0">
+              {hasGithub && (
+                <a
+                  href={project.github}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 hover:border-cyan-500/50 transition-all group/link"
+                >
+                  <Github
+                    size={18}
+                    className="text-gray-300 group-hover/link:text-cyan-400 transition-colors"
+                  />
+                </a>
+              )}
+              {hasDemo && (
+                <a
+                  href={project.demo}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 hover:border-blue-500/50 transition-all group/link"
+                >
+                  <ExternalLink
+                    size={18}
+                    className="text-gray-300 group-hover/link:text-blue-400 transition-colors"
+                  />
+                </a>
+              )}
             </div>
+          )}
         </div>
 
-        {project.awards && (
-          <div className="flex flex-wrap gap-1 mb-3">
+        {/* Awards */}
+        {project.awards && project.awards.length > 0 && (
+          <div className="flex flex-wrap gap-1.5 mb-3">
             {project.awards.map((award) => (
               <Badge
                 key={award}
-                className="bg-gradient-to-r from-cyan-500 to-blue-600 text-white border-0 text-[10px] px-2 py-0.5"
+                className="bg-gradient-to-r from-cyan-500 to-blue-600 text-white border-0 text-[10px] px-2 py-0.5 flex items-center gap-1"
               >
-                <Award size={10} className="mr-1" />
+                <Award size={10} />
                 {award}
               </Badge>
             ))}
           </div>
         )}
 
+        {/* Tech stack */}
         <div className="flex flex-wrap gap-1.5 mb-4">
           {project.tech.map((tech) => (
             <span
@@ -102,8 +126,9 @@ export default function ProjectCard({ project, index }: ProjectCardProps) {
           ))}
         </div>
 
+        {/* Description – supports \n\n paragraph breaks */}
         <p
-          className={`text-gray-400 text-sm leading-relaxed ${
+          className={`text-gray-400 text-sm leading-relaxed whitespace-pre-line ${
             expanded ? "" : "line-clamp-2"
           }`}
         >
@@ -117,7 +142,9 @@ export default function ProjectCard({ project, index }: ProjectCardProps) {
           {expanded ? "Show less" : "Show more"}
           <ChevronDown
             size={16}
-            className={`transition-transform ${expanded ? "rotate-180" : ""}`}
+            className={`transition-transform ${
+              expanded ? "rotate-180" : ""
+            }`}
           />
         </button>
       </div>

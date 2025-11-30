@@ -308,12 +308,12 @@ export default function Home() {
             <div className="grid lg:grid-cols-2 gap-16">
               <div className="space-y-6">
                 <p className="text-gray-300 text-lg leading-relaxed">
-                  Hello! I am Justin, a 4th year Computer Science student specializing in Data Science, 
-                  Machine Learning, and AI with experience building 
-                  end-to-end data systems, deploying ML models, and developing 
-                  full-stack applications. I am developer with a 
-                  focus on applying data, experimentation, and scalable engineering 
-                  to deliver real-world impact.
+                  Hello! I am Justin, a 4th year Computer Science student
+                  specializing in Data Science, Machine Learning, and AI with
+                  experience building end-to-end data systems, deploying ML
+                  models, and developing full-stack applications. I am a
+                  developer with a focus on applying data, experimentation, and
+                  scalable engineering to deliver real-world impact.
                 </p>
 
                 <div className="pt-6">
@@ -322,17 +322,17 @@ export default function Home() {
                     Certifications
                   </h3>
                   <div className="flex flex-wrap gap-2">
-                      {certifications.map((cert) => (
-                        <a
-                          key={cert.name}
-                          href={cert.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="rounded-full bg-gradient-to-r from-cyan-500/10 to-blue-500/10 border border-cyan-500/30 text-[11px] text-gray-100 px-3 py-1 font-medium tracking-wide transition-all hover:border-cyan-400 hover:bg-cyan-500/20"
-                        >
-                          {cert.name}
-                        </a>
-                      ))}
+                    {certifications.map((cert) => (
+                      <a
+                        key={cert.name}
+                        href={cert.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="rounded-full bg-gradient-to-r from-cyan-500/10 to-blue-500/10 border border-cyan-500/30 text-[11px] text-gray-100 px-3 py-1 font-medium tracking-wide transition-all hover:border-cyan-400 hover:bg-cyan-500/20"
+                      >
+                        {cert.name}
+                      </a>
+                    ))}
                   </div>
                 </div>
               </div>
@@ -465,13 +465,13 @@ export default function Home() {
                       B.S. Computer Science — Data Science, ML & AI
                       Specialization
                     </p>
-                    <div className="flex flex-wrap gap-3 mb-4">
+                    <div className="flex flex-wrap gap-2 mb-4">
                       <Badge className="rounded-full bg-emerald-500/15 border border-emerald-400/40 text-[11px] text-emerald-100 px-3 py-1 font-medium">
-                          Dean&apos;s List
-                        </Badge>
-                        <Badge className="rounded-full bg-blue-500/15 border border-blue-400/40 text-[11px] text-blue-100 px-3 py-1 font-medium">
-                          GPA: 3.66
-                        </Badge>
+                        Dean&apos;s List
+                      </Badge>
+                      <Badge className="rounded-full bg-blue-500/15 border border-blue-400/40 text-[11px] text-blue-100 px-3 py-1 font-medium">
+                        GPA: 3.66
+                      </Badge>
                     </div>
                     <p className="text-sm text-gray-500">
                       <span className="text-gray-400">Activities:</span> DSCI
@@ -482,8 +482,8 @@ export default function Home() {
                 </div>
 
                 {/* Relevant Coursework */}
-                <div className="mt-2 rounded-xl bg-white/[0.06] border border-white/20 p-6">
-                  <h4 className="text-sm text-gray-200 uppercase tracking-wider mb-4">
+                <div className="mt-2 rounded-2xl bg-white/[0.03] border border-white/15 p-5">
+                  <h4 className="text-xs font-semibold text-gray-300 uppercase tracking-[0.18em] mb-3">
                     Relevant Coursework
                   </h4>
 
@@ -508,7 +508,7 @@ export default function Home() {
                     ].map((course) => (
                       <span
                         key={course}
-                        className="px-3 py-1.5 rounded-md bg-white/10 text-xs text-white border border-white/15"
+                        className="px-2.5 py-1 rounded-full bg-white/5 text-[11px] text-gray-200 border border-white/10 whitespace-nowrap"
                       >
                         {course}
                       </span>
