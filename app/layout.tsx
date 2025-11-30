@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import Head from "next/head";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,6 +28,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <Head>
+
+        <meta property="og:title" content="Justin Hatch — Portfolio" />
+        <meta property="og:description" content="Data Science, Machine Learning, and Software Engineering projects." />
+        <meta property="og:image" content="https://your-domain.com/preview.png" />
+        <meta property="og:url" content="https://your-domain.com" />
+        <meta property="og:type" content="website" />
+      </Head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
