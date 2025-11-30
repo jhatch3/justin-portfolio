@@ -23,16 +23,24 @@ export const skills: Record<string, string[]> = {
     "Data Analytics",
     "Predictive Modeling",
     "A/B Testing",
-    "Data Visualization"
+    "Data Visualization",
+    "Feature Engineering", 
+    "ETL/ELT"
+
   ],
   "Frameworks & Tools": [
     "Flask",
     "FastAPI",
     "Streamlit",
     "Docker",
+    "PySpark",
     "Git/GitHub",
     "Linux",
-    "AWS"
+    "AWS",
+    "PowerBI",
+    "ChatGPT",
+    "Claude",
+    "Base-44"
   ],
   Databases: [
     "MySQL",
