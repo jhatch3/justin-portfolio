@@ -106,7 +106,7 @@ export default function Home() {
               </button>
             ))}
             <a
-              href="/Justin_hatch_resume.pdf"
+              href="/resume.pdf"
               download="Justin_Hatch_Resume.pdf"
               target="_blank"
               rel="noopener noreferrer"
