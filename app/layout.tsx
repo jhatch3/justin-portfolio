@@ -14,7 +14,21 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "Justin Hatch",
+  title: "Justin Hatch — Portfolio",
+  description: "Data Science, Machine Learning, and Software Engineering projects.",
+  openGraph: {
+    title: "Justin Hatch — Portfolio",
+    description: "Data Science, Machine Learning, and Software Engineering projects.",
+    url: "https://justin-portfolio-v1.vercel.app",
+    images: [
+      {
+        url: "https://justin-portfolio-v1.vercel.app/preview.png",
+        width: 1200,
+        height: 630,
+      },
+    ],
+    type: "website",
+  },
   icons: {
     icon: "/favicon.png",
   },
