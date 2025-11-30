@@ -106,8 +106,8 @@ export default function Home() {
               </button>
             ))}
             <a
-              href="/resume.pdf"
-              download="Justin_Hatch_Resume.pdf"
+              href="/justin_hatch_resume.pdf"
+              download="justin_hatch_resume.pdf"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-cyan-600 to-blue-700 hover:from-cyan-500 hover:to-blue-600 text-white text-sm font-medium transition-all duration-300"
