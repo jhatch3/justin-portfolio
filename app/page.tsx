@@ -106,7 +106,7 @@ export default function Home() {
               </button>
             ))}
             <a
-              href="/justin_hatch_resume.pdf"
+              href="/https://github.com/jhatch3/justin-portfolio/blob/main/public/Justin_Hatch_Resume.pdf"
               download="justin_hatch_resume.pdf"
               target="_blank"
               rel="noopener noreferrer"
