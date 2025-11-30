@@ -106,7 +106,7 @@ export default function Home() {
               </button>
             ))}
             <a
-              href="/resume.pdf"
+              href="/Justin_hatch_resume.pdf"
               download="Justin_Hatch_Resume.pdf"
               target="_blank"
               rel="noopener noreferrer"
@@ -212,11 +212,11 @@ export default function Home() {
             transition={{ duration: 0.8 }}
           >
             <div className="mb-8">
-              <img
+              {/* <img
                 src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6927420e784efb395d5a0a11/a9adef256_1753127063171.jpg"
                 alt="Justin Hatch"
                 className="w-32 h-32 md:w-40 md:h-40 rounded-full object-cover mx-auto border-4 border-cyan-500/30 shadow-lg shadow-cyan-500/20"
-              />
+              /> */}
             </div>
             <h1 className="text-5xl md:text-7xl font-bold mb-6 tracking-tight">
               <span className="text-white">Justin</span>{" "}

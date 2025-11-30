@@ -154,10 +154,10 @@ export const projects: Project[] = [
   },
     {
     title: "Freelane AI Annotation Work",
-    subtitle: "",
-    tech: [],
+    subtitle: "AI Training",
+    tech: ["OBS, Microsoft 365 Apps"],
     description:
-        "Freelance AI Annotation Work Produced high-quality screen-recorded demonstrations using OBS to train AI models on Microsoft Office workflows. Created detailed task walk-throughs with step-by-step reasoning and instructional clarity. Reviewed and annotated system-captured actions, providing structured “thought-process” explanations to improve LLM reasoning.",
+        "Produced high-quality screen-recorded demonstrations using OBS to train AI models on Microsoft Office workflows. Created detailed task walk-throughs with step-by-step reasoning and instructional clarity. Reviewed and annotated system-captured actions, providing structured “thought-process” explanations to improve LLM reasoning.",
     gradient: "from-teal-500 to-green-600",
     category: "Machine Learning / AI",
     image:
