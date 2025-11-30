@@ -3,24 +3,27 @@
 export const navItems = [
   { id: "about", label: "About" },
   { id: "projects", label: "Projects" },
-  { id: "education", label: "Education" },
+  { id: "education", label: "Education & Experience" },
   { id: "contact", label: "Contact" },
 ];
 
 export const skills: Record<string, string[]> = {
   Programming: [
     "Python",
-    "NumPy",
-    "Pandas",
-    "Scikit-Learn",
-    "Matplotlib",
-    "Seaborn",
-    "PySpark",
     "SQL",
     "C",
     "C++",
     "JavaScript",
-    "HTML/CSS",
+    "HTML/CSS"
+  ],
+  "Data & ML": [
+    "Pandas",
+    "NumPy",
+    "Scikit-Learn",
+    "Data Analytics",
+    "Predictive Modeling",
+    "A/B Testing",
+    "Data Visualization"
   ],
   "Frameworks & Tools": [
     "Flask",
@@ -29,20 +32,13 @@ export const skills: Record<string, string[]> = {
     "Docker",
     "Git/GitHub",
     "Linux",
-    "AWS",
-    "Power BI",
-    "Figma",
-    "ChatGPT",
+    "AWS"
   ],
-  "Data & ML": [
-    "Data Analytics",
-    "Feature Engineering",
-    "Predictive Modeling",
-    "A/B Testing",
-    "Data Visualization",
-    "ETL/ELT",
+  Databases: [
+    "MySQL",
+    "PostgreSQL",
+    "SQL Schema Design"
   ],
-  Databases: ["MySQL", "PostgreSQL", "SQL Schema Design"],
 };
 
 export interface Project {
@@ -55,6 +51,7 @@ export interface Project {
   category: "Data Science" | "Machine Learning" | "Software";
   image?: string;
   github?: string;
+  demo?: string; 
 }
 
 export const projects: Project[] = [
@@ -69,7 +66,7 @@ export const projects: Project[] = [
     category: "Software",
     image:
       "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=800",
-    github: "https://github.com/jhatch3",
+    github: "https://github.com/jhatch3/Evergreen-Capital/tree/main",
   },
   {
     title: "AI Stock Analysis Platform",
@@ -93,7 +90,7 @@ export const projects: Project[] = [
     category: "Machine Learning",
     image:
       "https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=800",
-    github: "https://github.com/jhatch3",
+    github: "https://github.com/jhatch3/ML-Churn_Report",
   },
   {
     title: "Monte Carlo Stock Modeling",
@@ -104,8 +101,9 @@ export const projects: Project[] = [
     gradient: "from-violet-500 to-purple-600",
     category: "Data Science",
     image:
-      "https://images.unsplash.com/photo-1642790106117-e829e14a795f?w=800",
-    github: "https://github.com/jhatch3",
+      "https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=800",
+    github: "https://github.com/jhatch3/finance_ds_projects/tree/main/Monte_Carlo",
+    demo: "https://montecarloapps.streamlit.app/"
   },
   {
     title: "Intel & GRAMMY U Analytics",
@@ -117,7 +115,6 @@ export const projects: Project[] = [
     category: "Data Science",
     image:
       "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800",
-    github: "https://github.com/jhatch3",
   },
   {
     title: "Linear Regression Least Squares",
@@ -154,8 +151,20 @@ export const projectCategories = [
 ];
 
 export const certifications = [
-  "Associate Data Engineer in SQL",
-  "Intel - Data Visualization",
-  "OpenAI - AI Professional Skills",
-  "Intercultural Skills",
+  {
+    name: "Associate Data Engineer in SQL",
+    url: "https://www.datacamp.com/completed/statement-of-accomplishment/track/6c472811dcd40bb903cd12173203158cd8fe7c15"
+  },
+  {
+    name: "Intel - Data Visualization",
+    url: "https://www.credential.net/ce291740-905f-4c17-ae0d-70d45100f817#acc.cNTtR52je"
+  },
+  {
+    name: "OpenAI - AI Professional Skills",
+    url: "https://www.credential.net/97dde745-4ba0-4736-a815-27aec3104af8#acc.FmCSXkMj"
+  },
+  {
+    name: "Intercultural Skills",
+    url: "https://www.credential.net/bc6baf65-649d-4dee-9e32-28eddbb22971#acc.qGmZC6UJ"
+  }
 ];

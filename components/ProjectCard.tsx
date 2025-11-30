@@ -4,10 +4,9 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { ChevronDown, Github, Award } from "lucide-react";
+import { ChevronDown, Github, Award, ExternalLink } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import type { Project } from "@/data/siteData";
-
 interface ProjectCardProps {
   project: Project;
   index: number;
@@ -47,19 +46,35 @@ export default function ProjectCard({ project, index }: ProjectCardProps) {
             </h3>
             <p className="text-gray-500 text-sm">{project.subtitle}</p>
           </div>
-          {project.github && (
+            <div className="flex gap-3 mt-4">
+            {/* GitHub Link */}
             <a
-              href={project.github}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="p-2 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 hover:border-cyan-500/50 transition-all flex-shrink-0"
+                href={project.github}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 transition-all group"
             >
-              <Github
-                size={16}
-                className="text-gray-400 group-hover:text-cyan-400"
-              />
+                <Github
+                size={18}
+                className="text-gray-300 group-hover:text-cyan-400 transition-colors"
+                />
             </a>
-          )}
+
+            {/* Live Demo Link — only shows if demo exists */}
+            {project.demo && (
+                <a
+                href={project.demo}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 transition-all group"
+                >
+                <ExternalLink
+                    size={18}
+                    className="text-gray-300 group-hover:text-blue-400 transition-colors"
+                />
+                </a>
+            )}
+            </div>
         </div>
 
         {project.awards && (

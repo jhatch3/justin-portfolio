@@ -251,7 +251,7 @@ export default function Home() {
 
             <div className="flex items-center justify-center gap-4 mt-8">
               <a
-                href="https://www.linkedin.com/in/justin-hatch-571604251/"
+                href="https://www.linkedin.com/in/justinhatch/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="group p-3 rounded-full bg-white/[0.02] border border-white/10 hover:bg-white/[0.08] hover:border-cyan-500/50 transition-all duration-300"
@@ -308,21 +308,12 @@ export default function Home() {
             <div className="grid lg:grid-cols-2 gap-16">
               <div className="space-y-6">
                 <p className="text-gray-300 text-lg leading-relaxed">
-                  I'm a Computer Science student at the University of Oregon
-                  with a specialization in{" "}
-                  <span className="text-white font-medium">
-                    Data Science, Machine Learning, and AI
-                  </span>
-                  . Currently seeking roles where I can apply my skills in
-                  building intelligent systems and data-driven solutions.
-                </p>
-                <p className="text-gray-400 leading-relaxed">
-                  From winning hackathons with AI-powered trading systems to
-                  developing production-grade web platforms, I thrive at the
-                  intersection of data science and software engineering. My
-                  experience spans from blockchain development to ML model
-                  optimization, always with a focus on delivering real-world
-                  impact.
+                  Hello! I am Justin, a 4th year Computer Science student specializing in Data Science, 
+                  Machine Learning, and AI with experience building 
+                  end-to-end data systems, deploying ML models, and developing 
+                  full-stack applications. I am developer with a 
+                  focus on applying data, experimentation, and scalable engineering 
+                  to deliver real-world impact.
                 </p>
 
                 <div className="pt-6">
@@ -331,14 +322,17 @@ export default function Home() {
                     Certifications
                   </h3>
                   <div className="flex flex-wrap gap-2">
-                    {certifications.map((cert) => (
-                      <Badge
-                        key={cert}
-                        className="bg-white/5 hover:bg-white/10 text-gray-300 border-white/10 px-3 py-1"
-                      >
-                        {cert}
-                      </Badge>
-                    ))}
+                      {certifications.map((cert) => (
+                        <a
+                          key={cert.name}
+                          href={cert.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="rounded-full bg-gradient-to-r from-cyan-500/10 to-blue-500/10 border border-cyan-500/30 text-[11px] text-gray-100 px-3 py-1 font-medium tracking-wide transition-all hover:border-cyan-400 hover:bg-cyan-500/20"
+                        >
+                          {cert.name}
+                        </a>
+                      ))}
                   </div>
                 </div>
               </div>
@@ -472,18 +466,53 @@ export default function Home() {
                       Specialization
                     </p>
                     <div className="flex flex-wrap gap-3 mb-4">
-                      <Badge className="bg-emerald-500/20 text-emerald-300 border-0">
-                        Dean&apos;s List
-                      </Badge>
-                      <Badge className="bg-blue-500/20 text-blue-300 border-0">
-                        GPA: 3.66
-                      </Badge>
+                      <Badge className="rounded-full bg-emerald-500/15 border border-emerald-400/40 text-[11px] text-emerald-100 px-3 py-1 font-medium">
+                          Dean&apos;s List
+                        </Badge>
+                        <Badge className="rounded-full bg-blue-500/15 border border-blue-400/40 text-[11px] text-blue-100 px-3 py-1 font-medium">
+                          GPA: 3.66
+                        </Badge>
                     </div>
                     <p className="text-sm text-gray-500">
                       <span className="text-gray-400">Activities:</span> DSCI
                       Club, Oregon Software Consulting Group, Oregon Blockchain
                       Group, Quack Hacks II
                     </p>
+                  </div>
+                </div>
+
+                {/* Relevant Coursework */}
+                <div className="mt-2 rounded-xl bg-white/[0.06] border border-white/20 p-6">
+                  <h4 className="text-sm text-gray-200 uppercase tracking-wider mb-4">
+                    Relevant Coursework
+                  </h4>
+
+                  <div className="flex flex-wrap gap-2">
+                    {[
+                      "Data Science I–II",
+                      "Stats for Data Science",
+                      "Probabilistic Methods in AI",
+                      "Machine Learning",
+                      "Database Processing",
+                      "Calculus I–II",
+                      "Discrete Math I–II",
+                      "Linear Algebra I–II",
+                      "Data Structures",
+                      "Algorithms",
+                      "Operating Systems",
+                      "C/C++",
+                      "CS I–III",
+                      "Computer Organization",
+                      "Data Mining",
+                      "Digital Forensics",
+                    ].map((course) => (
+                      <span
+                        key={course}
+                        className="px-3 py-1.5 rounded-md bg-white/10 text-xs text-white border border-white/15"
+                      >
+                        {course}
+                      </span>
+                    ))}
                   </div>
                 </div>
               </div>
@@ -602,7 +631,7 @@ export default function Home() {
 
             <div className="flex items-center justify-center gap-4">
               <a
-                href="https://www.linkedin.com/in/justin-hatch-571604251/"
+                href="https://www.linkedin.com/in/justinhatch/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="group p-4 rounded-full bg-white/[0.02] border border-white/10 hover:bg-white/[0.08] hover:border-cyan-500/50 transition-all duration-300"
@@ -632,7 +661,6 @@ export default function Home() {
       <footer className="py-8 px-6 border-t border-white/5">
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-gray-500">
           <p>© 2025 Justin Hatch. All rights reserved.</p>
-          <p>Built with passion for great code</p>
         </div>
       </footer>
     </div>
