@@ -153,7 +153,7 @@ export const projects: Project[] = [
       "https://github.com/jhatch3/Cleaning-Bank-Marketing-Campaign-Data",
   },
     {
-    title: "Freelane AI Annotation Work",
+    title: "Freelance AI Annotation Work",
     subtitle: "AI Training",
     tech: ["OBS, Microsoft 365 Apps"],
     description:
