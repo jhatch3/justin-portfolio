@@ -80,6 +80,18 @@ export const projects: Project[] = [
     github: "https://github.com/jhatch3/Evergreen-Capital/tree/main",
   },
   {
+    title: "Predicting goodbyes - Customer Churn Prediction",
+    subtitle: "Supervised ML Classification",
+    tech: ["Python", "Decision Trees", "KNN", "SVM", "MLP"],
+    description:
+      "Performed data cleaning, feature engineering, EDA, and applied multiple ML models (Decision Trees, KNN, SVM, MLP). Improved performance with hyperparameter tuning and model validation. Achieved 91% accuracy, enabling proactive churn detection. Authored a technical report covering methodology and performance analysis.",
+    gradient: "from-emerald-500 to-teal-600",
+    category: "Machine Learning / AI",
+    image:
+      "https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=800",
+    github: "https://github.com/jhatch3/ML-Churn_Report/blob/main/Machine%20Learning%20Report%20-%20CS472%20-%20%20Justin%20-%20Hatch%20-%20S25%20-%20F.pdf",
+  },
+  {
     title: "AI Stock Analysis Platform",
     subtitle: "Software Consulting Group",
     tech: ["Flask", "MySQL", "OpenAI", "AWS"],
@@ -90,18 +102,6 @@ export const projects: Project[] = [
     image:
       "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=800",
     github: "https://github.com/jhatch3",
-  },
-  {
-    title: "Customer Churn Prediction",
-    subtitle: "Supervised ML Classification",
-    tech: ["Python", "Decision Trees", "KNN", "SVM", "MLP"],
-    description:
-      "Performed data cleaning, feature engineering, EDA, and applied multiple ML models (Decision Trees, KNN, SVM, MLP). Improved performance with hyperparameter tuning and model validation. Achieved 91% accuracy, enabling proactive churn detection. Authored a technical report covering methodology and performance analysis.",
-    gradient: "from-emerald-500 to-teal-600",
-    category: "Machine Learning / AI",
-    image:
-      "https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=800",
-    github: "https://github.com/jhatch3/ML-Churn_Report/blob/main/Machine%20Learning%20Report%20-%20CS472%20-%20%20Justin%20-%20Hatch%20-%20S25%20-%20F.pdf",
   },
   {
     title: "Monte Carlo Stock Price Simulator (Black–Scholes GBM) ",
