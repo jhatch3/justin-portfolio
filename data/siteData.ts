@@ -101,7 +101,7 @@ export const projects: Project[] = [
     category: "Machine Learning / AI",
     image:
       "https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=800",
-    github: "https://github.com/jhatch3/ML-Churn_Report",
+    github: "https://github.com/jhatch3/ML-Churn_Report/blob/main/Machine%20Learning%20Report%20-%20CS472%20-%20%20Justin%20-%20Hatch%20-%20S25%20-%20F.pdf",
   },
   {
     title: "Monte Carlo Stock Price Simulator (Black–Scholes GBM) ",
