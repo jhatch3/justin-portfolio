@@ -91,18 +91,18 @@ export const projects: Project[] = [
       "https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=800",
     github: "https://github.com/jhatch3/ML-Churn_Report/blob/main/Machine%20Learning%20Report%20-%20CS472%20-%20%20Justin%20-%20Hatch%20-%20S25%20-%20F.pdf",
   },
-  {
-    title: "AI Stock Analysis Platform",
-    subtitle: "Software Consulting Group",
-    tech: ["Flask", "MySQL", "OpenAI", "AWS"],
-    description:
-      "Developed an AI-powered stock analysis web platform with backend data pipelines, ML-driven insights, REST APIs, and automated ingestion workflows. Containerized and deployed on AWS App Runner.",
-    gradient: "from-cyan-500 to-blue-600",
-    category: "Software",
-    image:
-      "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=800",
-    github: "https://github.com/jhatch3",
-  },
+  // {
+  //   title: "AI Stock Analysis Platform",
+  //   subtitle: "Software Consulting Group",
+  //   tech: ["Flask", "MySQL", "OpenAI", "AWS"],
+  //   description:
+  //     "Developed an AI-powered stock analysis web platform with backend data pipelines, ML-driven insights, REST APIs, and automated ingestion workflows. Containerized and deployed on AWS App Runner.",
+  //   gradient: "from-cyan-500 to-blue-600",
+  //   category: "Software",
+  //   image:
+  //     "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=800",
+  //   github: "https://github.com/jhatch3",
+  // },
   {
     title: "Monte Carlo Stock Price Simulator (Black–Scholes GBM) ",
     subtitle: "Finance Simulations",
