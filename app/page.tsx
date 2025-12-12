@@ -309,12 +309,31 @@ export default function Home() {
             <div className="grid lg:grid-cols-2 gap-16">
               <div className="space-y-6">
                 <p className="text-gray-300 text-lg leading-relaxed">
-                  Hello! I am Justin, a 4th year Computer Science student
-                  specializing in Data Science, Machine Learning, and AI with
-                  experience building end-to-end data systems, deploying ML
-                  models, and developing full-stack applications. I am a
-                  developer with a focus on applying data, experimentation, and
-                  scalable engineering to deliver real-world impact.
+                 Hello! I am Justin, a Computer Science student specializing in Data Science, 
+                 Machine Learning, and AI. I build end to end data and ML systems, from 
+                 data ingestion and feature engineering to model training, evaluation, 
+                 and deployment. My experience spans ML modeling, statistical analysis, 
+                 data mining, backend engineering, with a strong focus on creating scalable, 
+                 production-ready solutions.
+                </p>
+                <p className="text-gray-300 text-lg leading-relaxed">
+
+                I add value by turning complex data into actionable insights, designing 
+                automation that reduces manual effort, and building reliable engineering 
+                workflows that improve performance and overall decision making. I’m motivated 
+                by using data, experimentation, and thoughtful engineering to deliver 
+                real world impact.
+                </p>
+
+                
+
+                <p className="text-gray-300 text-lg leading-relaxed">
+                Currently, I am a Software Engineer for the Oregon Blockchain Group (OBG) and 
+                the Oregon Software Consulting Group (OSC), where I build production-ready 
+                solutions for real clients. I also serve as a Business Operations Assistant for University 
+                Housing, specializing in financial data entry and reconciliation. I will graduate in June 2026 
+                with a B.S. in Computer Science and am actively seeking Data Science and Machine Learning Engineering 
+                \internships for the upcoming cycle.
                 </p>
 
                 <div className="pt-6">

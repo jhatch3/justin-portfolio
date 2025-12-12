@@ -14,7 +14,8 @@ export const skills: Record<string, string[]> = {
     "C",
     "C++",
     "JavaScript",
-    "HTML/CSS"
+    "HTML/CSS",
+    "SQL"
   ],
   "Data & ML": [
     "Pandas",
@@ -44,11 +45,6 @@ export const skills: Record<string, string[]> = {
     "Claude",
     "Base-44",
     "Microsoft 365 Apps"
-  ],
-  Databases: [
-    "MySQL",
-    "PostgreSQL",
-    "SQL Schema Design"
   ],
 };
 
@@ -84,7 +80,7 @@ export const projects: Project[] = [
     subtitle: "Supervised ML Classification",
     tech: ["Python", "Decision Trees", "KNN", "SVM", "MLP"],
     description:
-      "Performed data cleaning, feature engineering, EDA, and applied multiple ML models (Decision Trees, KNN, SVM, MLP). Improved performance with hyperparameter tuning and model validation. Achieved 91% accuracy, enabling proactive churn detection. Authored a technical report covering methodology and performance analysis.",
+      "Achieved 91% accuracy, enabling proactive churn detection. \n\nPerformed data cleaning, feature engineering, EDA, and applied multiple ML models (Decision Trees, KNN, SVM, MLP). \n\nImproved performance with hyperparameter tuning and model validation. \n\nAuthored a technical report covering methodology and performance analysis.",
     gradient: "from-emerald-500 to-teal-600",
     category: "Machine Learning / AI",
     image:
@@ -104,11 +100,11 @@ export const projects: Project[] = [
   //   github: "https://github.com/jhatch3",
   // },
   {
-    title: "Monte Carlo Stock Price Simulator (Black–Scholes GBM) ",
+    title: "Monte Carlo Stock Price Forecasting with GBM",
     subtitle: "Finance Simulations",
     tech: ["Python", "Pandas", "GBM"],
     description:
-      "Implemented Black–Scholes GBM–based Monte Carlo simulations to model stock price paths for prediction and scenario testing. Built a Streamlit dashboard for interactive experimentation, letting users choose tickers, set simulation parameters, and visualize expected prices, confidence intervals, and outcome distributions. Designed modular code for data ingestion, log-return computation, parameter estimation, and simulation to enable rapid iteration and future model extensions.",
+      "Implemented GBM–based Monte Carlo simulations to model stock price paths for prediction and scenario testing. \n\nBuilt a Streamlit dashboard for interactive experimentation, letting users choose tickers, set simulation parameters, and visualize expected prices, confidence intervals, and outcome distributions. \n\nDesigned modular code for data ingestion, log-return computation, parameter estimation, and simulation to enable rapid iteration and future model extensions.",
     gradient: "from-violet-500 to-purple-600",
     category: "Data Science",
     image:
@@ -121,7 +117,7 @@ export const projects: Project[] = [
     subtitle: "Data Analytics & A/B Testing",
     tech: ["Excel", "Statistical Analysis", "Data Visualization"],
     description:
-    "Analyzed Intel sustainability data to identify high-ROI improvements and presented actionable insights. Conducted a statistically rigorous A/B test to determine the best CTA button for increasing GRAMMY U membership. Delivered narrative-driven visualizations aligned with industry reporting standards. Completed as part of the Global Career Accelerator program.",
+    "Analyzed Intel sustainability data to identify high-ROI improvements and presented actionable insights. \n\nConducted a statistically rigorous A/B test to determine the best CTA button for increasing GRAMMY U membership. \n\nDelivered narrative-driven visualizations aligned with industry reporting standards. Completed as part of the Global Career Accelerator program.",
     gradient: "from-rose-500 to-pink-600",
     category: "Data Science",
     image:
