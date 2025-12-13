@@ -333,7 +333,7 @@ export default function Home() {
                 solutions for real clients. I also serve as a Business Operations Assistant for University 
                 Housing, specializing in financial data entry and reconciliation. I will graduate in June 2026 
                 with a B.S. in Computer Science and am actively seeking Data Science and Machine Learning Engineering 
-                \internships for the upcoming cycle.
+                internships for the upcoming cycle.
                 </p>
 
                 <div className="pt-6">
