@@ -336,25 +336,6 @@ export default function Home() {
                 internships for the upcoming cycle.
                 </p>
 
-                <div className="pt-6">
-                  <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                    <Award size={20} className="text-cyan-400" />
-                    Certifications
-                  </h3>
-                  <div className="flex flex-wrap gap-2">
-                    {certifications.map((cert) => (
-                      <a
-                        key={cert.name}
-                        href={cert.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="rounded-full bg-gradient-to-r from-cyan-500/10 to-blue-500/10 border border-cyan-500/30 text-[11px] text-gray-100 px-3 py-1 font-medium tracking-wide transition-all hover:border-cyan-400 hover:bg-cyan-500/20"
-                      >
-                        {cert.name}
-                      </a>
-                    ))}
-                  </div>
-                </div>
               </div>
 
               <div className="space-y-6">
@@ -532,6 +513,26 @@ export default function Home() {
                       >
                         {course}
                       </span>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="pt-4">
+                  <h4 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
+                    <Award size={20} className="text-cyan-400" />
+                    Certifications
+                  </h4>
+                  <div className="flex flex-wrap gap-2">
+                    {certifications.map((cert) => (
+                      <a
+                        key={cert.name}
+                        href={cert.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="rounded-full bg-gradient-to-r from-cyan-500/10 to-blue-500/10 border border-cyan-500/30 text-[11px] text-gray-100 px-3 py-1 font-medium tracking-wide transition-all hover:border-cyan-400 hover:bg-cyan-500/20"
+                      >
+                        {cert.name}
+                      </a>
                     ))}
                   </div>
                 </div>
