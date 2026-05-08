@@ -225,7 +225,7 @@
       );
 
       return (
-        <div ref={containerRef} className={cn('mx-auto w-full max-w-3xl px-4 font-mono text-sm', className)}>
+        <div ref={containerRef} className={cn('mx-auto w-full max-w-5xl px-4 font-mono text-base', className)}>
           <div className="overflow-hidden rounded-lg border border-neutral-800 bg-neutral-900 shadow-2xl">
             <div className="flex items-center gap-2 bg-neutral-800 px-4 py-3">
               <div className="flex items-center gap-1.5">
@@ -238,7 +238,7 @@
               </div>
               <div className="w-[52px]" />
             </div>
-            <div ref={contentRef} className="h-[28rem] overflow-y-auto p-5 font-mono">
+            <div ref={contentRef} className="h-[36rem] overflow-y-auto p-6 font-mono">
               {lines.map((line, i) => (
                 <div key={i} className="leading-relaxed whitespace-pre-wrap">
                   {line.type === 'command' ? (
