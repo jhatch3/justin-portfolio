@@ -324,6 +324,16 @@
         setBooted(true);
       }, [inView, booted]);
 
+      // Listen for chip clicks (suggestion chips above the terminal dispatch
+      // a custom event so we don't have to lift state up).
+      React.useEffect(() => {
+        const handler = (e) => {
+          if (e.detail) submit(null, e.detail);
+        };
+        window.addEventListener('bot-terminal-submit', handler);
+        return () => window.removeEventListener('bot-terminal-submit', handler);
+      }, [conversation, sending]);
+
       // Cursor blink for empty input
       React.useEffect(() => {
         const i = setInterval(() => setCursorVisible(v => !v), 530);
@@ -340,9 +350,9 @@
       const appendOutput = (text) => setHistory(h => [...h, { role: 'output', text }]);
       const appendError  = (text) => setHistory(h => [...h, { role: 'error',  text }]);
 
-      const submit = async (e) => {
+      const submit = async (e, cmdOverride) => {
         if (e) e.preventDefault();
-        const cmd = input.trim();
+        const cmd = (cmdOverride !== undefined ? cmdOverride : input).trim();
         if (!cmd || sending) return;
         setInput('');
 
@@ -1231,6 +1241,42 @@
       </section>
     );
 
+    // ─── Suggestion chips that seed the bot terminal via a custom event ─────
+    const SUGGESTIONS = [
+      'whoami',
+      'projects',
+      'tell me about Lethe',
+      'what is Justin looking for?',
+      'help',
+    ];
+    const SuggestionChips = () => {
+      const fire = (text) => window.dispatchEvent(new CustomEvent('bot-terminal-submit', { detail: text }));
+      return (
+        <div style={{
+          display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'center',
+          maxWidth: 920, margin: '0 auto 18px', padding: '0 28px',
+        }}>
+          <span style={{ fontSize: 12, color: 'var(--ink-3)', alignSelf: 'center', marginRight: 4 }}>
+            try:
+          </span>
+          {SUGGESTIONS.map((s, i) => (
+            <button key={i} onClick={() => fire(s)} style={{
+              fontSize: 12.5, padding: '6px 14px', borderRadius: 999,
+              background: i === 0 ? 'var(--accent)' : 'rgba(29,78,216,0.06)',
+              color: i === 0 ? 'white' : 'var(--accent)',
+              border: i === 0 ? '0.5px solid transparent' : '0.5px solid rgba(29,78,216,0.2)',
+              fontFamily: 'inherit', fontWeight: 500, cursor: 'pointer',
+              transition: 'background 0.15s, transform 0.1s',
+              boxShadow: i === 0 ? '0 4px 12px rgba(29,78,216,0.25)' : 'none',
+            }}
+              onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-1px)'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.transform = ''; }}
+            >{s}</button>
+          ))}
+        </div>
+      );
+    };
+
     // ─── Bot terminal section ────────────────────────────────────────────────
     const BotTerminalSection = () => (
       <section id="ask" style={{ padding: '64px 0 100px', animation: 'fadeUp 0.7s ease-out' }}>
@@ -1238,9 +1284,10 @@
           <SectionHeader
             eyebrow="Ask me anything"
             title="Live terminal, real chatbot."
-            sub="Same Claude backend powering /desktop. Try `whoami`, `projects`, `help`, or just ask in plain English."
+            sub="Same Claude backend powering /desktop. Click a suggestion below or type your own at the prompt."
           />
         </Container>
+        <SuggestionChips />
         <BotTerminal />
       </section>
     );
