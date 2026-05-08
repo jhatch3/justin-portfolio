@@ -5,19 +5,39 @@
 <title>Justin Hatch - AI / ML Engineer</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <meta name="description" content="AI / ML engineer building production agents at Modern Amenities. Available June 2026." />
+
+<!-- Inter for the body, JetBrains Mono for the mono touches -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" />
+
 <style>
-  html, body { margin: 0; padding: 0; background: #06080e; color: #fafafa;
-    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", system-ui, sans-serif;
-    -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
-  * { box-sizing: border-box; }
-  ::selection { background: rgba(184,212,240,0.35); color: #06080e; }
-  a { color: inherit; text-decoration: none; }
-  a:hover { color: #b8d4f0; }
-  button { font-family: inherit; }
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(8px); }
-    to   { opacity: 1; transform: translateY(0); }
+  :root {
+    --bg: #fafaf7;
+    --surface: #ffffff;
+    --ink: #0a2540;
+    --ink-2: #2a4365;
+    --ink-3: #5a7090;
+    --accent: #1d4ed8;
+    --accent-soft: #2563eb;
+    --border: rgba(10,37,64,0.10);
+    --border-strong: rgba(10,37,64,0.20);
+    --shadow: 0 1px 2px rgba(10,37,64,0.04), 0 8px 24px rgba(10,37,64,0.06);
   }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink-2);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  }
+  * { box-sizing: border-box; }
+  ::selection { background: rgba(29,78,216,0.18); color: var(--ink); }
+  a { color: var(--accent); text-decoration: none; transition: opacity 0.15s; }
+  a:hover { opacity: 0.7; }
+  button { font-family: inherit; cursor: pointer; }
+
+  h1, h2, h3 { color: var(--ink); font-weight: 600; letter-spacing: -0.02em; margin: 0; }
+
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 </style>
 </head>
 <body>
@@ -31,50 +51,36 @@
   <script type="text/babel">
     const D = window.JH_DATA;
 
-    // ─── Background (subtle pale-azure glow on dark) ──────────────────────────
-    const Background = () => (
-      <div style={{ position: 'fixed', inset: 0, zIndex: -1, overflow: 'hidden',
-        background: 'linear-gradient(160deg, #06080e 0%, #0a0d16 35%, #0c1018 65%, #08090f 100%)',
-      }}>
-        <div style={{ position: 'absolute', top: '-15%', left: '-5%', width: '60%', height: '60%', borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(184,212,240,0.10), transparent 65%)', filter: 'blur(120px)' }} />
-        <div style={{ position: 'absolute', top: '40%', right: '-15%', width: '60%', height: '70%', borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(184,212,240,0.07), transparent 65%)', filter: 'blur(140px)' }} />
-        <div style={{ position: 'absolute', bottom: '-20%', left: '20%', width: '60%', height: '60%', borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(184,212,240,0.05), transparent 65%)', filter: 'blur(120px)' }} />
-      </div>
-    );
-
-    // ─── Reusable bits ────────────────────────────────────────────────────────
+    // ─── Reusable ─────────────────────────────────────────────────────────────
     const Container = ({ children, style }) => (
-      <div style={{ maxWidth: 920, margin: '0 auto', padding: '0 28px', ...style }}>{children}</div>
+      <div style={{ maxWidth: 1040, margin: '0 auto', padding: '0 28px', ...style }}>{children}</div>
     );
 
     const Eyebrow = ({ children }) => (
       <div style={{
-        fontSize: 11, fontWeight: 600, letterSpacing: '0.22em', textTransform: 'uppercase',
-        color: '#b8d4f0', opacity: 0.85, marginBottom: 18,
+        fontSize: 11, fontWeight: 600, letterSpacing: '0.18em', textTransform: 'uppercase',
+        color: 'var(--accent)', marginBottom: 14,
       }}>{children}</div>
     );
 
     const Tag = ({ children }) => (
       <span style={{
         display: 'inline-flex', alignItems: 'center', padding: '3px 10px', borderRadius: 999,
-        fontSize: 11, fontWeight: 500, letterSpacing: '0.02em',
-        background: 'rgba(184,212,240,0.08)', color: '#b8d4f0',
-        border: '0.5px solid rgba(184,212,240,0.15)',
+        fontSize: 11, fontWeight: 500, letterSpacing: '0.01em',
+        background: 'rgba(29,78,216,0.06)', color: 'var(--accent)',
+        border: '0.5px solid rgba(29,78,216,0.15)',
       }}>{children}</span>
     );
 
     const StatusBadge = ({ status }) => {
-      const cfg = status === 'shipped'     ? { dot: '#86d987', label: 'shipped' }
-                : status === 'in-progress' ? { dot: '#f0c674', label: 'in progress' }
-                : { dot: 'rgba(255,255,255,0.45)', label: status };
+      const cfg = status === 'shipped'     ? { dot: '#10b981', label: 'shipped' }
+                : status === 'in-progress' ? { dot: '#f59e0b', label: 'in progress' }
+                : { dot: '#94a3b8', label: status };
       return (
         <span style={{
           display: 'inline-flex', alignItems: 'center', gap: 6,
-          fontSize: 10, fontWeight: 500, letterSpacing: '0.08em', textTransform: 'uppercase',
-          color: 'rgba(255,255,255,0.7)',
+          fontSize: 10, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase',
+          color: 'var(--ink-3)', fontFamily: "'JetBrains Mono', monospace",
         }}>
           <span style={{ width: 6, height: 6, borderRadius: '50%', background: cfg.dot }} />
           {cfg.label}
@@ -82,156 +88,290 @@
       );
     };
 
+    // ─── Sticky top nav ───────────────────────────────────────────────────────
+    const Nav = () => {
+      const [scrolled, setScrolled] = React.useState(false);
+      React.useEffect(() => {
+        const onScroll = () => setScrolled(window.scrollY > 8);
+        onScroll();
+        window.addEventListener('scroll', onScroll, { passive: true });
+        return () => window.removeEventListener('scroll', onScroll);
+      }, []);
+      return (
+        <header style={{
+          position: 'sticky', top: 0, zIndex: 50,
+          background: scrolled ? 'rgba(250,250,247,0.85)' : 'transparent',
+          backdropFilter: scrolled ? 'blur(12px) saturate(180%)' : 'none',
+          WebkitBackdropFilter: scrolled ? 'blur(12px) saturate(180%)' : 'none',
+          borderBottom: scrolled ? '0.5px solid var(--border)' : '0.5px solid transparent',
+          transition: 'background 0.25s, border-color 0.25s, backdrop-filter 0.25s',
+        }}>
+          <Container style={{ display: 'flex', alignItems: 'center', height: 64, gap: 16, padding: '0 28px' }}>
+            <a href="#hero" style={{ color: 'var(--ink)', fontWeight: 700, fontSize: 15, letterSpacing: '-0.01em' }}>
+              {D.name}
+            </a>
+            <nav style={{ display: 'flex', gap: 22, marginLeft: 'auto', fontSize: 14 }}>
+              <a href="#projects"   style={{ color: 'var(--ink-2)' }}>Projects</a>
+              <a href="#experience" style={{ color: 'var(--ink-2)' }}>Experience</a>
+              <a href="#writing"    style={{ color: 'var(--ink-2)' }}>Writing</a>
+              <a href="#contact"    style={{ color: 'var(--ink-2)' }}>Contact</a>
+            </nav>
+            <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+              <a href={D.links.github.href}   target="_blank" rel="noopener noreferrer" aria-label="GitHub"   title="GitHub"   style={iconBtn}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.1.79-.25.79-.55 0-.27-.01-1.16-.02-2.1-3.2.7-3.87-1.36-3.87-1.36-.52-1.32-1.27-1.67-1.27-1.67-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.02 1.76 2.69 1.25 3.34.95.1-.74.4-1.25.73-1.54-2.55-.29-5.24-1.28-5.24-5.7 0-1.26.45-2.29 1.18-3.1-.12-.29-.51-1.46.11-3.05 0 0 .96-.31 3.15 1.18.91-.25 1.89-.38 2.86-.38.97 0 1.95.13 2.86.38 2.18-1.49 3.14-1.18 3.14-1.18.62 1.59.23 2.76.11 3.05.74.81 1.18 1.84 1.18 3.1 0 4.43-2.69 5.41-5.26 5.69.41.36.78 1.06.78 2.13 0 1.54-.01 2.78-.01 3.16 0 .31.21.66.8.55C20.71 21.39 24 17.07 24 12 24 5.65 18.85.5 12.5.5H12z"/></svg>
+              </a>
+              <a href={D.links.linkedin.href} target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" title="LinkedIn" style={iconBtn}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.02-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.95v5.66H9.36V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.13 2.06 2.06 0 0 1 0 4.13zM7.12 20.45H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.72v20.56C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.72V1.72C24 .77 23.2 0 22.22 0z"/></svg>
+              </a>
+              <a href={D.links.email.href} aria-label="Email" title="Email" style={iconBtn}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><polyline points="3 7 12 13 21 7"/></svg>
+              </a>
+            </div>
+          </Container>
+        </header>
+      );
+    };
+    const iconBtn = {
+      width: 32, height: 32, borderRadius: 8, display: 'inline-flex',
+      alignItems: 'center', justifyContent: 'center', color: 'var(--ink-2)',
+      transition: 'background 0.15s, color 0.15s',
+    };
+
     // ─── Hero ─────────────────────────────────────────────────────────────────
     const Hero = () => (
-      <section style={{ padding: '120px 0 100px', animation: 'fadeUp 0.6s ease-out' }}>
+      <section id="hero" style={{ padding: '80px 0 64px', animation: 'fadeUp 0.6s ease-out' }}>
         <Container>
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 28 }}>
+          <div style={{ display: 'flex', gap: 48, alignItems: 'center', flexWrap: 'wrap' }}>
             <img src="justin.jpg" alt="Justin Hatch" style={{
-              width: 88, height: 88, borderRadius: 20, objectFit: 'cover',
-              border: '0.5px solid rgba(255,255,255,0.12)',
-              boxShadow: '0 16px 40px rgba(0,0,0,0.5)',
+              width: 168, height: 168, borderRadius: 24, objectFit: 'cover',
+              boxShadow: 'var(--shadow)',
             }} />
-            <div>
+            <div style={{ flex: 1, minWidth: 280 }}>
               <Eyebrow>{D.role}</Eyebrow>
-              <h1 style={{
-                fontSize: 'clamp(48px, 8vw, 88px)', fontWeight: 600, letterSpacing: '-0.025em',
-                lineHeight: 1.02, margin: '0 0 24px',
-              }}>{D.name}</h1>
-              <p style={{
-                fontSize: 'clamp(17px, 1.6vw, 19px)', lineHeight: 1.55, color: 'rgba(255,255,255,0.78)',
-                margin: 0, maxWidth: 620,
-              }}>
-                AI / ML engineer building production agents at Modern Amenities. Available June 2026.
+              <h1 style={{ fontSize: 'clamp(40px, 6vw, 60px)', lineHeight: 1.05, marginBottom: 18 }}>
+                Hi, I'm {D.name.split(' ')[0]}.
+              </h1>
+              <p style={{ fontSize: 18, lineHeight: 1.55, color: 'var(--ink-2)', margin: '0 0 20px', maxWidth: 580 }}>
+                AI / ML engineer building production agents at <strong style={{ color: 'var(--ink)', fontWeight: 600 }}>Modern Amenities</strong>.
+                Lead Software Engineer at <strong style={{ color: 'var(--ink)', fontWeight: 600 }}>Oregon Blockchain Group</strong>.
+                Graduating June 2026 from the University of Oregon, available for AI/ML roles immediately after.
               </p>
-            </div>
-            <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginTop: 4 }}>
-              <a href="/desktop" style={{
-                display: 'inline-flex', alignItems: 'center', gap: 8,
-                padding: '13px 22px', borderRadius: 10, fontSize: 14, fontWeight: 600,
-                background: '#b8d4f0', color: '#06080e',
-                transition: 'transform 0.15s, box-shadow 0.15s',
-                boxShadow: '0 8px 24px rgba(184,212,240,0.18)',
-              }}
-              onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = '0 12px 32px rgba(184,212,240,0.28)'; }}
-              onMouseLeave={(e) => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = '0 8px 24px rgba(184,212,240,0.18)'; }}
-              >Open the desktop ↗</a>
-              <a href={D.links.resume.href} download="Justin-Hatch-Resume.pdf" style={{
-                display: 'inline-flex', alignItems: 'center', gap: 8,
-                padding: '13px 22px', borderRadius: 10, fontSize: 14, fontWeight: 500,
-                background: 'rgba(255,255,255,0.05)', color: '#fafafa',
-                border: '0.5px solid rgba(255,255,255,0.12)',
-                transition: 'background 0.15s',
-              }}
-              onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.09)'; }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; }}
-              >Resume.pdf ↓</a>
-            </div>
-            <div style={{
-              display: 'flex', alignItems: 'center', gap: 14, marginTop: 8,
-              fontSize: 13, color: 'rgba(255,255,255,0.55)', fontFamily: 'ui-monospace, "SF Mono", monospace',
-            }}>
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#86d987', boxShadow: '0 0 6px #86d987' }} />
-                {D.location}
-              </span>
-              <span style={{ opacity: 0.4 }}>·</span>
-              <span>graduating {D.graduating}</span>
+              <p style={{ fontSize: 15, lineHeight: 1.6, color: 'var(--ink-3)', margin: '0 0 28px', maxWidth: 580 }}>
+                I focus on LLMs, agents, and RAG - shipping systems that survive prompt injection,
+                cache aggressively, and emit structured outputs the frontend can trust.
+              </p>
+              <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                <a href="/desktop" style={primaryBtn}>Open the desktop ↗</a>
+                <a href={D.links.resume.href} download="Justin-Hatch-Resume.pdf" style={secondaryBtn}>Resume.pdf ↓</a>
+                <a href={D.links.linkedin.href} target="_blank" rel="noopener noreferrer" style={secondaryBtn}>LinkedIn</a>
+              </div>
             </div>
           </div>
         </Container>
       </section>
     );
 
-    // ─── Featured Projects ────────────────────────────────────────────────────
-    const FeaturedProjects = () => {
-      const featured = D.projects.slice(0, 4);
+    const primaryBtn = {
+      display: 'inline-flex', alignItems: 'center', gap: 8,
+      padding: '12px 22px', borderRadius: 10, fontSize: 14, fontWeight: 600,
+      background: 'var(--accent)', color: 'white',
+      boxShadow: '0 4px 14px rgba(29,78,216,0.25)',
+    };
+    const secondaryBtn = {
+      display: 'inline-flex', alignItems: 'center', gap: 8,
+      padding: '12px 22px', borderRadius: 10, fontSize: 14, fontWeight: 500,
+      background: 'transparent', color: 'var(--ink)',
+      border: '1px solid var(--border-strong)',
+    };
+
+    // ─── Section header ───────────────────────────────────────────────────────
+    const SectionHeader = ({ eyebrow, title, sub }) => (
+      <div style={{ marginBottom: 36 }}>
+        <Eyebrow>{eyebrow}</Eyebrow>
+        <h2 style={{ fontSize: 'clamp(28px, 3.6vw, 36px)', marginBottom: 8 }}>{title}</h2>
+        {sub && <p style={{ fontSize: 15, color: 'var(--ink-3)', margin: 0 }}>{sub}</p>}
+      </div>
+    );
+
+    // ─── Project image placeholder ────────────────────────────────────────────
+    const initials = (name) => name.split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
+    const ProjectImage = ({ project }) => {
+      // If project.image is provided, render it. Otherwise render a clean
+      // initials placeholder with a subtle gradient.
+      if (project.image) {
+        return (
+          <img src={project.image} alt={project.name} style={{
+            width: '100%', height: '100%', objectFit: 'cover', display: 'block',
+          }} />
+        );
+      }
+      const grad = 'linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 50%, #a5b4fc 100%)';
       return (
-        <section style={{ padding: '60px 0', animation: 'fadeUp 0.7s ease-out' }}>
-          <Container>
-            <Eyebrow>Featured Work</Eyebrow>
-            <h2 style={{ fontSize: 32, fontWeight: 600, letterSpacing: '-0.02em', margin: '0 0 36px' }}>
-              Selected projects
-            </h2>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              {featured.map(p => {
-                const bullets = p.bullets || p.points || [];
-                const inner = (
-                  <div style={{
-                    background: 'rgba(20,22,28,0.55)',
-                    border: '0.5px solid rgba(255,255,255,0.08)',
-                    borderRadius: 14, padding: '24px 26px',
-                    transition: 'border-color 0.18s, transform 0.18s, background 0.18s',
-                  }}
-                  onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'rgba(184,212,240,0.3)'; e.currentTarget.style.background = 'rgba(20,22,28,0.75)'; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; e.currentTarget.style.background = 'rgba(20,22,28,0.55)'; }}
-                  >
-                    <div style={{ display: 'flex', alignItems: 'baseline', gap: 14, marginBottom: 6, flexWrap: 'wrap' }}>
-                      <h3 style={{ fontSize: 19, fontWeight: 600, margin: 0, letterSpacing: '-0.01em' }}>{p.name}</h3>
-                      <StatusBadge status={p.status} />
-                      <span style={{ flex: 1 }} />
-                      {p.url && (
-                        <span style={{ fontSize: 12, color: '#b8d4f0', fontWeight: 500 }}>view ↗</span>
-                      )}
-                    </div>
-                    <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.65)', marginBottom: 14 }}>{p.subtitle}</div>
-                    {bullets.length > 0 && (
-                      <ul style={{ margin: '0 0 16px', paddingLeft: 18, fontSize: 14, lineHeight: 1.6, color: 'rgba(255,255,255,0.78)' }}>
-                        {bullets.slice(0, 3).map((b, i) => <li key={i} style={{ marginBottom: 4 }}>{b}</li>)}
-                      </ul>
-                    )}
-                    <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                      {p.tags.map(t => <Tag key={t}>{t}</Tag>)}
-                    </div>
-                  </div>
-                );
-                return p.url ? (
-                  <a key={p.id} href={p.url} target="_blank" rel="noopener noreferrer">{inner}</a>
-                ) : (
-                  <div key={p.id}>{inner}</div>
-                );
-              })}
-            </div>
-            <div style={{ marginTop: 28, fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>
-              <a href="/desktop" style={{ color: '#b8d4f0', borderBottom: '0.5px solid rgba(184,212,240,0.4)' }}>
-                See all {D.projects.length} projects in the interactive view ↗
-              </a>
-            </div>
-          </Container>
-        </section>
+        <div style={{
+          width: '100%', height: '100%', background: grad,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          color: 'rgba(10,37,64,0.45)',
+          fontFamily: "'JetBrains Mono', monospace", fontSize: 36, fontWeight: 700,
+          letterSpacing: '-0.04em',
+        }}>{initials(project.name)}</div>
       );
     };
 
+    // ─── Projects ─────────────────────────────────────────────────────────────
+    const Projects = () => (
+      <section id="projects" style={{ padding: '64px 0', animation: 'fadeUp 0.7s ease-out' }}>
+        <Container>
+          <SectionHeader eyebrow="Selected Work" title="Projects"
+            sub={`${D.projects.length} projects across AI/ML, blockchain, and data infrastructure.`} />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+            {D.projects.map(p => {
+              const bullets = p.bullets || p.points || [];
+              return (
+                <article key={p.id} style={{
+                  background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 14,
+                  overflow: 'hidden', boxShadow: 'var(--shadow)',
+                  display: 'grid', gridTemplateColumns: '240px 1fr', gap: 0,
+                  transition: 'border-color 0.15s, transform 0.15s',
+                }}
+                className="proj-card"
+                onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'rgba(29,78,216,0.3)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.transform = ''; }}
+                >
+                  <div style={{ aspectRatio: '4 / 3', background: 'var(--bg)' }}>
+                    <ProjectImage project={p} />
+                  </div>
+                  <div style={{ padding: '20px 22px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+                    <div style={{ display: 'flex', alignItems: 'baseline', gap: 12, flexWrap: 'wrap' }}>
+                      <h3 style={{ fontSize: 19, fontWeight: 600 }}>{p.name}</h3>
+                      <StatusBadge status={p.status} />
+                      <span style={{ flex: 1 }} />
+                      {p.url && (
+                        <a href={p.url} target="_blank" rel="noopener noreferrer" style={{
+                          fontSize: 13, fontWeight: 500, color: 'var(--accent)',
+                        }}>Learn more ↗</a>
+                      )}
+                    </div>
+                    <div style={{ fontSize: 14, color: 'var(--ink-3)', marginTop: -4 }}>{p.subtitle}</div>
+                    {bullets.length > 0 && (
+                      <ul style={{ margin: '4px 0 0', paddingLeft: 18, fontSize: 13.5, lineHeight: 1.55, color: 'var(--ink-2)' }}>
+                        {bullets.map((b, i) => <li key={i} style={{ marginBottom: 3 }}>{b}</li>)}
+                      </ul>
+                    )}
+                    <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', marginTop: 6 }}>
+                      {p.tags.map(t => <Tag key={t}>{t}</Tag>)}
+                    </div>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        </Container>
+        <style>{`
+          @media (max-width: 720px) {
+            .proj-card { grid-template-columns: 1fr !important; }
+            .proj-card > div:first-child { aspect-ratio: 16 / 9 !important; }
+          }
+        `}</style>
+      </section>
+    );
+
     // ─── Experience ───────────────────────────────────────────────────────────
     const Experience = () => (
-      <section style={{ padding: '60px 0', animation: 'fadeUp 0.8s ease-out' }}>
+      <section id="experience" style={{ padding: '64px 0', animation: 'fadeUp 0.8s ease-out' }}>
         <Container>
-          <Eyebrow>Experience</Eyebrow>
-          <h2 style={{ fontSize: 32, fontWeight: 600, letterSpacing: '-0.02em', margin: '0 0 36px' }}>
-            Where I've worked
-          </h2>
-          <div style={{ position: 'relative', paddingLeft: 24 }}>
-            <div style={{ position: 'absolute', left: 4, top: 8, bottom: 8, width: 1, background: 'rgba(255,255,255,0.1)' }} />
+          <SectionHeader eyebrow="Career" title="Experience"
+            sub={`${D.school} · ${D.degree} · graduating ${D.graduating}`} />
+          <div style={{ position: 'relative', paddingLeft: 28 }}>
+            <div style={{ position: 'absolute', left: 5, top: 8, bottom: 8, width: 1, background: 'var(--border-strong)' }} />
             {D.experience.map((e, i) => (
-              <div key={i} style={{ position: 'relative', marginBottom: 32 }}>
+              <div key={i} style={{ position: 'relative', marginBottom: 36 }}>
                 <div style={{
-                  position: 'absolute', left: -23, top: 6, width: 9, height: 9, borderRadius: '50%',
-                  background: i === 0 ? '#b8d4f0' : 'rgba(255,255,255,0.3)',
-                  border: '2px solid #06080e',
-                  boxShadow: i === 0 ? '0 0 0 1px rgba(184,212,240,0.4)' : '0 0 0 1px rgba(255,255,255,0.1)',
+                  position: 'absolute', left: -27, top: 7, width: 11, height: 11, borderRadius: '50%',
+                  background: i === 0 ? 'var(--accent)' : 'var(--surface)',
+                  border: i === 0 ? '2px solid var(--accent)' : '2px solid var(--ink-3)',
                 }} />
-                <div style={{ fontSize: 11, fontFamily: 'ui-monospace, "SF Mono", monospace', color: 'rgba(255,255,255,0.5)', marginBottom: 4, letterSpacing: '0.04em' }}>
-                  {e.start} — {e.end} · {e.where}
+                <div style={{
+                  fontSize: 12, fontFamily: "'JetBrains Mono', monospace", color: 'var(--ink-3)',
+                  marginBottom: 4, letterSpacing: '0.02em',
+                }}>
+                  {e.start} — {e.end}<span style={{ opacity: 0.5 }}> · {e.where}</span>
                 </div>
-                <h3 style={{ fontSize: 17, fontWeight: 600, margin: '0 0 2px', letterSpacing: '-0.01em' }}>{e.role}</h3>
-                <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.65)', marginBottom: 10 }}>
-                  {e.company} <span style={{ opacity: 0.5 }}>· {e.type}</span>
+                <h3 style={{ fontSize: 18, marginBottom: 2 }}>{e.role}</h3>
+                <div style={{ fontSize: 14, color: 'var(--ink-2)', marginBottom: 10 }}>
+                  {e.company}<span style={{ color: 'var(--ink-3)' }}> · {e.type}</span>
                 </div>
                 {e.bullets && e.bullets.length > 0 && (
-                  <ul style={{ margin: 0, paddingLeft: 18, fontSize: 13.5, lineHeight: 1.6, color: 'rgba(255,255,255,0.72)' }}>
-                    {e.bullets.slice(0, 3).map((b, j) => <li key={j} style={{ marginBottom: 3 }}>{b}</li>)}
+                  <ul style={{ margin: 0, paddingLeft: 18, fontSize: 14, lineHeight: 1.6, color: 'var(--ink-2)' }}>
+                    {e.bullets.map((b, j) => <li key={j} style={{ marginBottom: 3 }}>{b}</li>)}
                   </ul>
                 )}
+                {e.tags && (
+                  <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', marginTop: 12 }}>
+                    {e.tags.map(t => <Tag key={t}>{t}</Tag>)}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </Container>
+      </section>
+    );
+
+    // ─── Writing ──────────────────────────────────────────────────────────────
+    const Writing = () => (
+      <section id="writing" style={{ padding: '64px 0', animation: 'fadeUp 0.85s ease-out' }}>
+        <Container>
+          <SectionHeader eyebrow="Writing" title="Notes & reports" />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {D.writing.map(w => (
+              <a key={w.id} href={w.url || '#'} target={w.url ? '_blank' : undefined} rel={w.url ? 'noopener noreferrer' : undefined}
+                style={{
+                  display: 'block', padding: '18px 22px', borderRadius: 12,
+                  background: 'var(--surface)', border: '1px solid var(--border)',
+                  color: 'var(--ink)', boxShadow: 'var(--shadow)',
+                  transition: 'border-color 0.15s, transform 0.15s',
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'rgba(29,78,216,0.3)'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.transform = ''; }}
+              >
+                <div style={{
+                  fontSize: 11, fontFamily: "'JetBrains Mono', monospace", color: 'var(--ink-3)',
+                  marginBottom: 6, letterSpacing: '0.06em', textTransform: 'uppercase',
+                }}>
+                  {w.kind} · {w.date}{w.mins ? ` · ${w.mins} min read` : ''}
+                </div>
+                <div style={{ fontSize: 16, fontWeight: 600 }}>{w.title}</div>
+              </a>
+            ))}
+          </div>
+        </Container>
+      </section>
+    );
+
+    // ─── Skills ───────────────────────────────────────────────────────────────
+    const Skills = () => (
+      <section id="skills" style={{ padding: '64px 0', animation: 'fadeUp 0.9s ease-out' }}>
+        <Container>
+          <SectionHeader eyebrow="Toolkit" title="Skills & stack" />
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 16 }}>
+            {Object.entries(D.skills).map(([cat, items]) => (
+              <div key={cat} style={{
+                padding: '18px 20px', borderRadius: 12,
+                background: 'var(--surface)', border: '1px solid var(--border)',
+                boxShadow: 'var(--shadow)',
+              }}>
+                <div style={{
+                  fontSize: 11, fontWeight: 600, color: 'var(--accent)',
+                  letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 10,
+                }}>{cat}</div>
+                <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
+                  {items.map(s => (
+                    <span key={s} style={{
+                      fontSize: 12, padding: '3px 9px', borderRadius: 6,
+                      background: 'rgba(10,37,64,0.04)', color: 'var(--ink-2)',
+                    }}>{s}</span>
+                  ))}
+                </div>
               </div>
             ))}
           </div>
@@ -241,60 +381,58 @@
 
     // ─── Contact ──────────────────────────────────────────────────────────────
     const Contact = () => (
-      <section style={{ padding: '60px 0 120px', animation: 'fadeUp 0.9s ease-out' }}>
+      <section id="contact" style={{ padding: '64px 0 100px', animation: 'fadeUp 0.95s ease-out' }}>
         <Container>
-          <Eyebrow>Get in touch</Eyebrow>
-          <h2 style={{ fontSize: 32, fontWeight: 600, letterSpacing: '-0.02em', margin: '0 0 18px' }}>
-            Open to AI/ML roles starting June 2026.
-          </h2>
-          <p style={{ fontSize: 16, lineHeight: 1.6, color: 'rgba(255,255,255,0.7)', margin: '0 0 32px', maxWidth: 600 }}>
-            Particularly interested in applied AI, agents, and infrastructure for LLM-driven products.
-            Quickest way to reach me is email.
-          </p>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12, maxWidth: 700 }}>
+          <SectionHeader eyebrow="Get in touch" title="Open to AI/ML roles starting June 2026."
+            sub="Particularly interested in applied AI, agents, and infrastructure for LLM-driven products. Quickest way to reach me is email." />
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12 }}>
             {[
-              { label: 'Email',    value: D.links.email.label,    href: D.links.email.href,    target: undefined },
-              { label: 'GitHub',   value: D.links.github.label,   href: D.links.github.href,   target: '_blank' },
-              { label: 'LinkedIn', value: D.links.linkedin.label, href: D.links.linkedin.href, target: '_blank' },
-              { label: 'Resume',   value: 'Justin-Hatch-Resume.pdf', href: D.links.resume.href, target: '_blank' },
+              { label: 'Email',    value: D.links.email.label,                  href: D.links.email.href,    target: undefined },
+              { label: 'GitHub',   value: D.links.github.label,                 href: D.links.github.href,   target: '_blank' },
+              { label: 'LinkedIn', value: D.links.linkedin.label,               href: D.links.linkedin.href, target: '_blank' },
+              { label: 'Resume',   value: 'Justin-Hatch-Resume.pdf',            href: D.links.resume.href,   target: '_blank' },
             ].map(item => (
               <a key={item.label} href={item.href} target={item.target} rel={item.target ? 'noopener noreferrer' : undefined}
                 style={{
-                  display: 'block', padding: '16px 18px', borderRadius: 10,
-                  background: 'rgba(20,22,28,0.55)', border: '0.5px solid rgba(255,255,255,0.08)',
-                  transition: 'border-color 0.18s, background 0.18s',
+                  display: 'block', padding: '16px 18px', borderRadius: 12,
+                  background: 'var(--surface)', border: '1px solid var(--border)',
+                  color: 'var(--ink)', boxShadow: 'var(--shadow)',
+                  transition: 'border-color 0.15s, transform 0.15s',
                 }}
-                onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'rgba(184,212,240,0.3)'; e.currentTarget.style.background = 'rgba(20,22,28,0.75)'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; e.currentTarget.style.background = 'rgba(20,22,28,0.55)'; }}
+                onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'rgba(29,78,216,0.3)'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.transform = ''; }}
               >
-                <div style={{ fontSize: 11, fontWeight: 600, color: '#b8d4f0', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 4 }}>
-                  {item.label}
-                </div>
-                <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.85)', fontFamily: 'ui-monospace, "SF Mono", monospace', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                <div style={{
+                  fontSize: 11, fontWeight: 600, color: 'var(--accent)',
+                  letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 4,
+                }}>{item.label}</div>
+                <div style={{ fontSize: 13, color: 'var(--ink-2)', fontFamily: "'JetBrains Mono', monospace", whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                   {item.value}
                 </div>
               </a>
             ))}
           </div>
           <div style={{
-            marginTop: 60, paddingTop: 28, borderTop: '0.5px solid rgba(255,255,255,0.08)',
+            marginTop: 64, paddingTop: 28, borderTop: '0.5px solid var(--border)',
             display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12,
-            fontSize: 12, color: 'rgba(255,255,255,0.45)',
+            fontSize: 12, color: 'var(--ink-3)',
           }}>
             <span>© {new Date().getFullYear()} {D.name}.</span>
-            <a href="/desktop" style={{ color: '#b8d4f0' }}>Open the interactive desktop ↗</a>
+            <a href="/desktop" style={{ color: 'var(--accent)' }}>Open the interactive desktop ↗</a>
           </div>
         </Container>
       </section>
     );
 
-    // ─── App root ─────────────────────────────────────────────────────────────
+    // ─── App ──────────────────────────────────────────────────────────────────
     const App = () => (
       <>
-        <Background />
+        <Nav />
         <Hero />
-        <FeaturedProjects />
+        <Projects />
         <Experience />
+        <Writing />
+        <Skills />
         <Contact />
       </>
     );
