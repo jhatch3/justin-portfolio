@@ -267,33 +267,233 @@
       );
     };
 
-    // Terminal demo: neofetch-style identity card. Types one command, outputs
-    // ASCII Apple logo + spec sheet, then idles.
-    const TerminalDemo = () => (
-      <Terminal
-        username="justin@portfolio"
-        typingSpeed={55}
-        delayBetweenCommands={4000}
-        commands={[ 'neofetch justin' ]}
-        outputs={{
-          0: [
-            "                                  ",
-            "              .:'                 justin@portfolio",
-            "          __ :'__                 ─────────────────────────────",
-            "       .'`__`-'__``.              Role         AI / ML Engineer",
-            "      :__________.-'              Available    June 2026",
-            "      :_________:                 Currently    Modern Amenities · OBG (Lead SWE)",
-            "       :_________`-;              Stack        Python · TypeScript · Claude · FastAPI",
-            "        `.__.-.__.'               Location     Eugene, OR · Remote-friendly",
-            "                                  Education    B.S. CS · Univ. of Oregon (Jun 2026)",
-            "                                  Projects     13 across AI/ML, blockchain, data",
-            "                                  GitHub       github.com/jhatch3",
-            "                                  Email        jjhatch03@gmail.com",
-            "                                  ",
-          ],
-        }}
-      />
-    );
+    // ─── Interactive bot terminal ────────────────────────────────────────────
+    // Connected to /api/chat (same backend as the desktop chat). Boots with a
+    // neofetch as the welcome card, then awaits input. Special commands:
+    // whoami / neofetch · help · projects · clear · anything else -> /api/chat.
+    const NEOFETCH_OUTPUT = [
+      "              .:'                 justin@portfolio",
+      "          __ :'__                 ────────────────────────────────────",
+      "       .'`__`-'__``.              Role         AI / ML Engineer",
+      "      :__________.-'              Available    June 2026",
+      "      :_________:                 Currently    Modern Amenities · OBG (Lead SWE)",
+      "       :_________`-;              Stack        Python · TypeScript · Claude · FastAPI",
+      "        `.__.-.__.'               Location     Eugene, OR · Remote-friendly",
+      "                                  Education    B.S. CS · Univ. of Oregon",
+      "                                  Projects     13 across AI/ML, blockchain, data",
+      "                                  GitHub       github.com/jhatch3",
+      "                                  Email        jjhatch03@gmail.com",
+    ].join('\n');
+
+    const HELP_OUTPUT = [
+      "Commands:",
+      "  whoami      Identity card (default)",
+      "  projects    List my projects",
+      "  clear       Clear the screen",
+      "  help        This message",
+      "",
+      "Or ask anything in plain English. Streaming Claude via /api/chat.",
+    ].join('\n');
+
+    const projectsOutput = () =>
+      D.projects.map(p =>
+        '  ' + p.id.padEnd(22) + (p.name + (p.url ? '  ↗' : '')).padEnd(28) + (p.status || '')
+      ).join('\n');
+
+    const BotTerminal = ({ username = 'justin@portfolio' }) => {
+      const containerRef = React.useRef(null);
+      const contentRef = React.useRef(null);
+      const inputRef = React.useRef(null);
+      const inView = useInView(containerRef);
+      const [booted, setBooted] = React.useState(false);
+      const [history, setHistory] = React.useState([]);
+      const [conversation, setConversation] = React.useState([]);
+      const [input, setInput] = React.useState('');
+      const [sending, setSending] = React.useState(false);
+      const [cursorVisible, setCursorVisible] = React.useState(true);
+
+      // Boot animation: when the section enters the viewport, populate history
+      // with the neofetch as if the user had typed `whoami`.
+      React.useEffect(() => {
+        if (!inView || booted) return;
+        setHistory([
+          { role: 'command', text: 'whoami' },
+          { role: 'output',  text: NEOFETCH_OUTPUT },
+          { role: 'output',  text: 'Type ' + '`help`' + ' for commands. Or ask me anything.' },
+        ]);
+        setBooted(true);
+      }, [inView, booted]);
+
+      // Cursor blink for empty input
+      React.useEffect(() => {
+        const i = setInterval(() => setCursorVisible(v => !v), 530);
+        return () => clearInterval(i);
+      }, []);
+
+      // Auto-scroll on history change
+      React.useEffect(() => {
+        if (contentRef.current) contentRef.current.scrollTop = contentRef.current.scrollHeight;
+      }, [history, sending]);
+
+      const focusInput = () => inputRef.current?.focus();
+
+      const appendOutput = (text) => setHistory(h => [...h, { role: 'output', text }]);
+      const appendError  = (text) => setHistory(h => [...h, { role: 'error',  text }]);
+
+      const submit = async (e) => {
+        if (e) e.preventDefault();
+        const cmd = input.trim();
+        if (!cmd || sending) return;
+        setInput('');
+
+        // Echo the typed command into history.
+        setHistory(h => [...h, { role: 'command', text: cmd }]);
+
+        const lower = cmd.toLowerCase();
+
+        if (lower === 'clear') { setHistory([]); setConversation([]); return; }
+        if (lower === 'help')  { appendOutput(HELP_OUTPUT); return; }
+        if (lower === 'whoami' || lower.startsWith('neofetch')) { appendOutput(NEOFETCH_OUTPUT); return; }
+        if (lower === 'projects' || lower === 'ls projects') { appendOutput(projectsOutput()); return; }
+
+        // Otherwise, send to /api/chat with SSE streaming.
+        const nextConvo = [...conversation, { role: 'user', content: cmd }];
+        setConversation(nextConvo);
+        setSending(true);
+        // Add an empty output line that we'll append deltas into.
+        setHistory(h => [...h, { role: 'output', text: '', streaming: true }]);
+
+        try {
+          const res = await fetch('/api/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ messages: nextConvo }),
+          });
+          if (!res.ok) {
+            const j = await res.json().catch(() => ({}));
+            throw new Error(j.message || ('HTTP ' + res.status + ' from /api/chat'));
+          }
+          if (!res.body) throw new Error('No response body');
+          const reader = res.body.getReader();
+          const dec = new TextDecoder();
+          let buf = '';
+          let assistantText = '';
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            buf += dec.decode(value, { stream: true });
+            let idx;
+            while ((idx = buf.indexOf('\n\n')) !== -1) {
+              const raw = buf.slice(0, idx).trim();
+              buf = buf.slice(idx + 2);
+              if (!raw.startsWith('data:')) continue;
+              let evt;
+              try { evt = JSON.parse(raw.slice(5).trim()); } catch { continue; }
+              if (evt.type === 'delta') {
+                assistantText += evt.text;
+                setHistory(h => {
+                  const c = h.slice();
+                  c[c.length - 1] = { ...c[c.length - 1], text: assistantText };
+                  return c;
+                });
+              } else if (evt.type === 'error') {
+                throw new Error(evt.message || 'stream error');
+              }
+            }
+          }
+          // Persist the assistant turn in conversation memory.
+          if (assistantText) setConversation(c => [...c, { role: 'assistant', content: assistantText }]);
+        } catch (err) {
+          // Replace the empty streaming line with an error line, or append.
+          setHistory(h => {
+            const c = h.slice();
+            const last = c[c.length - 1];
+            if (last && last.streaming && !last.text) c.pop();
+            c.push({ role: 'error', text: 'Error: ' + (err.message || String(err)) +
+              (err.message && err.message.includes('Failed to fetch') ? '  (chat needs the Express server - run npm start in /server, or visit the deployed site)' : '') });
+            return c;
+          });
+        } finally {
+          setSending(false);
+          setHistory(h => h.map((line, i) =>
+            i === h.length - 1 && line.streaming ? { ...line, streaming: false } : line
+          ));
+          setTimeout(focusInput, 0);
+        }
+      };
+
+      const Prompt = (
+        <span className="text-neutral-500 select-none">
+          <span className="text-sky-500">{username}</span>
+          <span className="text-emerald-600">:</span>
+          <span className="text-sky-400">~</span>
+          <span className="text-neutral-500">$</span>{' '}
+        </span>
+      );
+
+      return (
+        <div ref={containerRef} className="mx-auto w-full max-w-5xl px-4 font-mono text-base">
+          <div className="overflow-hidden rounded-lg border border-neutral-800 bg-neutral-900 shadow-2xl"
+               onClick={focusInput}>
+            {/* Title bar */}
+            <div className="flex items-center gap-2 bg-neutral-800 px-4 py-3">
+              <div className="flex items-center gap-1.5">
+                <div className="h-3 w-3 rounded-full bg-red-500" />
+                <div className="h-3 w-3 rounded-full bg-yellow-500" />
+                <div className="h-3 w-3 rounded-full bg-green-500" />
+              </div>
+              <div className="flex-1 text-center">
+                <span className="truncate text-xs text-neutral-400">{username} — bash</span>
+              </div>
+              <div className="w-[52px]" />
+            </div>
+
+            {/* Body */}
+            <div ref={contentRef} className="h-[36rem] overflow-y-auto p-6 font-mono text-neutral-200 cursor-text">
+              {history.map((line, i) => (
+                <div key={i} className="leading-relaxed whitespace-pre-wrap">
+                  {line.role === 'command' ? (
+                    <span>{Prompt}<SyntaxHighlightedText text={line.text} /></span>
+                  ) : line.role === 'error' ? (
+                    <span className="text-red-400">{line.text}</span>
+                  ) : (
+                    <span className="text-neutral-300">{line.text}</span>
+                  )}
+                </div>
+              ))}
+
+              {/* Active prompt with input */}
+              <form onSubmit={submit} className="leading-relaxed whitespace-pre-wrap flex items-center">
+                {Prompt}
+                <input
+                  ref={inputRef}
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  disabled={sending}
+                  autoFocus={booted}
+                  spellCheck={false}
+                  autoCorrect="off"
+                  autoCapitalize="off"
+                  className="flex-1 bg-transparent border-0 outline-none text-neutral-200 font-mono text-base"
+                  style={{
+                    caretColor: 'transparent',  // hide native caret, draw our own
+                  }}
+                  placeholder={sending ? '' : 'ask anything · or try whoami / projects / help'}
+                />
+                {/* Block cursor */}
+                <span className="ml-0.5 inline-block h-4 w-2 bg-neutral-300 align-middle"
+                  style={{ opacity: sending ? 0 : (cursorVisible ? 1 : 0), transition: 'opacity 0.1s' }} />
+              </form>
+
+              {sending && (
+                <div className="text-neutral-500 text-sm mt-1">streaming…</div>
+              )}
+            </div>
+          </div>
+        </div>
+      );
+    };
+    // ─── /BotTerminal ────────────────────────────────────────────────────────
 
     // ─── ExpandableCardDemo (light theme, CSS transitions, no motion) ────────
     // Wired to ALL of Justin's projects from data.js, with search + tag filter.
@@ -642,7 +842,10 @@
                 cache aggressively, and emit structured outputs the frontend can trust.
               </p>
               <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-                <a href="/desktop" style={primaryBtn}>Open the desktop ↗</a>
+                <a href="/desktop"
+                   className="inline-flex items-center gap-2 px-8 py-3 rounded-full bg-gradient-to-b from-blue-500 to-blue-600 text-white text-sm font-semibold shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/50 focus:outline-none focus:ring-2 focus:ring-blue-400 transition duration-200">
+                  Open the desktop ↗
+                </a>
                 <a href={D.links.email.href} style={secondaryBtn}>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                     <rect x="2" y="4" width="20" height="16" rx="2.5"/>
@@ -1028,17 +1231,17 @@
       </section>
     );
 
-    // ─── At-a-glance terminal (neofetch-style) ───────────────────────────────
-    const AtAGlanceSection = () => (
-      <section id="whoami" style={{ padding: '64px 0', animation: 'fadeUp 0.7s ease-out' }}>
+    // ─── Bot terminal section ────────────────────────────────────────────────
+    const BotTerminalSection = () => (
+      <section id="ask" style={{ padding: '64px 0 100px', animation: 'fadeUp 0.7s ease-out' }}>
         <Container>
           <SectionHeader
-            eyebrow="whoami"
-            title="The 30-second version."
-            sub="All the basics, terminal-style."
+            eyebrow="Ask me anything"
+            title="Live terminal, real chatbot."
+            sub="Same Claude backend powering /desktop. Try `whoami`, `projects`, `help`, or just ask in plain English."
           />
         </Container>
-        <TerminalDemo />
+        <BotTerminal />
       </section>
     );
 
@@ -1058,12 +1261,12 @@
       <>
         <Nav />
         <Hero />
-        <AtAGlanceSection />
         <Experience />
         <ProjectsSection />
         <Writing />
         <Skills />
         <Contact />
+        <BotTerminalSection />
       </>
     );
 
