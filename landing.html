@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Justin Hatch - AI / ML Engineer</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="description" content="AI / ML engineer building production agents at Modern Amenities. Available June 2026." />
+<style>
+  html, body { margin: 0; padding: 0; background: #06080e; color: #fafafa;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+  * { box-sizing: border-box; }
+  ::selection { background: rgba(184,212,240,0.35); color: #06080e; }
+  a { color: inherit; text-decoration: none; }
+  a:hover { color: #b8d4f0; }
+  button { font-family: inherit; }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin="anonymous"></script>
+  <script src="data.js"></script>
+
+  <script type="text/babel">
+    const D = window.JH_DATA;
+
+    // ─── Background (subtle pale-azure glow on dark) ──────────────────────────
+    const Background = () => (
+      <div style={{ position: 'fixed', inset: 0, zIndex: -1, overflow: 'hidden',
+        background: 'linear-gradient(160deg, #06080e 0%, #0a0d16 35%, #0c1018 65%, #08090f 100%)',
+      }}>
+        <div style={{ position: 'absolute', top: '-15%', left: '-5%', width: '60%', height: '60%', borderRadius: '50%',
+          background: 'radial-gradient(circle, rgba(184,212,240,0.10), transparent 65%)', filter: 'blur(120px)' }} />
+        <div style={{ position: 'absolute', top: '40%', right: '-15%', width: '60%', height: '70%', borderRadius: '50%',
+          background: 'radial-gradient(circle, rgba(184,212,240,0.07), transparent 65%)', filter: 'blur(140px)' }} />
+        <div style={{ position: 'absolute', bottom: '-20%', left: '20%', width: '60%', height: '60%', borderRadius: '50%',
+          background: 'radial-gradient(circle, rgba(184,212,240,0.05), transparent 65%)', filter: 'blur(120px)' }} />
+      </div>
+    );
+
+    // ─── Reusable bits ────────────────────────────────────────────────────────
+    const Container = ({ children, style }) => (
+      <div style={{ maxWidth: 920, margin: '0 auto', padding: '0 28px', ...style }}>{children}</div>
+    );
+
+    const Eyebrow = ({ children }) => (
+      <div style={{
+        fontSize: 11, fontWeight: 600, letterSpacing: '0.22em', textTransform: 'uppercase',
+        color: '#b8d4f0', opacity: 0.85, marginBottom: 18,
+      }}>{children}</div>
+    );
+
+    const Tag = ({ children }) => (
+      <span style={{
+        display: 'inline-flex', alignItems: 'center', padding: '3px 10px', borderRadius: 999,
+        fontSize: 11, fontWeight: 500, letterSpacing: '0.02em',
+        background: 'rgba(184,212,240,0.08)', color: '#b8d4f0',
+        border: '0.5px solid rgba(184,212,240,0.15)',
+      }}>{children}</span>
+    );
+
+    const StatusBadge = ({ status }) => {
+      const cfg = status === 'shipped'     ? { dot: '#86d987', label: 'shipped' }
+                : status === 'in-progress' ? { dot: '#f0c674', label: 'in progress' }
+                : { dot: 'rgba(255,255,255,0.45)', label: status };
+      return (
+        <span style={{
+          display: 'inline-flex', alignItems: 'center', gap: 6,
+          fontSize: 10, fontWeight: 500, letterSpacing: '0.08em', textTransform: 'uppercase',
+          color: 'rgba(255,255,255,0.7)',
+        }}>
+          <span style={{ width: 6, height: 6, borderRadius: '50%', background: cfg.dot }} />
+          {cfg.label}
+        </span>
+      );
+    };
+
+    // ─── Hero ─────────────────────────────────────────────────────────────────
+    const Hero = () => (
+      <section style={{ padding: '120px 0 100px', animation: 'fadeUp 0.6s ease-out' }}>
+        <Container>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 28 }}>
+            <img src="justin.jpg" alt="Justin Hatch" style={{
+              width: 88, height: 88, borderRadius: 20, objectFit: 'cover',
+              border: '0.5px solid rgba(255,255,255,0.12)',
+              boxShadow: '0 16px 40px rgba(0,0,0,0.5)',
+            }} />
+            <div>
+              <Eyebrow>{D.role}</Eyebrow>
+              <h1 style={{
+                fontSize: 'clamp(48px, 8vw, 88px)', fontWeight: 600, letterSpacing: '-0.025em',
+                lineHeight: 1.02, margin: '0 0 24px',
+              }}>{D.name}</h1>
+              <p style={{
+                fontSize: 'clamp(17px, 1.6vw, 19px)', lineHeight: 1.55, color: 'rgba(255,255,255,0.78)',
+                margin: 0, maxWidth: 620,
+              }}>
+                AI / ML engineer building production agents at Modern Amenities. Available June 2026.
+              </p>
+            </div>
+            <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginTop: 4 }}>
+              <a href="/desktop" style={{
+                display: 'inline-flex', alignItems: 'center', gap: 8,
+                padding: '13px 22px', borderRadius: 10, fontSize: 14, fontWeight: 600,
+                background: '#b8d4f0', color: '#06080e',
+                transition: 'transform 0.15s, box-shadow 0.15s',
+                boxShadow: '0 8px 24px rgba(184,212,240,0.18)',
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = '0 12px 32px rgba(184,212,240,0.28)'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = '0 8px 24px rgba(184,212,240,0.18)'; }}
+              >Open the desktop ↗</a>
+              <a href={D.links.resume.href} download="Justin-Hatch-Resume.pdf" style={{
+                display: 'inline-flex', alignItems: 'center', gap: 8,
+                padding: '13px 22px', borderRadius: 10, fontSize: 14, fontWeight: 500,
+                background: 'rgba(255,255,255,0.05)', color: '#fafafa',
+                border: '0.5px solid rgba(255,255,255,0.12)',
+                transition: 'background 0.15s',
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.09)'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; }}
+              >Resume.pdf ↓</a>
+            </div>
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: 14, marginTop: 8,
+              fontSize: 13, color: 'rgba(255,255,255,0.55)', fontFamily: 'ui-monospace, "SF Mono", monospace',
+            }}>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#86d987', boxShadow: '0 0 6px #86d987' }} />
+                {D.location}
+              </span>
+              <span style={{ opacity: 0.4 }}>·</span>
+              <span>graduating {D.graduating}</span>
+            </div>
+          </div>
+        </Container>
+      </section>
+    );
+
+    // ─── Featured Projects ────────────────────────────────────────────────────
+    const FeaturedProjects = () => {
+      const featured = D.projects.slice(0, 4);
+      return (
+        <section style={{ padding: '60px 0', animation: 'fadeUp 0.7s ease-out' }}>
+          <Container>
+            <Eyebrow>Featured Work</Eyebrow>
+            <h2 style={{ fontSize: 32, fontWeight: 600, letterSpacing: '-0.02em', margin: '0 0 36px' }}>
+              Selected projects
+            </h2>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              {featured.map(p => {
+                const bullets = p.bullets || p.points || [];
+                const inner = (
+                  <div style={{
+                    background: 'rgba(20,22,28,0.55)',
+                    border: '0.5px solid rgba(255,255,255,0.08)',
+                    borderRadius: 14, padding: '24px 26px',
+                    transition: 'border-color 0.18s, transform 0.18s, background 0.18s',
+                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'rgba(184,212,240,0.3)'; e.currentTarget.style.background = 'rgba(20,22,28,0.75)'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; e.currentTarget.style.background = 'rgba(20,22,28,0.55)'; }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'baseline', gap: 14, marginBottom: 6, flexWrap: 'wrap' }}>
+                      <h3 style={{ fontSize: 19, fontWeight: 600, margin: 0, letterSpacing: '-0.01em' }}>{p.name}</h3>
+                      <StatusBadge status={p.status} />
+                      <span style={{ flex: 1 }} />
+                      {p.url && (
+                        <span style={{ fontSize: 12, color: '#b8d4f0', fontWeight: 500 }}>view ↗</span>
+                      )}
+                    </div>
+                    <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.65)', marginBottom: 14 }}>{p.subtitle}</div>
+                    {bullets.length > 0 && (
+                      <ul style={{ margin: '0 0 16px', paddingLeft: 18, fontSize: 14, lineHeight: 1.6, color: 'rgba(255,255,255,0.78)' }}>
+                        {bullets.slice(0, 3).map((b, i) => <li key={i} style={{ marginBottom: 4 }}>{b}</li>)}
+                      </ul>
+                    )}
+                    <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                      {p.tags.map(t => <Tag key={t}>{t}</Tag>)}
+                    </div>
+                  </div>
+                );
+                return p.url ? (
+                  <a key={p.id} href={p.url} target="_blank" rel="noopener noreferrer">{inner}</a>
+                ) : (
+                  <div key={p.id}>{inner}</div>
+                );
+              })}
+            </div>
+            <div style={{ marginTop: 28, fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>
+              <a href="/desktop" style={{ color: '#b8d4f0', borderBottom: '0.5px solid rgba(184,212,240,0.4)' }}>
+                See all {D.projects.length} projects in the interactive view ↗
+              </a>
+            </div>
+          </Container>
+        </section>
+      );
+    };
+
+    // ─── Experience ───────────────────────────────────────────────────────────
+    const Experience = () => (
+      <section style={{ padding: '60px 0', animation: 'fadeUp 0.8s ease-out' }}>
+        <Container>
+          <Eyebrow>Experience</Eyebrow>
+          <h2 style={{ fontSize: 32, fontWeight: 600, letterSpacing: '-0.02em', margin: '0 0 36px' }}>
+            Where I've worked
+          </h2>
+          <div style={{ position: 'relative', paddingLeft: 24 }}>
+            <div style={{ position: 'absolute', left: 4, top: 8, bottom: 8, width: 1, background: 'rgba(255,255,255,0.1)' }} />
+            {D.experience.map((e, i) => (
+              <div key={i} style={{ position: 'relative', marginBottom: 32 }}>
+                <div style={{
+                  position: 'absolute', left: -23, top: 6, width: 9, height: 9, borderRadius: '50%',
+                  background: i === 0 ? '#b8d4f0' : 'rgba(255,255,255,0.3)',
+                  border: '2px solid #06080e',
+                  boxShadow: i === 0 ? '0 0 0 1px rgba(184,212,240,0.4)' : '0 0 0 1px rgba(255,255,255,0.1)',
+                }} />
+                <div style={{ fontSize: 11, fontFamily: 'ui-monospace, "SF Mono", monospace', color: 'rgba(255,255,255,0.5)', marginBottom: 4, letterSpacing: '0.04em' }}>
+                  {e.start} — {e.end} · {e.where}
+                </div>
+                <h3 style={{ fontSize: 17, fontWeight: 600, margin: '0 0 2px', letterSpacing: '-0.01em' }}>{e.role}</h3>
+                <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.65)', marginBottom: 10 }}>
+                  {e.company} <span style={{ opacity: 0.5 }}>· {e.type}</span>
+                </div>
+                {e.bullets && e.bullets.length > 0 && (
+                  <ul style={{ margin: 0, paddingLeft: 18, fontSize: 13.5, lineHeight: 1.6, color: 'rgba(255,255,255,0.72)' }}>
+                    {e.bullets.slice(0, 3).map((b, j) => <li key={j} style={{ marginBottom: 3 }}>{b}</li>)}
+                  </ul>
+                )}
+              </div>
+            ))}
+          </div>
+        </Container>
+      </section>
+    );
+
+    // ─── Contact ──────────────────────────────────────────────────────────────
+    const Contact = () => (
+      <section style={{ padding: '60px 0 120px', animation: 'fadeUp 0.9s ease-out' }}>
+        <Container>
+          <Eyebrow>Get in touch</Eyebrow>
+          <h2 style={{ fontSize: 32, fontWeight: 600, letterSpacing: '-0.02em', margin: '0 0 18px' }}>
+            Open to AI/ML roles starting June 2026.
+          </h2>
+          <p style={{ fontSize: 16, lineHeight: 1.6, color: 'rgba(255,255,255,0.7)', margin: '0 0 32px', maxWidth: 600 }}>
+            Particularly interested in applied AI, agents, and infrastructure for LLM-driven products.
+            Quickest way to reach me is email.
+          </p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12, maxWidth: 700 }}>
+            {[
+              { label: 'Email',    value: D.links.email.label,    href: D.links.email.href,    target: undefined },
+              { label: 'GitHub',   value: D.links.github.label,   href: D.links.github.href,   target: '_blank' },
+              { label: 'LinkedIn', value: D.links.linkedin.label, href: D.links.linkedin.href, target: '_blank' },
+              { label: 'Resume',   value: 'Justin-Hatch-Resume.pdf', href: D.links.resume.href, target: '_blank' },
+            ].map(item => (
+              <a key={item.label} href={item.href} target={item.target} rel={item.target ? 'noopener noreferrer' : undefined}
+                style={{
+                  display: 'block', padding: '16px 18px', borderRadius: 10,
+                  background: 'rgba(20,22,28,0.55)', border: '0.5px solid rgba(255,255,255,0.08)',
+                  transition: 'border-color 0.18s, background 0.18s',
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'rgba(184,212,240,0.3)'; e.currentTarget.style.background = 'rgba(20,22,28,0.75)'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; e.currentTarget.style.background = 'rgba(20,22,28,0.55)'; }}
+              >
+                <div style={{ fontSize: 11, fontWeight: 600, color: '#b8d4f0', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 4 }}>
+                  {item.label}
+                </div>
+                <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.85)', fontFamily: 'ui-monospace, "SF Mono", monospace', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  {item.value}
+                </div>
+              </a>
+            ))}
+          </div>
+          <div style={{
+            marginTop: 60, paddingTop: 28, borderTop: '0.5px solid rgba(255,255,255,0.08)',
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12,
+            fontSize: 12, color: 'rgba(255,255,255,0.45)',
+          }}>
+            <span>© {new Date().getFullYear()} {D.name}.</span>
+            <a href="/desktop" style={{ color: '#b8d4f0' }}>Open the interactive desktop ↗</a>
+          </div>
+        </Container>
+      </section>
+    );
+
+    // ─── App root ─────────────────────────────────────────────────────────────
+    const App = () => (
+      <>
+        <Background />
+        <Hero />
+        <FeaturedProjects />
+        <Experience />
+        <Contact />
+      </>
+    );
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>
