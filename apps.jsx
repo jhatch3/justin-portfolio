@@ -599,12 +599,12 @@ const ChatApp = () => {
       {/* In-window contact banner */}
       <div style={{
         padding: '10px 14px', display: 'flex', alignItems: 'center', gap: 10,
-        background: 'linear-gradient(180deg, rgba(18,140,126,0.85), rgba(18,140,126,0.65))',
-        borderBottom: '0.5px solid rgba(0,0,0,0.3)', flexShrink: 0,
+        background: 'linear-gradient(180deg, rgba(18,30,60,0.95), rgba(13,22,46,0.85))',
+        borderBottom: '0.5px solid rgba(255,255,255,0.06)', flexShrink: 0,
       }}>
         <div style={{
           width: 36, height: 36, borderRadius: '50%',
-          background: 'linear-gradient(160deg, #25d366, #128c7e)',
+          background: 'linear-gradient(160deg, #5e9eff, #0a66c2)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           color: 'white', fontWeight: 700, fontSize: 14, flexShrink: 0,
           boxShadow: 'inset 0 0.5px 0 rgba(255,255,255,0.4)',
@@ -631,8 +631,8 @@ const ChatApp = () => {
             <div key={i} style={{
               alignSelf: mine ? 'flex-end' : 'flex-start',
               maxWidth: '78%',
-              background: mine ? '#25d366' : 'rgba(60,60,62,0.95)',
-              color: mine ? '#0b2a18' : '#f5f5f7',
+              background: mine ? '#0a84ff' : 'rgba(60,60,62,0.95)',
+              color: mine ? 'white' : '#f5f5f7',
               padding: '7px 12px', borderRadius: 14,
               borderBottomRightRadius: mine ? 4 : 14,
               borderBottomLeftRadius: mine ? 14 : 4,
@@ -674,8 +674,8 @@ const ChatApp = () => {
           }} />
         <button onClick={send} disabled={!input.trim() || sending} aria-label="Send" style={{
           width: 36, height: 36, borderRadius: '50%', border: 0,
-          background: input.trim() && !sending ? '#25d366' : 'rgba(255,255,255,0.1)',
-          color: input.trim() && !sending ? '#0b2a18' : 'rgba(255,255,255,0.4)',
+          background: input.trim() && !sending ? '#0a84ff' : 'rgba(255,255,255,0.1)',
+          color: input.trim() && !sending ? 'white' : 'rgba(255,255,255,0.4)',
           cursor: input.trim() && !sending ? 'pointer' : 'default',
           display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
         }}>

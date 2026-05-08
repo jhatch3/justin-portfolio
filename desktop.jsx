@@ -3,23 +3,23 @@
 const { useState, useEffect, useRef, useCallback, createContext, useContext } = React;
 
 // ─── Wallpaper ───────────────────────────────────────────────────────────────
-// macOS Sonoma-inspired gradient mesh - purple, pink, orange, blue blobs.
+// Apple Pro Display XDR vibe: deep charcoal -> navy, restrained blue lighting.
 const Wallpaper = () => (
   <div style={{
     position: 'fixed', inset: 0, zIndex: 0, overflow: 'hidden',
-    background: 'linear-gradient(155deg, #1f1147 0%, #3b1d63 22%, #6f2479 42%, #b03968 60%, #e36a55 78%, #f0a35a 92%)',
+    background: 'linear-gradient(155deg, #050810 0%, #0c1220 22%, #131c33 50%, #18243f 75%, #0a1020 100%)',
   }}>
-    {/* depth blobs */}
+    {/* depth blobs - subtle blues only */}
     <div style={{ position: 'absolute', top: '-20%', left: '-10%', width: '70%', height: '70%', borderRadius: '50%',
-      background: 'radial-gradient(circle, rgba(255,150,200,0.55), transparent 60%)', filter: 'blur(40px)' }} />
+      background: 'radial-gradient(circle, rgba(60,100,180,0.35), transparent 60%)', filter: 'blur(60px)' }} />
     <div style={{ position: 'absolute', top: '20%', right: '-15%', width: '70%', height: '80%', borderRadius: '50%',
-      background: 'radial-gradient(circle, rgba(255,180,100,0.45), transparent 60%)', filter: 'blur(60px)' }} />
+      background: 'radial-gradient(circle, rgba(40,80,160,0.28), transparent 60%)', filter: 'blur(80px)' }} />
     <div style={{ position: 'absolute', bottom: '-25%', left: '20%', width: '70%', height: '70%', borderRadius: '50%',
-      background: 'radial-gradient(circle, rgba(120,80,220,0.5), transparent 60%)', filter: 'blur(50px)' }} />
+      background: 'radial-gradient(circle, rgba(30,60,140,0.32), transparent 60%)', filter: 'blur(70px)' }} />
     <div style={{ position: 'absolute', top: '40%', left: '35%', width: '40%', height: '40%', borderRadius: '50%',
-      background: 'radial-gradient(circle, rgba(255,90,140,0.35), transparent 65%)', filter: 'blur(50px)' }} />
+      background: 'radial-gradient(circle, rgba(80,120,200,0.18), transparent 65%)', filter: 'blur(60px)' }} />
     {/* subtle grain */}
-    <div style={{ position: 'absolute', inset: 0, opacity: 0.08, mixBlendMode: 'overlay',
+    <div style={{ position: 'absolute', inset: 0, opacity: 0.06, mixBlendMode: 'overlay',
       backgroundImage: 'url("data:image/svg+xml;utf8,<svg xmlns=\\"http://www.w3.org/2000/svg\\" width=\\"120\\" height=\\"120\\"><filter id=\\"n\\"><feTurbulence baseFrequency=\\"0.9\\" /></filter><rect width=\\"120\\" height=\\"120\\" filter=\\"url(%23n)\\"/></svg>")' }} />
   </div>
 );
