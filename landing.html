@@ -293,8 +293,9 @@
     );
 
     // ─── ExpandableCardDemo (light theme, CSS transitions, no motion) ────────
-    // Wired to Justin's top 5 projects from data.js.
-    const expandCards = D.projects.slice(0, 5).map(p => ({
+    // Wired to ALL of Justin's projects from data.js, with search + tag filter.
+    const expandCards = D.projects.map(p => ({
+      id: p.id,
       title: p.name,
       description: p.subtitle,
       ctaText: p.url ? 'GitHub ↗' : 'View',
@@ -302,7 +303,6 @@
       bullets: p.bullets || [],
       tags: p.tags,
       status: p.status,
-      // initials placeholder image
       initials: p.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase(),
     }));
 
@@ -318,7 +318,27 @@
 
     const ExpandableCardDemo = () => {
       const [active, setActive] = React.useState(null);
+      const [query, setQuery] = React.useState('');
+      const [activeTags, setActiveTags] = React.useState([]);
       const ref = React.useRef(null);
+
+      const allTags = React.useMemo(() => {
+        const counts = {};
+        expandCards.forEach(c => c.tags.forEach(t => { counts[t] = (counts[t] || 0) + 1; }));
+        return Object.keys(counts).sort((a, b) => counts[b] - counts[a]).map(t => ({ tag: t, count: counts[t] }));
+      }, []);
+
+      const toggleTag = (t) => setActiveTags(prev => prev.includes(t) ? prev.filter(x => x !== t) : [...prev, t]);
+
+      const filtered = expandCards.filter(c => {
+        if (query.trim()) {
+          const q = query.toLowerCase();
+          const hay = `${c.title} ${c.description} ${c.tags.join(' ')} ${(c.bullets || []).join(' ')}`.toLowerCase();
+          if (!hay.includes(q)) return false;
+        }
+        if (activeTags.length > 0 && !activeTags.some(t => c.tags.includes(t))) return false;
+        return true;
+      });
 
       React.useEffect(() => {
         const onKey = (e) => { if (e.key === 'Escape') setActive(null); };
@@ -377,27 +397,74 @@
             </>
           )}
 
-          <ul className="max-w-2xl mx-auto w-full">
-            {expandCards.map((card) => (
-              <li key={card.title}
+          {/* Search + tag filter */}
+          <div className="max-w-4xl mx-auto w-full mb-6">
+            <div className="flex items-center gap-2 px-4 py-2.5 rounded-lg shadow-sm transition-colors"
+              style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--ink-3)' }}>
+                <circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+              </svg>
+              <input value={query} onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search projects, tech, descriptions..."
+                style={{ flex: 1, border: 0, outline: 0, background: 'transparent', fontSize: 14, fontFamily: 'inherit', color: 'var(--ink)' }} />
+              {(query || activeTags.length > 0) && (
+                <button onClick={() => { setQuery(''); setActiveTags([]); }}
+                  style={{ background: 'transparent', border: 0, padding: 0, fontSize: 12, color: 'var(--ink-3)', fontFamily: 'inherit', cursor: 'pointer' }}>clear ✕</button>
+              )}
+              <span style={{ fontSize: 12, color: 'var(--ink-3)', fontFamily: "'JetBrains Mono', monospace", marginLeft: 4 }}>
+                {filtered.length}/{expandCards.length}
+              </span>
+            </div>
+            <div className="flex gap-1.5 flex-wrap mt-3">
+              {allTags.map(({ tag, count }) => {
+                const active = activeTags.includes(tag);
+                return (
+                  <button key={tag} onClick={() => toggleTag(tag)}
+                    style={{
+                      fontSize: 11, padding: '4px 11px', borderRadius: 999,
+                      border: active ? '0.5px solid var(--accent)' : '0.5px solid var(--border-strong)',
+                      background: active ? 'rgba(29,78,216,0.1)' : 'var(--surface)',
+                      color: active ? 'var(--accent)' : 'var(--ink-2)',
+                      fontFamily: 'inherit', fontWeight: active ? 600 : 500, cursor: 'pointer',
+                    }}>
+                    {tag} <span style={{ opacity: 0.6, marginLeft: 2 }}>{count}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Two-column grid of projects */}
+          {filtered.length === 0 ? (
+            <div className="max-w-4xl mx-auto p-10 text-center rounded-xl"
+              style={{ background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--ink-3)', fontSize: 14 }}>
+              No projects match.{' '}
+              <button onClick={() => { setQuery(''); setActiveTags([]); }}
+                style={{ background: 'transparent', border: 0, padding: 0, color: 'var(--accent)', fontFamily: 'inherit', fontSize: 14, textDecoration: 'underline', cursor: 'pointer' }}>Clear filters</button>
+            </div>
+          ) : (
+          <div className="max-w-4xl mx-auto w-full grid grid-cols-1 md:grid-cols-2 gap-2">
+            {filtered.map((card) => (
+              <div key={card.id || card.title}
                 onClick={() => setActive(card)}
-                className="p-4 flex flex-col md:flex-row justify-between items-center hover:bg-neutral-100/60 rounded-xl cursor-pointer transition-colors"
+                className="p-3 flex justify-between items-center hover:bg-neutral-100/70 rounded-xl cursor-pointer transition-colors"
               >
-                <div className="flex gap-4 flex-col md:flex-row items-center">
+                <div className="flex gap-3 items-center min-w-0">
                   <ProjectInitialsTile initials={card.initials} />
-                  <div>
-                    <h3 className="font-medium text-center md:text-left" style={{ color: 'var(--ink)' }}>{card.title}</h3>
-                    <p className="text-sm text-center md:text-left" style={{ color: 'var(--ink-3)' }}>{card.description}</p>
+                  <div className="min-w-0">
+                    <h3 className="font-medium text-sm truncate" style={{ color: 'var(--ink)' }}>{card.title}</h3>
+                    <p className="text-xs truncate" style={{ color: 'var(--ink-3)' }}>{card.description}</p>
                   </div>
                 </div>
-                <button className="px-4 py-2 text-sm rounded-full font-semibold mt-4 md:mt-0 transition-colors"
+                <button className="ml-3 shrink-0 px-3 py-1.5 text-xs rounded-full font-semibold transition-colors"
                   style={{ background: 'rgba(10,37,64,0.06)', color: 'var(--ink-2)' }}
                   onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--accent)'; e.currentTarget.style.color = 'white'; }}
                   onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(10,37,64,0.06)'; e.currentTarget.style.color = 'var(--ink-2)'; }}
                 >Open</button>
-              </li>
+              </div>
             ))}
-          </ul>
+          </div>
+          )}
 
           <style>{`
             @keyframes fadeIn  { from { opacity: 0 } to { opacity: 1 } }
@@ -904,12 +971,12 @@
       </section>
     );
 
-    // ─── Featured (ExpandableCard) ────────────────────────────────────────────
-    const FeaturedSection = () => (
-      <section id="featured" style={{ padding: '64px 0', animation: 'fadeUp 0.75s ease-out' }}>
+    // ─── Projects (combined: search + 2-col grid + expand modal) ────────────
+    const ProjectsSection = () => (
+      <section id="projects" style={{ padding: '64px 0', animation: 'fadeUp 0.75s ease-out' }}>
         <Container>
-          <SectionHeader eyebrow="Featured Work" title="Top projects"
-            sub="Click any project to expand for full details." />
+          <SectionHeader eyebrow="Selected Work" title="Projects"
+            sub={`${D.projects.length} projects across AI/ML, blockchain, and data infrastructure. Click any to expand.`} />
           <ExpandableCardDemo />
         </Container>
       </section>
@@ -922,8 +989,7 @@
         <Hero />
         <AgentSkillsSection />
         <Experience />
-        <FeaturedSection />
-        <Projects />
+        <ProjectsSection />
         <Writing />
         <Skills />
         <Contact />
