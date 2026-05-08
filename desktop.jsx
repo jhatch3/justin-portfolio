@@ -3,22 +3,18 @@
 const { useState, useEffect, useRef, useCallback, createContext, useContext } = React;
 
 // ─── Wallpaper ───────────────────────────────────────────────────────────────
-// Bloomberg Terminal: pitch black with a subtle dot grid + faint amber glow.
+// Dark mode with pale accent: deep charcoal-navy gradient, restrained pale-azure glow.
 const Wallpaper = () => (
   <div style={{
     position: 'fixed', inset: 0, zIndex: 0, overflow: 'hidden',
-    background: '#000',
+    background: 'linear-gradient(160deg, #06080e 0%, #0a0d16 35%, #0c1018 65%, #08090f 100%)',
   }}>
-    {/* faint amber glow at top-left */}
-    <div style={{ position: 'absolute', top: '-20%', left: '-10%', width: '60%', height: '60%', borderRadius: '50%',
-      background: 'radial-gradient(circle, rgba(250,136,0,0.12), transparent 65%)', filter: 'blur(80px)' }} />
-    <div style={{ position: 'absolute', bottom: '-20%', right: '-10%', width: '50%', height: '50%', borderRadius: '50%',
-      background: 'radial-gradient(circle, rgba(250,136,0,0.08), transparent 65%)', filter: 'blur(80px)' }} />
-    {/* dot grid */}
-    <div style={{ position: 'absolute', inset: 0, opacity: 0.35,
-      backgroundImage: 'radial-gradient(rgba(255,255,255,0.06) 1px, transparent 1px)',
-      backgroundSize: '24px 24px',
-    }} />
+    <div style={{ position: 'absolute', top: '-20%', left: '-10%', width: '70%', height: '70%', borderRadius: '50%',
+      background: 'radial-gradient(circle, rgba(184,212,240,0.10), transparent 60%)', filter: 'blur(100px)' }} />
+    <div style={{ position: 'absolute', top: '30%', right: '-15%', width: '60%', height: '70%', borderRadius: '50%',
+      background: 'radial-gradient(circle, rgba(184,212,240,0.08), transparent 60%)', filter: 'blur(120px)' }} />
+    <div style={{ position: 'absolute', bottom: '-25%', left: '25%', width: '60%', height: '60%', borderRadius: '50%',
+      background: 'radial-gradient(circle, rgba(184,212,240,0.06), transparent 60%)', filter: 'blur(100px)' }} />
   </div>
 );
 

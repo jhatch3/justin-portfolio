@@ -35,7 +35,7 @@
       { id: 'writing',  title: 'Writing',    icon: '✎', iconBg: 'linear-gradient(160deg, #fff2c8, #f8d764)', iconColor: '#5a4a00' },
       { id: 'now',      title: 'Now',        icon: '▷', iconBg: 'linear-gradient(160deg, #2c2c2e, #1c1c1e)', iconColor: '#a8c896', iconFont: 'ui-monospace, monospace' },
       { id: 'mail',     title: 'Mail',       icon: '✉', iconBg: 'linear-gradient(160deg, #7ec0ff, #007aff)', iconColor: 'white' },
-      { id: 'chat',     title: "Justin's Bot", icon: 'JH', iconBg: 'linear-gradient(160deg, #FFB347, #FA8800)', iconColor: '#1a1a1a', iconSize: 17, iconWeight: 700 },
+      { id: 'chat',     title: "Justin's Bot", icon: 'JH', iconBg: 'linear-gradient(160deg, #d4e3f5, #8eb4d8)', iconColor: '#1a1f2e', iconSize: 17, iconWeight: 700 },
       { id: 'preview',  title: 'Resume.pdf', icon: '⎙', iconBg: 'linear-gradient(160deg, #ff8a8a, #ff3b30)', iconColor: 'white' },
     ];
 
@@ -138,19 +138,19 @@
           <Wallpaper />
           <Menubar active={activeApp?.title} onSpotlight={() => setSpotlightOpen(true)} time={time} onAbout={() => focusWin('finder')} />
 
-          {/* desktop hero label - bloomberg terminal */}
+          {/* desktop hero label - dark + pale accent */}
           <div style={{
             position: 'fixed', top: '46%', left: '50%', transform: 'translate(-50%, -50%)',
             zIndex: 1, textAlign: 'center', pointerEvents: 'none',
-            textShadow: '0 0 40px rgba(250,136,0,0.18)',
-            fontFamily: 'ui-monospace, "JetBrains Mono", "SF Mono", monospace',
+            textShadow: '0 4px 40px rgba(0,0,0,0.6)',
+            fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif',
           }}>
-            <div style={{ fontSize: 13, fontWeight: 500, letterSpacing: '0.45em', textTransform: 'uppercase', marginBottom: 14, color: '#FA8800', opacity: 0.95 }}>{window.JH_DATA.role}</div>
-            <div style={{ fontSize: 84, fontWeight: 600, letterSpacing: '-0.02em', lineHeight: 1, color: '#fff' }}>
+            <div style={{ fontSize: 13, fontWeight: 500, letterSpacing: '0.45em', textTransform: 'uppercase', marginBottom: 14, color: '#b8d4f0', opacity: 0.9 }}>{window.JH_DATA.role}</div>
+            <div style={{ fontSize: 92, fontWeight: 600, letterSpacing: '-0.025em', lineHeight: 1, color: '#fafafa' }}>
               {window.JH_DATA.name}
             </div>
-            <div style={{ fontSize: 13, fontWeight: 400, marginTop: 18, letterSpacing: '0.1em', color: 'rgba(255,255,255,0.55)' }}>
-              press <kbd style={{ background: 'rgba(250,136,0,0.12)', padding: '2px 8px', borderRadius: 3, fontFamily: 'inherit', border: '0.5px solid rgba(250,136,0,0.4)', color: '#FA8800' }}>⌘K</kbd> to search · click any dock app to explore
+            <div style={{ fontSize: 13, fontWeight: 400, marginTop: 18, letterSpacing: '0.08em', color: 'rgba(255,255,255,0.55)', fontFamily: 'ui-monospace, "SF Mono", monospace' }}>
+              press <kbd style={{ background: 'rgba(184,212,240,0.10)', padding: '2px 8px', borderRadius: 4, fontFamily: 'inherit', border: '0.5px solid rgba(184,212,240,0.35)', color: '#b8d4f0' }}>⌘K</kbd> to search · click any dock app to explore
             </div>
           </div>
 
