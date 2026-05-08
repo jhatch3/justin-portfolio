@@ -63,7 +63,13 @@
   <script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js" crossorigin="anonymous"></script>
   <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" crossorigin="anonymous"></script>
   <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin="anonymous"></script>
-  <script src="data.js"></script>
+  <!-- Modular data: profile must load first (creates window.JH_DATA), rest extend it. -->
+  <script src="data/profile.js"></script>
+  <script src="data/projects.js"></script>
+  <script src="data/experience.js"></script>
+  <script src="data/skills.js"></script>
+  <script src="data/writing.js"></script>
+  <script src="data/now.js"></script>
 
   <script type="text/babel">
     const D = window.JH_DATA;
@@ -854,7 +860,7 @@
               <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
                 <a href="/desktop"
                    className="inline-flex items-center gap-2 px-8 py-3 rounded-full bg-gradient-to-b from-blue-500 to-blue-600 text-white text-sm font-semibold shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/50 focus:outline-none focus:ring-2 focus:ring-blue-400 transition duration-200">
-                  Open the desktop ↗
+                  Interactive mode ↗
                 </a>
                 <a href={D.links.email.href} style={secondaryBtn}>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -1235,7 +1241,7 @@
             fontSize: 12, color: 'var(--ink-3)',
           }}>
             <span>© {new Date().getFullYear()} {D.name}.</span>
-            <a href="/desktop" style={{ color: 'var(--accent)' }}>Open the interactive desktop ↗</a>
+            <a href="/desktop" style={{ color: 'var(--accent)' }}>Interactive mode ↗</a>
           </div>
         </Container>
       </section>
