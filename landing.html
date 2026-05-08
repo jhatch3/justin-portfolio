@@ -11,6 +11,22 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" />
 
+<!-- Tailwind Play CDN: lets us use utility classes in components copied from
+     shadcn/Aceternity templates without a build step. Prototype-only. -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: {
+          sans: ['Inter', 'system-ui', 'sans-serif'],
+          mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+        },
+      },
+    },
+  };
+</script>
+
 <style>
   :root {
     --bg: #fafaf7;
@@ -51,6 +67,347 @@
 
   <script type="text/babel">
     const D = window.JH_DATA;
+
+    // ─── cn() ─────────────────────────────────────────────────────────────────
+    // Tiny shadcn-style class joiner (no tailwind-merge - keep it light).
+    const cn = (...args) => args.flat().filter(Boolean).join(' ');
+
+    // ─── useOutsideClick ─────────────────────────────────────────────────────
+    const useOutsideClick = (ref, callback) => {
+      React.useEffect(() => {
+        const listener = (e) => {
+          if (!ref.current || ref.current.contains(e.target)) return;
+          callback(e);
+        };
+        document.addEventListener('mousedown', listener);
+        document.addEventListener('touchstart', listener);
+        return () => {
+          document.removeEventListener('mousedown', listener);
+          document.removeEventListener('touchstart', listener);
+        };
+      }, [ref, callback]);
+    };
+
+    // ─── Terminal (animated typing demo) ─────────────────────────────────────
+    const useInView = (ref, once = true) => {
+      const [inView, setInView] = React.useState(false);
+      const triggered = React.useRef(false);
+      React.useEffect(() => {
+        const el = ref.current;
+        if (!el || (once && triggered.current)) return;
+        const observer = new IntersectionObserver(([entry]) => {
+          if (entry.isIntersecting && !triggered.current) {
+            setInView(true);
+            if (once) { triggered.current = true; observer.disconnect(); }
+          }
+        }, { threshold: 0.1 });
+        observer.observe(el);
+        return () => observer.disconnect();
+      }, [ref, once]);
+      return inView;
+    };
+
+    const tokenizeBash = (text) => {
+      const tokens = [];
+      const words = text.split(/(\s+)/);
+      let isFirst = true;
+      for (const w of words) {
+        if (/^\s+$/.test(w))                           { tokens.push({ type: 'default', value: w }); continue; }
+        if (w.startsWith('#'))                          { tokens.push({ type: 'comment', value: w }); continue; }
+        if (w.startsWith('$'))                          { tokens.push({ type: 'variable', value: w }); isFirst = false; continue; }
+        if (w.startsWith('--') || w.startsWith('-'))    { tokens.push({ type: 'flag', value: w }); isFirst = false; continue; }
+        if (/^["'].*["']$/.test(w))                     { tokens.push({ type: 'string', value: w }); isFirst = false; continue; }
+        if (/^\d+$/.test(w))                            { tokens.push({ type: 'number', value: w }); isFirst = false; continue; }
+        if (/^[|>&<]+$/.test(w))                        { tokens.push({ type: 'operator', value: w }); isFirst = true; continue; }
+        if (w.includes('/') || w.startsWith('.') || w.startsWith('~')) { tokens.push({ type: 'path', value: w }); isFirst = false; continue; }
+        if (isFirst)                                    { tokens.push({ type: 'command', value: w }); isFirst = false; continue; }
+        tokens.push({ type: 'default', value: w });
+      }
+      return tokens;
+    };
+    const tokenColors = {
+      command: 'text-emerald-400', flag: 'text-sky-400', string: 'text-amber-300',
+      number: 'text-purple-400', operator: 'text-red-400', path: 'text-cyan-300',
+      variable: 'text-pink-400', comment: 'text-neutral-500', default: 'text-neutral-300',
+    };
+    const SyntaxHighlightedText = ({ text }) => (
+      <>{tokenizeBash(text).map((t, i) => <span key={i} className={tokenColors[t.type]}>{t.value}</span>)}</>
+    );
+
+    const Terminal = ({
+      commands = [], outputs = {}, username = 'justin@portfolio',
+      className, typingSpeed = 50, delayBetweenCommands = 800, initialDelay = 500,
+    }) => {
+      const containerRef = React.useRef(null);
+      const contentRef = React.useRef(null);
+      const inView = useInView(containerRef);
+      const [lines, setLines] = React.useState([]);
+      const [currentText, setCurrentText] = React.useState('');
+      const [commandIdx, setCommandIdx] = React.useState(0);
+      const [charIdx, setCharIdx] = React.useState(0);
+      const [outputIdx, setOutputIdx] = React.useState(-1);
+      const [phase, setPhase] = React.useState('idle');
+      const [cursorVisible, setCursorVisible] = React.useState(true);
+
+      const currentCommand = commands[commandIdx] || '';
+      const currentOutputs = React.useMemo(() => outputs[commandIdx] || [], [outputs, commandIdx]);
+      const isLastCommand = commandIdx === commands.length - 1;
+
+      React.useEffect(() => {
+        if (!inView || phase !== 'idle') return;
+        const t = setTimeout(() => setPhase('typing'), initialDelay);
+        return () => clearTimeout(t);
+      }, [inView, phase, initialDelay]);
+
+      React.useEffect(() => {
+        if (phase !== 'typing') return;
+        if (charIdx < currentCommand.length) {
+          const t = setTimeout(() => {
+            setCurrentText(currentCommand.slice(0, charIdx + 1));
+            setCharIdx(c => c + 1);
+          }, typingSpeed + Math.random() * 30);
+          return () => clearTimeout(t);
+        } else {
+          const t = setTimeout(() => setPhase('executing'), 80);
+          return () => clearTimeout(t);
+        }
+      }, [phase, charIdx, currentCommand, typingSpeed]);
+
+      React.useEffect(() => {
+        if (phase !== 'executing') return;
+        setLines(prev => [...prev, { type: 'command', content: currentCommand }]);
+        setCurrentText('');
+        if (currentOutputs.length > 0) { setOutputIdx(0); setPhase('outputting'); }
+        else if (isLastCommand) setPhase('done');
+        else setPhase('pausing');
+      }, [phase, currentCommand, currentOutputs.length, isLastCommand]);
+
+      React.useEffect(() => {
+        if (phase !== 'outputting') return;
+        if (outputIdx >= 0 && outputIdx < currentOutputs.length) {
+          const t = setTimeout(() => {
+            setLines(prev => [...prev, { type: 'output', content: currentOutputs[outputIdx] }]);
+            setOutputIdx(i => i + 1);
+          }, 150);
+          return () => clearTimeout(t);
+        } else if (outputIdx >= currentOutputs.length) {
+          const t = setTimeout(() => setPhase(isLastCommand ? 'done' : 'pausing'), 300);
+          return () => clearTimeout(t);
+        }
+      }, [phase, outputIdx, currentOutputs, isLastCommand]);
+
+      React.useEffect(() => {
+        if (phase !== 'pausing') return;
+        const t = setTimeout(() => {
+          setCharIdx(0); setOutputIdx(-1);
+          setCommandIdx(c => c + 1);
+          setPhase('typing');
+        }, delayBetweenCommands);
+        return () => clearTimeout(t);
+      }, [phase, delayBetweenCommands]);
+
+      React.useEffect(() => {
+        const i = setInterval(() => setCursorVisible(v => !v), 530);
+        return () => clearInterval(i);
+      }, []);
+
+      React.useEffect(() => {
+        if (contentRef.current) contentRef.current.scrollTop = contentRef.current.scrollHeight;
+      }, [lines, phase]);
+
+      const prompt = (
+        <span className="text-neutral-500">
+          <span className="text-sky-500">{username}</span>
+          <span className="text-emerald-600">:</span>
+          <span className="text-sky-400">~</span>
+          <span className="text-neutral-500">$</span>{' '}
+        </span>
+      );
+
+      return (
+        <div ref={containerRef} className={cn('mx-auto w-full max-w-xl px-4 font-mono text-xs', className)}>
+          <div className="overflow-hidden rounded-lg border border-neutral-800 bg-neutral-900 shadow-2xl">
+            <div className="flex items-center gap-2 bg-neutral-800 px-4 py-3">
+              <div className="flex items-center gap-1.5">
+                <div className="h-3 w-3 rounded-full bg-red-500" />
+                <div className="h-3 w-3 rounded-full bg-yellow-500" />
+                <div className="h-3 w-3 rounded-full bg-green-500" />
+              </div>
+              <div className="flex-1 text-center">
+                <span className="truncate text-xs text-neutral-400">{username} — bash</span>
+              </div>
+              <div className="w-[52px]" />
+            </div>
+            <div ref={contentRef} className="h-80 overflow-y-auto p-4 font-mono">
+              {lines.map((line, i) => (
+                <div key={i} className="leading-relaxed whitespace-pre-wrap">
+                  {line.type === 'command' ? (
+                    <span>{prompt}<SyntaxHighlightedText text={line.content} /></span>
+                  ) : (
+                    <span className="text-neutral-400">{line.content}</span>
+                  )}
+                </div>
+              ))}
+              {phase === 'typing' && (
+                <div className="leading-relaxed whitespace-pre-wrap">
+                  {prompt}
+                  <SyntaxHighlightedText text={currentText} />
+                  <span className="ml-0.5 inline-block h-4 w-2 bg-neutral-300 align-middle" />
+                </div>
+              )}
+              {(phase === 'done' || phase === 'pausing' || phase === 'outputting') && (
+                <div className="leading-relaxed whitespace-pre-wrap">
+                  {prompt}
+                  <span className={cn('inline-block h-4 w-2 bg-neutral-300 align-middle transition-opacity duration-100', !cursorVisible && 'opacity-0')} />
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    // Terminal demo wired to Justin's actual agent-skills flow.
+    const TerminalDemo = () => (
+      <Terminal
+        username="justin@portfolio"
+        typingSpeed={45}
+        delayBetweenCommands={1000}
+        commands={[
+          '/portfolio-projects add this repo',
+          "git commit -m 'projects: add lethe'",
+          'git push origin main',
+          '✓ Live in 60 seconds.',
+        ]}
+        outputs={{
+          0: [
+            '✔ Read git remote: jhatch3/lethe-',
+            '✔ Fetched GitHub metadata',
+            '✔ Inferred tags: AI Agents, Healthcare, Python',
+            '✔ Edited data.js',
+          ],
+          1: ['[main 8a3f1c2] projects: add lethe'],
+          2: ['Counting objects: 3, done.', 'Writing objects: 100% (3/3)', 'To github.com/jhatch3/justin-portfolio.git'],
+        }}
+      />
+    );
+
+    // ─── ExpandableCardDemo (light theme, CSS transitions, no motion) ────────
+    // Wired to Justin's top 5 projects from data.js.
+    const expandCards = D.projects.slice(0, 5).map(p => ({
+      title: p.name,
+      description: p.subtitle,
+      ctaText: p.url ? 'GitHub ↗' : 'View',
+      ctaLink: p.url || '#projects',
+      bullets: p.bullets || [],
+      tags: p.tags,
+      status: p.status,
+      // initials placeholder image
+      initials: p.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase(),
+    }));
+
+    const ProjectInitialsTile = ({ initials, size = 'sm' }) => (
+      <div className={cn(
+        'flex items-center justify-center rounded-lg font-mono font-bold tracking-tighter',
+        size === 'sm' ? 'h-14 w-14 text-base' : 'h-80 w-full text-6xl',
+      )} style={{
+        background: 'linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 50%, #a5b4fc 100%)',
+        color: 'rgba(10,37,64,0.55)',
+      }}>{initials}</div>
+    );
+
+    const ExpandableCardDemo = () => {
+      const [active, setActive] = React.useState(null);
+      const ref = React.useRef(null);
+
+      React.useEffect(() => {
+        const onKey = (e) => { if (e.key === 'Escape') setActive(null); };
+        document.body.style.overflow = active ? 'hidden' : 'auto';
+        window.addEventListener('keydown', onKey);
+        return () => {
+          document.body.style.overflow = 'auto';
+          window.removeEventListener('keydown', onKey);
+        };
+      }, [active]);
+
+      useOutsideClick(ref, () => setActive(null));
+
+      return (
+        <>
+          {/* Backdrop + modal */}
+          {active && (
+            <>
+              <div className="fixed inset-0 bg-black/30 z-10 animate-[fadeIn_0.18s_ease-out]" />
+              <div className="fixed inset-0 grid place-items-center z-[100] p-4">
+                <button
+                  className="lg:hidden flex absolute top-4 right-4 z-[110] items-center justify-center bg-white rounded-full h-9 w-9 shadow-lg"
+                  onClick={() => setActive(null)} aria-label="Close"
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-black"><path d="M18 6l-12 12"/><path d="M6 6l12 12"/></svg>
+                </button>
+                <div ref={ref} className="w-full max-w-[560px] max-h-[90vh] flex flex-col bg-white rounded-3xl overflow-hidden shadow-2xl animate-[scaleIn_0.18s_ease-out]">
+                  <ProjectInitialsTile initials={active.initials} size="lg" />
+                  <div className="flex justify-between items-start p-5 gap-4">
+                    <div className="min-w-0 flex-1">
+                      <h3 className="font-bold text-lg" style={{ color: 'var(--ink)' }}>{active.title}</h3>
+                      <p className="text-sm mt-1" style={{ color: 'var(--ink-3)' }}>{active.description}</p>
+                    </div>
+                    <a href={active.ctaLink} target={active.ctaLink.startsWith('http') ? '_blank' : undefined} rel="noopener noreferrer"
+                       className="px-4 py-2 text-sm rounded-full font-semibold text-white shrink-0" style={{ background: 'var(--accent)' }}>
+                      {active.ctaText}
+                    </a>
+                  </div>
+                  <div className="px-5 pb-5 overflow-y-auto" style={{ color: 'var(--ink-2)' }}>
+                    {active.bullets.length > 0 && (
+                      <ul className="text-sm leading-relaxed pl-5 list-disc space-y-1.5 mb-4">
+                        {active.bullets.map((b, i) => <li key={i}>{b}</li>)}
+                      </ul>
+                    )}
+                    <div className="flex gap-1.5 flex-wrap">
+                      {active.tags.map(t => (
+                        <span key={t} className="text-[11px] px-2.5 py-0.5 rounded-full"
+                          style={{ background: 'rgba(29,78,216,0.06)', color: 'var(--accent)', border: '0.5px solid rgba(29,78,216,0.15)' }}>
+                          {t}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+
+          <ul className="max-w-2xl mx-auto w-full">
+            {expandCards.map((card) => (
+              <li key={card.title}
+                onClick={() => setActive(card)}
+                className="p-4 flex flex-col md:flex-row justify-between items-center hover:bg-neutral-100/60 rounded-xl cursor-pointer transition-colors"
+              >
+                <div className="flex gap-4 flex-col md:flex-row items-center">
+                  <ProjectInitialsTile initials={card.initials} />
+                  <div>
+                    <h3 className="font-medium text-center md:text-left" style={{ color: 'var(--ink)' }}>{card.title}</h3>
+                    <p className="text-sm text-center md:text-left" style={{ color: 'var(--ink-3)' }}>{card.description}</p>
+                  </div>
+                </div>
+                <button className="px-4 py-2 text-sm rounded-full font-semibold mt-4 md:mt-0 transition-colors"
+                  style={{ background: 'rgba(10,37,64,0.06)', color: 'var(--ink-2)' }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--accent)'; e.currentTarget.style.color = 'white'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(10,37,64,0.06)'; e.currentTarget.style.color = 'var(--ink-2)'; }}
+                >Open</button>
+              </li>
+            ))}
+          </ul>
+
+          <style>{`
+            @keyframes fadeIn  { from { opacity: 0 } to { opacity: 1 } }
+            @keyframes scaleIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+          `}</style>
+        </>
+      );
+    };
+
+    // ─── /Terminal + ExpandableCard ──────────────────────────────────────────
 
     // ─── Reusable ─────────────────────────────────────────────────────────────
     const Container = ({ children, style }) => (
@@ -533,12 +890,39 @@
       </section>
     );
 
+    // ─── Agent skills section (Terminal) ──────────────────────────────────────
+    const AgentSkillsSection = () => (
+      <section id="agent-skills" style={{ padding: '64px 0', animation: 'fadeUp 0.7s ease-out' }}>
+        <Container>
+          <SectionHeader
+            eyebrow="Agent Skills"
+            title="Add any repo to the site with one command."
+            sub="Custom Claude Code skills (/portfolio-projects, /portfolio-experience, /portfolio-now) edit data.js, commit, and push from any cwd."
+          />
+        </Container>
+        <TerminalDemo />
+      </section>
+    );
+
+    // ─── Featured (ExpandableCard) ────────────────────────────────────────────
+    const FeaturedSection = () => (
+      <section id="featured" style={{ padding: '64px 0', animation: 'fadeUp 0.75s ease-out' }}>
+        <Container>
+          <SectionHeader eyebrow="Featured Work" title="Top projects"
+            sub="Click any project to expand for full details." />
+          <ExpandableCardDemo />
+        </Container>
+      </section>
+    );
+
     // ─── App ──────────────────────────────────────────────────────────────────
     const App = () => (
       <>
         <Nav />
         <Hero />
+        <AgentSkillsSection />
         <Experience />
+        <FeaturedSection />
         <Projects />
         <Writing />
         <Skills />
