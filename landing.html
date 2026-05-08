@@ -24,6 +24,7 @@
     --border-strong: rgba(10,37,64,0.20);
     --shadow: 0 1px 2px rgba(10,37,64,0.04), 0 8px 24px rgba(10,37,64,0.06);
   }
+  html { scroll-behavior: smooth; scroll-padding-top: 80px; }
   html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink-2);
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
     -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
@@ -111,8 +112,8 @@
               {D.name}
             </a>
             <nav style={{ display: 'flex', gap: 22, marginLeft: 'auto', fontSize: 14 }}>
-              <a href="#projects"   style={{ color: 'var(--ink-2)' }}>Projects</a>
               <a href="#experience" style={{ color: 'var(--ink-2)' }}>Experience</a>
+              <a href="#projects"   style={{ color: 'var(--ink-2)' }}>Projects</a>
               <a href="#writing"    style={{ color: 'var(--ink-2)' }}>Writing</a>
               <a href="#contact"    style={{ color: 'var(--ink-2)' }}>Contact</a>
             </nav>
@@ -139,9 +140,14 @@
 
     // ─── Hero ─────────────────────────────────────────────────────────────────
     const Hero = () => (
-      <section id="hero" style={{ padding: '80px 0 64px', animation: 'fadeUp 0.6s ease-out' }}>
+      <section id="hero" style={{
+        minHeight: 'calc(100vh - 64px)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        padding: '40px 0 60px', animation: 'fadeUp 0.6s ease-out',
+        position: 'relative',
+      }}>
         <Container>
-          <div style={{ display: 'flex', gap: 48, alignItems: 'center', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: 48, alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>
             <img src="justin.jpg" alt="Justin Hatch" style={{
               width: 168, height: 168, borderRadius: 24, objectFit: 'cover',
               boxShadow: 'var(--shadow)',
@@ -162,12 +168,27 @@
               </p>
               <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
                 <a href="/desktop" style={primaryBtn}>Open the desktop ↗</a>
+                <a href="#contact" style={secondaryBtn}>Connect →</a>
                 <a href={D.links.resume.href} download="Justin-Hatch-Resume.pdf" style={secondaryBtn}>Resume.pdf ↓</a>
                 <a href={D.links.linkedin.href} target="_blank" rel="noopener noreferrer" style={secondaryBtn}>LinkedIn</a>
               </div>
             </div>
           </div>
         </Container>
+        {/* scroll-down indicator */}
+        <a href="#experience" aria-label="Scroll to experience" style={{
+          position: 'absolute', bottom: 24, left: '50%', transform: 'translateX(-50%)',
+          display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: 4,
+          fontSize: 11, fontFamily: "'JetBrains Mono', monospace", color: 'var(--ink-3)',
+          letterSpacing: '0.1em', textTransform: 'uppercase',
+          animation: 'bounce 2s infinite',
+        }}>
+          <span>scroll</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </a>
+        <style>{`
+          @keyframes bounce { 0%, 100% { transform: translate(-50%, 0); } 50% { transform: translate(-50%, 4px); } }
+        `}</style>
       </section>
     );
 
@@ -218,13 +239,99 @@
     };
 
     // ─── Projects ─────────────────────────────────────────────────────────────
-    const Projects = () => (
+    const Projects = () => {
+      const [query, setQuery] = React.useState('');
+      const [activeTags, setActiveTags] = React.useState([]);
+
+      const allTags = React.useMemo(() => {
+        const counts = {};
+        D.projects.forEach(p => p.tags.forEach(t => { counts[t] = (counts[t] || 0) + 1; }));
+        return Object.keys(counts).sort((a, b) => counts[b] - counts[a]).map(t => ({ tag: t, count: counts[t] }));
+      }, []);
+
+      const toggleTag = (t) => setActiveTags(prev => prev.includes(t) ? prev.filter(x => x !== t) : [...prev, t]);
+
+      const filtered = D.projects.filter(p => {
+        if (query.trim()) {
+          const q = query.toLowerCase();
+          const hay = `${p.name} ${p.subtitle} ${p.tags.join(' ')} ${(p.bullets || []).join(' ')}`.toLowerCase();
+          if (!hay.includes(q)) return false;
+        }
+        if (activeTags.length > 0 && !activeTags.some(t => p.tags.includes(t))) return false;
+        return true;
+      });
+
+      return (
       <section id="projects" style={{ padding: '64px 0', animation: 'fadeUp 0.7s ease-out' }}>
         <Container>
           <SectionHeader eyebrow="Selected Work" title="Projects"
             sub={`${D.projects.length} projects across AI/ML, blockchain, and data infrastructure.`} />
+
+          {/* Search + filter */}
+          <div style={{ marginBottom: 24 }}>
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: 8,
+              background: 'var(--surface)', border: '1px solid var(--border)',
+              borderRadius: 10, padding: '10px 14px', boxShadow: 'var(--shadow)',
+              transition: 'border-color 0.15s',
+            }}
+            onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--accent)'; }}
+            onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--border)'; }}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--ink-3)' }}>
+                <circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+              </svg>
+              <input
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search projects, tech, descriptions..."
+                style={{
+                  flex: 1, border: 0, outline: 0, background: 'transparent',
+                  fontSize: 14, fontFamily: 'inherit', color: 'var(--ink)',
+                }}
+              />
+              {(query || activeTags.length > 0) && (
+                <button onClick={() => { setQuery(''); setActiveTags([]); }} style={{
+                  background: 'transparent', border: 0, padding: 0,
+                  fontSize: 12, color: 'var(--ink-3)', fontFamily: 'inherit',
+                }}>clear ✕</button>
+              )}
+              <span style={{ fontSize: 12, color: 'var(--ink-3)', fontFamily: "'JetBrains Mono', monospace", marginLeft: 4 }}>
+                {filtered.length}/{D.projects.length}
+              </span>
+            </div>
+
+            {/* Tag chips */}
+            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 12 }}>
+              {allTags.map(({ tag, count }) => {
+                const active = activeTags.includes(tag);
+                return (
+                  <button key={tag} onClick={() => toggleTag(tag)} style={{
+                    fontSize: 11, padding: '4px 11px', borderRadius: 999,
+                    border: active ? '0.5px solid var(--accent)' : '0.5px solid var(--border-strong)',
+                    background: active ? 'rgba(29,78,216,0.1)' : 'var(--surface)',
+                    color: active ? 'var(--accent)' : 'var(--ink-2)',
+                    fontFamily: 'inherit', fontWeight: active ? 600 : 500,
+                    transition: 'background 0.15s, border-color 0.15s',
+                  }}>
+                    {tag} <span style={{ opacity: 0.6, marginLeft: 2 }}>{count}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {filtered.length === 0 ? (
+            <div style={{ padding: 40, textAlign: 'center', color: 'var(--ink-3)', fontSize: 14, background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 12 }}>
+              No projects match.{' '}
+              <button onClick={() => { setQuery(''); setActiveTags([]); }} style={{
+                background: 'transparent', border: 0, padding: 0, color: 'var(--accent)',
+                fontFamily: 'inherit', fontSize: 14, textDecoration: 'underline', cursor: 'pointer',
+              }}>Clear filters</button>
+            </div>
+          ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-            {D.projects.map(p => {
+            {filtered.map(p => {
               const bullets = p.bullets || p.points || [];
               return (
                 <article key={p.id} style={{
@@ -265,6 +372,7 @@
               );
             })}
           </div>
+          )}
         </Container>
         <style>{`
           @media (max-width: 720px) {
@@ -273,7 +381,8 @@
           }
         `}</style>
       </section>
-    );
+      );
+    };
 
     // ─── Experience ───────────────────────────────────────────────────────────
     const Experience = () => (
@@ -429,8 +538,8 @@
       <>
         <Nav />
         <Hero />
-        <Projects />
         <Experience />
+        <Projects />
         <Writing />
         <Skills />
         <Contact />
