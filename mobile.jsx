@@ -96,7 +96,7 @@ const IOSLinkedInMark = (
 // ─── Apps registry for iOS home ──────────────────────────────────────────────
 // Items with `href` open externally in a new tab; items without open as in-app sheets.
 const IOS_APPS = [
-  { id: 'chat',       label: "Justin's Bot", icon: RobotMark, bg: 'linear-gradient(160deg, #5e9eff, #0a66c2)', fg: 'white' },
+  { id: 'chat',       label: "Justin's Bot", icon: RobotMark, bg: 'linear-gradient(160deg, #FFB347, #FA8800)', fg: 'white' },
   { id: 'about',      label: 'About',        icon: '◐',  bg: 'linear-gradient(160deg, #7ec0ff, #0a84ff)', fg: 'white' },
   { id: 'projects',   label: 'Projects',     icon: '▦',  bg: 'linear-gradient(160deg, #ffd479, #ff9500)', fg: 'white' },
   { id: 'experience', label: 'Experience',   icon: '≡',  bg: 'linear-gradient(160deg, #d4d4d9, #86868b)', fg: 'white' },
@@ -327,7 +327,8 @@ const IOSChat = ({ onClose }) => {
         paddingTop: 'calc(env(safe-area-inset-top, 0px) + 42px)',
         padding: 'calc(env(safe-area-inset-top, 0px) + 42px) 14px 10px',
         display: 'flex', alignItems: 'center', gap: 10,
-        background: 'linear-gradient(180deg, rgba(18,30,60,0.95), rgba(13,22,46,0.85))',
+        background: '#0a0a0a',
+        borderBottom: '0.5px solid rgba(250,136,0,0.3)',
         borderBottom: '0.5px solid rgba(0,0,0,0.3)', flexShrink: 0,
       }}>
         <button onClick={onClose} aria-label="Close" style={{
@@ -340,7 +341,7 @@ const IOSChat = ({ onClose }) => {
         </button>
         <div style={{
           width: 36, height: 36, borderRadius: '50%',
-          background: 'linear-gradient(160deg, #5e9eff, #0a66c2)',
+          background: 'linear-gradient(160deg, #FFB347, #FA8800)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           color: 'white', fontWeight: 700, fontSize: 14, flexShrink: 0,
           boxShadow: 'inset 0 0.5px 0 rgba(255,255,255,0.4)',
@@ -365,8 +366,8 @@ const IOSChat = ({ onClose }) => {
             <div key={i} style={{
               alignSelf: mine ? 'flex-end' : 'flex-start',
               maxWidth: '82%',
-              background: mine ? '#0a84ff' : 'rgba(60,60,62,0.95)',
-              color: mine ? 'white' : '#f5f5f7',
+              background: mine ? '#FA8800' : 'rgba(40,40,42,0.95)',
+              color: mine ? '#1a1a1a' : '#f5f5f7',
               padding: '8px 12px', borderRadius: 16,
               borderBottomRightRadius: mine ? 4 : 16, borderBottomLeftRadius: mine ? 16 : 4,
               fontSize: 14, lineHeight: 1.45, whiteSpace: 'pre-wrap', wordBreak: 'break-word',
@@ -400,8 +401,8 @@ const IOSChat = ({ onClose }) => {
           }} />
         <button onClick={() => sendText(input)} disabled={!input.trim() || sending} aria-label="Send" style={{
           width: 38, height: 38, borderRadius: '50%', border: 0,
-          background: input.trim() && !sending ? '#0a84ff' : 'rgba(255,255,255,0.12)',
-          color: input.trim() && !sending ? 'white' : 'rgba(255,255,255,0.4)',
+          background: input.trim() && !sending ? '#FA8800' : 'rgba(255,255,255,0.12)',
+          color: input.trim() && !sending ? '#1a1a1a' : 'rgba(255,255,255,0.4)',
           cursor: input.trim() && !sending ? 'pointer' : 'default',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           flexShrink: 0, WebkitTapHighlightColor: 'transparent',
@@ -625,13 +626,13 @@ const IPhoneApp = () => {
   return (
     <div style={{
       position: 'fixed', inset: 0, zIndex: 9999, overflow: 'hidden',
-      background: 'linear-gradient(155deg, #050810 0%, #0c1220 25%, #131c33 55%, #18243f 80%, #0a1020 100%)',
+      background: '#000',
     }}>
-      {/* Wallpaper blobs - subtle blues only */}
+      {/* Wallpaper - subtle amber glow + dot grid */}
       <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none' }}>
-        <div style={{ position: 'absolute', top: '-15%', left: '-20%', width: '90%', height: '60%', borderRadius: '50%', background: 'radial-gradient(circle, rgba(60,100,180,0.35), transparent 60%)', filter: 'blur(60px)' }} />
-        <div style={{ position: 'absolute', top: '20%', right: '-25%', width: '90%', height: '60%', borderRadius: '50%', background: 'radial-gradient(circle, rgba(40,80,160,0.28), transparent 60%)', filter: 'blur(70px)' }} />
-        <div style={{ position: 'absolute', bottom: '-25%', left: '10%', width: '90%', height: '60%', borderRadius: '50%', background: 'radial-gradient(circle, rgba(30,60,140,0.32), transparent 60%)', filter: 'blur(60px)' }} />
+        <div style={{ position: 'absolute', top: '-15%', left: '-20%', width: '90%', height: '60%', borderRadius: '50%', background: 'radial-gradient(circle, rgba(250,136,0,0.18), transparent 60%)', filter: 'blur(80px)' }} />
+        <div style={{ position: 'absolute', bottom: '-20%', right: '-15%', width: '90%', height: '60%', borderRadius: '50%', background: 'radial-gradient(circle, rgba(250,136,0,0.10), transparent 60%)', filter: 'blur(80px)' }} />
+        <div style={{ position: 'absolute', inset: 0, opacity: 0.3, backgroundImage: 'radial-gradient(rgba(255,255,255,0.06) 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
       </div>
       <IOSHome onOpen={setActiveApp} />
       {activeApp && renderActive()}

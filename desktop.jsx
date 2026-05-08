@@ -3,24 +3,22 @@
 const { useState, useEffect, useRef, useCallback, createContext, useContext } = React;
 
 // ─── Wallpaper ───────────────────────────────────────────────────────────────
-// Apple Pro Display XDR vibe: deep charcoal -> navy, restrained blue lighting.
+// Bloomberg Terminal: pitch black with a subtle dot grid + faint amber glow.
 const Wallpaper = () => (
   <div style={{
     position: 'fixed', inset: 0, zIndex: 0, overflow: 'hidden',
-    background: 'linear-gradient(155deg, #050810 0%, #0c1220 22%, #131c33 50%, #18243f 75%, #0a1020 100%)',
+    background: '#000',
   }}>
-    {/* depth blobs - subtle blues only */}
-    <div style={{ position: 'absolute', top: '-20%', left: '-10%', width: '70%', height: '70%', borderRadius: '50%',
-      background: 'radial-gradient(circle, rgba(60,100,180,0.35), transparent 60%)', filter: 'blur(60px)' }} />
-    <div style={{ position: 'absolute', top: '20%', right: '-15%', width: '70%', height: '80%', borderRadius: '50%',
-      background: 'radial-gradient(circle, rgba(40,80,160,0.28), transparent 60%)', filter: 'blur(80px)' }} />
-    <div style={{ position: 'absolute', bottom: '-25%', left: '20%', width: '70%', height: '70%', borderRadius: '50%',
-      background: 'radial-gradient(circle, rgba(30,60,140,0.32), transparent 60%)', filter: 'blur(70px)' }} />
-    <div style={{ position: 'absolute', top: '40%', left: '35%', width: '40%', height: '40%', borderRadius: '50%',
-      background: 'radial-gradient(circle, rgba(80,120,200,0.18), transparent 65%)', filter: 'blur(60px)' }} />
-    {/* subtle grain */}
-    <div style={{ position: 'absolute', inset: 0, opacity: 0.06, mixBlendMode: 'overlay',
-      backgroundImage: 'url("data:image/svg+xml;utf8,<svg xmlns=\\"http://www.w3.org/2000/svg\\" width=\\"120\\" height=\\"120\\"><filter id=\\"n\\"><feTurbulence baseFrequency=\\"0.9\\" /></filter><rect width=\\"120\\" height=\\"120\\" filter=\\"url(%23n)\\"/></svg>")' }} />
+    {/* faint amber glow at top-left */}
+    <div style={{ position: 'absolute', top: '-20%', left: '-10%', width: '60%', height: '60%', borderRadius: '50%',
+      background: 'radial-gradient(circle, rgba(250,136,0,0.12), transparent 65%)', filter: 'blur(80px)' }} />
+    <div style={{ position: 'absolute', bottom: '-20%', right: '-10%', width: '50%', height: '50%', borderRadius: '50%',
+      background: 'radial-gradient(circle, rgba(250,136,0,0.08), transparent 65%)', filter: 'blur(80px)' }} />
+    {/* dot grid */}
+    <div style={{ position: 'absolute', inset: 0, opacity: 0.35,
+      backgroundImage: 'radial-gradient(rgba(255,255,255,0.06) 1px, transparent 1px)',
+      backgroundSize: '24px 24px',
+    }} />
   </div>
 );
 
