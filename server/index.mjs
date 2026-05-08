@@ -278,6 +278,10 @@ app.post('/api/chat', async (req, res) => {
   }
 });
 
+// Root → serve the main HTML (the file has a space in its name, so the
+// default `index.html` lookup misses it).
+app.get('/', (_req, res) => res.sendFile(path.join(projectRoot, 'Justin Hatch.html')));
+
 // Static files (the portfolio prototype). Served LAST so /api routes win.
 app.use(express.static(projectRoot, {
   extensions: ['html'],
