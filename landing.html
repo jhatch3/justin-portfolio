@@ -225,7 +225,7 @@
       );
 
       return (
-        <div ref={containerRef} className={cn('mx-auto w-full max-w-xl px-4 font-mono text-xs', className)}>
+        <div ref={containerRef} className={cn('mx-auto w-full max-w-3xl px-4 font-mono text-sm', className)}>
           <div className="overflow-hidden rounded-lg border border-neutral-800 bg-neutral-900 shadow-2xl">
             <div className="flex items-center gap-2 bg-neutral-800 px-4 py-3">
               <div className="flex items-center gap-1.5">
@@ -238,7 +238,7 @@
               </div>
               <div className="w-[52px]" />
             </div>
-            <div ref={contentRef} className="h-80 overflow-y-auto p-4 font-mono">
+            <div ref={contentRef} className="h-[28rem] overflow-y-auto p-5 font-mono">
               {lines.map((line, i) => (
                 <div key={i} className="leading-relaxed whitespace-pre-wrap">
                   {line.type === 'command' ? (
@@ -267,27 +267,30 @@
       );
     };
 
-    // Terminal demo wired to Justin's actual agent-skills flow.
+    // Terminal demo: neofetch-style identity card. Types one command, outputs
+    // ASCII Apple logo + spec sheet, then idles.
     const TerminalDemo = () => (
       <Terminal
         username="justin@portfolio"
-        typingSpeed={45}
-        delayBetweenCommands={1000}
-        commands={[
-          '/portfolio-projects add this repo',
-          "git commit -m 'projects: add lethe'",
-          'git push origin main',
-          '✓ Live in 60 seconds.',
-        ]}
+        typingSpeed={55}
+        delayBetweenCommands={4000}
+        commands={[ 'neofetch justin' ]}
         outputs={{
           0: [
-            '✔ Read git remote: jhatch3/lethe-',
-            '✔ Fetched GitHub metadata',
-            '✔ Inferred tags: AI Agents, Healthcare, Python',
-            '✔ Edited data.js',
+            "                                  ",
+            "              .:'                 justin@portfolio",
+            "          __ :'__                 ─────────────────────────────",
+            "       .'`__`-'__``.              Role         AI / ML Engineer",
+            "      :__________.-'              Available    June 2026",
+            "      :_________:                 Currently    Modern Amenities · OBG (Lead SWE)",
+            "       :_________`-;              Stack        Python · TypeScript · Claude · FastAPI",
+            "        `.__.-.__.'               Location     Eugene, OR · Remote-friendly",
+            "                                  Education    B.S. CS · Univ. of Oregon (Jun 2026)",
+            "                                  Projects     13 across AI/ML, blockchain, data",
+            "                                  GitHub       github.com/jhatch3",
+            "                                  Email        jjhatch03@gmail.com",
+            "                                  ",
           ],
-          1: ['[main 8a3f1c2] projects: add lethe'],
-          2: ['Counting objects: 3, done.', 'Writing objects: 100% (3/3)', 'To github.com/jhatch3/justin-portfolio.git'],
         }}
       />
     );
@@ -1025,14 +1028,14 @@
       </section>
     );
 
-    // ─── Agent skills section (Terminal) ──────────────────────────────────────
-    const AgentSkillsSection = () => (
-      <section id="agent-skills" style={{ padding: '64px 0', animation: 'fadeUp 0.7s ease-out' }}>
+    // ─── At-a-glance terminal (neofetch-style) ───────────────────────────────
+    const AtAGlanceSection = () => (
+      <section id="whoami" style={{ padding: '64px 0', animation: 'fadeUp 0.7s ease-out' }}>
         <Container>
           <SectionHeader
-            eyebrow="Agent Skills"
-            title="Add any repo to the site with one command."
-            sub="Custom Claude Code skills (/portfolio-projects, /portfolio-experience, /portfolio-now) edit data.js, commit, and push from any cwd."
+            eyebrow="whoami"
+            title="The 30-second version."
+            sub="All the basics, terminal-style."
           />
         </Container>
         <TerminalDemo />
@@ -1055,7 +1058,7 @@
       <>
         <Nav />
         <Hero />
-        <AgentSkillsSection />
+        <AtAGlanceSection />
         <Experience />
         <ProjectsSection />
         <Writing />
