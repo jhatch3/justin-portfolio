@@ -1382,71 +1382,43 @@
       );
     };
 
-    // ─── Education (timeline) ───────────────────────────────────────────────
-    const EducationSection = () => {
-      const data = (D.education || []).map(e => ({
-        title: e.year,
-        content: (
-          <div>
-            <h4 style={{ fontSize: 17, fontWeight: 600, color: 'var(--ink)', marginBottom: 10, letterSpacing: '-0.01em' }}>
-              {e.title}
-            </h4>
-            <ul style={{ margin: 0, paddingLeft: 18, fontSize: 14, lineHeight: 1.6, color: 'var(--ink-2)' }}>
-              {e.bullets.map((b, i) => <li key={i} style={{ marginBottom: 4 }}>{b}</li>)}
-            </ul>
-          </div>
-        ),
-      }));
-      return (
-        <section id="education" style={{ padding: '64px 0', animation: 'fadeUp 0.7s ease-out' }}>
-          <Container>
-            <SectionHeader eyebrow="Education" title="University of Oregon"
-              sub={`${D.degree} · graduating ${D.graduating}.`} />
-          </Container>
-          <Timeline data={data} />
-        </section>
-      );
-    };
-
-    // ─── Projects (timeline format) ─────────────────────────────────────────
-    const ProjectsTimelineSection = () => {
-      const data = D.projects.map(p => ({
-        title: p.name,
-        content: (
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8, flexWrap: 'wrap' }}>
-              <span style={{ fontSize: 13, color: 'var(--ink-3)' }}>{p.subtitle}</span>
-              <StatusBadge status={p.status} />
-              {p.url && (
-                <a href={p.url} target="_blank" rel="noopener noreferrer"
-                   style={{ marginLeft: 'auto', fontSize: 12, fontWeight: 500, color: 'var(--accent)' }}>
-                  View on GitHub ↗
-                </a>
-              )}
+    // ─── Education (flat card, no year-by-year) ─────────────────────────────
+    const EducationSection = () => (
+      <section id="education" style={{ padding: '64px 0', animation: 'fadeUp 0.7s ease-out' }}>
+        <Container>
+          <SectionHeader eyebrow="Education" title="University of Oregon"
+            sub={`${D.degree} · graduating ${D.graduating}.`} />
+          <div style={{
+            background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 14,
+            padding: '24px 26px', boxShadow: 'var(--shadow)',
+          }}>
+            <div style={{ fontSize: 18, fontWeight: 600, color: 'var(--ink)', marginBottom: 4, letterSpacing: '-0.01em' }}>
+              {D.degree}
             </div>
-            {p.bullets && p.bullets.length > 0 && (
-              <ul style={{ margin: '8px 0 12px', paddingLeft: 18, fontSize: 13.5, lineHeight: 1.55, color: 'var(--ink-2)' }}>
-                {p.bullets.map((b, i) => <li key={i} style={{ marginBottom: 4 }}>{b}</li>)}
-              </ul>
-            )}
-            <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
-              {p.tags.map(t => <Tag key={t}>{t}</Tag>)}
+            <div style={{ fontSize: 14, color: 'var(--ink-3)', marginBottom: 16, fontFamily: "'JetBrains Mono', monospace" }}>
+              {D.school} · graduating {D.graduating}
+            </div>
+            <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--accent)', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 10 }}>
+              Honors &amp; awards
+            </div>
+            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+              {(D.honors || []).map(h => <Tag key={h}>{h}</Tag>)}
             </div>
           </div>
-        ),
-      }));
-      return (
-        <section id="projects" style={{ padding: '64px 0', animation: 'fadeUp 0.75s ease-out' }}>
-          <Container>
-            <SectionHeader eyebrow="Selected Work" title="Projects"
-              sub={`${D.projects.length} projects across AI/ML, blockchain, and data infrastructure.`} />
-          </Container>
-          <Timeline data={data} />
-        </section>
-      );
-    };
+        </Container>
+      </section>
+    );
 
-    // (StatusBadge already defined above near ExpandableCardDemo - reuse that.)
+    // ─── Projects (expandable card grid - the prior 'old way' format) ──────
+    const ProjectsCardSection = () => (
+      <section id="projects" style={{ padding: '64px 0', animation: 'fadeUp 0.75s ease-out' }}>
+        <Container>
+          <SectionHeader eyebrow="Selected Work" title="Projects"
+            sub={`${D.projects.length} projects across AI/ML, blockchain, and data infrastructure. Click any to expand.`} />
+          <ExpandableCardDemo />
+        </Container>
+      </section>
+    );
 
     // ─── App ──────────────────────────────────────────────────────────────────
     const App = () => (
@@ -1454,7 +1426,7 @@
         <Nav />
         <Hero />
         <Experience />
-        <ProjectsTimelineSection />
+        <ProjectsCardSection />
         <EducationSection />
         <Writing />
         <Skills />
