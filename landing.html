@@ -55,9 +55,12 @@
     .nav-icons { margin-left: auto !important; }
     /* show hamburger on mobile */
     .nav-hamburger { display: inline-flex !important; }
-    /* hero gradient CTA goes full-width; icon buttons keep their natural size */
-    .hero-ctas { width: 100% !important; }
-    .hero-ctas > a:first-child { flex: 1 1 100% !important; justify-content: center !important; }
+    /* hero CTAs all stay on one line on mobile - tighten gap + button padding */
+    .hero-ctas { gap: 8px !important; flex-wrap: nowrap !important; }
+    .hero-ctas > a:first-child { padding-left: 18px !important; padding-right: 18px !important; }
+    .hero-ctas a[aria-label="Email"], .hero-ctas a[aria-label="Resume"], .hero-ctas a[aria-label="LinkedIn"] {
+      width: 40px !important; height: 40px !important; flex-shrink: 0 !important;
+    }
     /* hero photo smaller */
     img[alt="Justin Hatch"] { width: 110px !important; height: 110px !important; }
     /* Inter hero gap tightening */
