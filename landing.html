@@ -41,6 +41,29 @@
     --shadow: 0 1px 2px rgba(10,37,64,0.04), 0 8px 24px rgba(10,37,64,0.06);
   }
   html { scroll-behavior: smooth; scroll-padding-top: 80px; }
+
+  /* Mobile responsive overrides (≤768px). Inline-style padding wins over
+     normal CSS, so we use !important here to tighten things on phones. */
+  @media (max-width: 768px) {
+    section { padding-top: 40px !important; padding-bottom: 40px !important; }
+    #hero  { padding-top: 60px !important; padding-bottom: 40px !important; min-height: auto !important; }
+    /* nav: hide section-anchor row, keep name + social icons */
+    .nav-sections { display: none !important; }
+    /* container side padding */
+    .container { padding-left: 18px !important; padding-right: 18px !important; }
+    /* push social icons right when section anchors are hidden */
+    .nav-icons { margin-left: auto !important; }
+    /* hero CTAs go full-width and stack nicely */
+    .hero-ctas a { flex: 1 1 calc(50% - 6px) !important; justify-content: center !important; }
+    /* hero photo smaller */
+    img[alt="Justin Hatch"] { width: 110px !important; height: 110px !important; }
+    /* Inter hero gap tightening */
+    #hero > .container > div { gap: 24px !important; }
+  }
+  @media (max-width: 480px) {
+    section { padding-top: 32px !important; padding-bottom: 32px !important; }
+  }
+
   html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink-2);
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
     -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
@@ -734,7 +757,7 @@
 
     // ─── Reusable ─────────────────────────────────────────────────────────────
     const Container = ({ children, style }) => (
-      <div style={{ maxWidth: 1040, margin: '0 auto', padding: '0 28px', ...style }}>{children}</div>
+      <div className="container" style={{ maxWidth: 1040, margin: '0 auto', padding: '0 28px', ...style }}>{children}</div>
     );
 
     const Eyebrow = ({ children }) => (
@@ -791,14 +814,14 @@
             <a href="#hero" style={{ color: 'var(--ink)', fontWeight: 700, fontSize: 15, letterSpacing: '-0.01em' }}>
               {D.name}
             </a>
-            <nav style={{ display: 'flex', gap: 22, marginLeft: 'auto', fontSize: 14 }}>
+            <nav className="nav-sections" style={{ display: 'flex', gap: 22, marginLeft: 'auto', fontSize: 14 }}>
               <a href="#experience" style={{ color: 'var(--ink-2)' }}>Experience</a>
               <a href="#projects"   style={{ color: 'var(--ink-2)' }}>Projects</a>
               <a href="#education"  style={{ color: 'var(--ink-2)' }}>Education</a>
               <a href="#writing"    style={{ color: 'var(--ink-2)' }}>Writing</a>
               <a href="#skills"     style={{ color: 'var(--ink-2)' }}>Skills</a>
             </nav>
-            <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+            <div className="nav-icons" style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
               <a href={D.links.github.href}   target="_blank" rel="noopener noreferrer" aria-label="GitHub"   title="GitHub"   style={iconBtn}>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.1.79-.25.79-.55 0-.27-.01-1.16-.02-2.1-3.2.7-3.87-1.36-3.87-1.36-.52-1.32-1.27-1.67-1.27-1.67-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.02 1.76 2.69 1.25 3.34.95.1-.74.4-1.25.73-1.54-2.55-.29-5.24-1.28-5.24-5.7 0-1.26.45-2.29 1.18-3.1-.12-.29-.51-1.46.11-3.05 0 0 .96-.31 3.15 1.18.91-.25 1.89-.38 2.86-.38.97 0 1.95.13 2.86.38 2.18-1.49 3.14-1.18 3.14-1.18.62 1.59.23 2.76.11 3.05.74.81 1.18 1.84 1.18 3.1 0 4.43-2.69 5.41-5.26 5.69.41.36.78 1.06.78 2.13 0 1.54-.01 2.78-.01 3.16 0 .31.21.66.8.55C20.71 21.39 24 17.07 24 12 24 5.65 18.85.5 12.5.5H12z"/></svg>
               </a>
@@ -860,7 +883,7 @@
                 and shipping agents that survive prompt injection, cache aggressively,
                 and emit structured outputs the frontend can trust.
               </p>
-              <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+              <div className="hero-ctas" style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
                 <a href="desktop.html"
                    className="inline-flex items-center gap-2 px-8 py-3 rounded-full bg-gradient-to-b from-blue-500 to-blue-600 text-white text-sm font-semibold shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/50 focus:outline-none focus:ring-2 focus:ring-blue-400 transition duration-200">
                   Interactive mode ↗
