@@ -68,22 +68,6 @@ window.JH_DATA.projects = [
       'Documented the feature engineering, evaluation, and model selection process end-to-end.',
     ],
   },
-  { id: 'crop-share', name: 'Crop Share', subtitle: 'Oregon Blockchain Group · supply-chain provenance',
-    tags: ['Blockchain','Backend','Rust'], status: 'in-progress',
-    bullets: [
-      'On-chain supply-chain provenance for tracking produce from farm to retailer.',
-      'Built on a Rust and Postgres backend with a verifiable event log.',
-      'Lead engineer at Oregon Blockchain Group.',
-    ],
-  },
-  { id: 'polymarket-live', name: 'Polymarket Live', subtitle: 'Command-line tool streaming BTC 5-minute order books',
-    tags: ['Data Pipeline','Blockchain','Python'], status: 'shipped', url: 'https://github.com/jhatch3/polymarket-live',
-    bullets: [
-      'Command-line tool that fetches Polymarket CLOB token IDs for Bitcoin 5-minute Up/Down markets.',
-      'Streams live order books over WebSocket for downstream analytics.',
-      'Written in Python; useful as a building block for prediction-market strategies.',
-    ],
-  },
   { id: 'link-dashboard', name: 'LINK Dashboard', subtitle: 'Dune Analytics dashboard for $LINK · Penn Blockchain',
     tags: ['Blockchain','Data Analysis','SQL'], status: 'shipped', url: 'https://github.com/jhatch3/LINK-dashboard',
     bullets: [
