@@ -20,9 +20,10 @@ window.JH_DATA.projects = [
       'iOS home-screen layout for phones and full macOS for desktops, all rendered from a single React tree branched at the root.',
     ],
   },
-  { id: 'lethe', name: 'Lethe', subtitle: 'Decentralized AI consensus that audits medical bills',
-    tags: ['AI Agents','Blockchain','Healthcare','Python'], status: 'in-progress', url: 'https://github.com/jhatch3/lethe-', image: 'images/projects/lethe.png',
+  { id: 'lethe', name: 'Lethe', subtitle: 'ETH Global Hackathon · decentralized AI consensus that audits medical bills',
+    tags: ['ETH Global','AI Agents','Blockchain','Healthcare','Python'], status: 'in-progress', url: 'https://github.com/jhatch3/lethe-', image: 'images/projects/lethe.png',
     bullets: [
+      'Built at ETH Global Hackathon - finished in the top 10 percent of more than 470 projects.',
       'Decentralized AI consensus system that audits medical bills and disputes overcharges automatically.',
       'Uses multi-agent verification across independent reviewers to make audits tamper-resistant.',
       'Privacy-preserving by design: never stores patient records.',
