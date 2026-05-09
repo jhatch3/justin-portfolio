@@ -24,7 +24,7 @@ window.JH_DATA.experience = [
     start:   'Oct 2025',
     end:     'Present',
     bullets: [
-      'Lead two projects: Crop Share, an on-chain supply-chain provenance system from farm to retailer, and Trial Weave, GLP-1 cohort analytics built on real-world evidence.',
+      'Lead two projects: Crop Share, a supply-chain provenance system that tracks produce from farm to retailer via linked-list-style record chains (not on-chain), and Trial Weave, GLP-1 cohort analytics built on real-world evidence.',
       'Translate stakeholder needs into clear scopes, acceptance criteria, and implementation plans.',
       'Sit on the recruitment board, present in core CS classes, and interview engineering candidates.',
       'Grew the group by more than 30 percent in under a year.',
