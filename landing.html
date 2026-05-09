@@ -339,9 +339,16 @@
           <span className="inline-block whitespace-nowrap" key={idx}>
             {letters.map((letter, i) => (
               <span key={`${idx}-${i}`} className="inline-block"
+                onAnimationEnd={(e) => {
+                  e.currentTarget.style.filter = 'none';
+                  e.currentTarget.style.willChange = 'auto';
+                }}
                 style={{
                   animation: `flipLetter 0.45s ease-out ${i * 0.045}s both`,
                   whiteSpace: letter === ' ' ? 'pre' : 'normal',
+                  willChange: 'filter, transform, opacity',
+                  WebkitFontSmoothing: 'antialiased',
+                  MozOsxFontSmoothing: 'grayscale',
                 }}>
                 {letter === ' ' ? ' ' : letter}
               </span>
