@@ -67,6 +67,7 @@
   <script src="data/profile.js"></script>
   <script src="data/projects.js"></script>
   <script src="data/experience.js"></script>
+  <script src="data/education.js"></script>
   <script src="data/skills.js"></script>
   <script src="data/writing.js"></script>
   <script src="data/now.js"></script>
@@ -793,6 +794,7 @@
             <nav style={{ display: 'flex', gap: 22, marginLeft: 'auto', fontSize: 14 }}>
               <a href="#experience" style={{ color: 'var(--ink-2)' }}>Experience</a>
               <a href="#projects"   style={{ color: 'var(--ink-2)' }}>Projects</a>
+              <a href="#education"  style={{ color: 'var(--ink-2)' }}>Education</a>
               <a href="#writing"    style={{ color: 'var(--ink-2)' }}>Writing</a>
               <a href="#skills"     style={{ color: 'var(--ink-2)' }}>Skills</a>
             </nav>
@@ -1299,16 +1301,169 @@
       </section>
     );
 
-    // ─── Projects (combined: search + 2-col grid + expand modal) ────────────
-    const ProjectsSection = () => (
-      <section id="projects" style={{ padding: '64px 0', animation: 'fadeUp 0.75s ease-out' }}>
-        <Container>
-          <SectionHeader eyebrow="Selected Work" title="Projects"
-            sub={`${D.projects.length} projects across AI/ML, blockchain, and data infrastructure. Click any to expand.`} />
-          <ExpandableCardDemo />
-        </Container>
-      </section>
-    );
+    // ─── Timeline (Aceternity port: scroll-progress gradient line, no motion) ──
+    // Vanilla scroll listener computes a 0..1 progress value the gradient bar
+    // reads via inline style. Same effect as motion's useScroll/useTransform.
+    const Timeline = ({ data, dotColor = 'bg-blue-500' }) => {
+      const containerRef = React.useRef(null);
+      const stripRef = React.useRef(null);
+      const [progress, setProgress] = React.useState(0);
+      const [stripHeight, setStripHeight] = React.useState(0);
+
+      React.useEffect(() => {
+        if (stripRef.current) setStripHeight(stripRef.current.offsetHeight);
+      }, [data]);
+
+      React.useEffect(() => {
+        const compute = () => {
+          if (!containerRef.current) return;
+          const r = containerRef.current.getBoundingClientRect();
+          const wh = window.innerHeight;
+          // Start filling when top reaches 10% of viewport, end when bottom
+          // hits 50% of viewport.
+          const startScroll = wh * 0.1 - r.top;
+          const totalScroll = r.height - wh * 0.5 + wh * 0.1;
+          const p = totalScroll > 0 ? startScroll / totalScroll : 0;
+          setProgress(Math.max(0, Math.min(1, p)));
+        };
+        compute();
+        window.addEventListener('scroll', compute, { passive: true });
+        window.addEventListener('resize', compute);
+        return () => {
+          window.removeEventListener('scroll', compute);
+          window.removeEventListener('resize', compute);
+        };
+      }, []);
+
+      return (
+        <div ref={containerRef} className="relative w-full">
+          <div ref={stripRef} className="relative max-w-5xl mx-auto pb-12">
+            {data.map((item, i) => (
+              <div key={i} className="flex justify-start pt-10 md:pt-24 md:gap-10">
+                {/* Sticky left rail with year/title */}
+                <div className="sticky flex flex-col md:flex-row z-10 items-center top-32 self-start max-w-xs lg:max-w-sm md:w-full">
+                  <div className="h-10 absolute left-3 md:left-3 w-10 rounded-full flex items-center justify-center"
+                       style={{ background: 'var(--bg)' }}>
+                    <div className={`h-3.5 w-3.5 rounded-full ${dotColor}`} style={{ boxShadow: '0 0 0 4px rgba(29,78,216,0.10)' }} />
+                  </div>
+                  <h3 className="hidden md:block text-2xl md:pl-20 md:text-4xl font-bold"
+                      style={{ color: 'var(--ink-3)', letterSpacing: '-0.025em' }}>
+                    {item.title}
+                  </h3>
+                </div>
+                {/* Right column with content */}
+                <div className="relative pl-20 pr-2 md:pl-4 w-full">
+                  <h3 className="md:hidden block text-xl mb-3 text-left font-bold"
+                      style={{ color: 'var(--ink-3)' }}>
+                    {item.title}
+                  </h3>
+                  {item.content}
+                </div>
+              </div>
+            ))}
+            {/* Progress strip */}
+            <div style={{
+              position: 'absolute', left: 32, top: 0, height: stripHeight, width: 2,
+              background: 'linear-gradient(to bottom, transparent 0%, rgba(10,37,64,0.12) 10%, rgba(10,37,64,0.12) 90%, transparent 100%)',
+              maskImage: 'linear-gradient(to bottom, transparent 0%, black 8%, black 92%, transparent 100%)',
+              WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 8%, black 92%, transparent 100%)',
+            }}>
+              <div style={{
+                position: 'absolute', inset: 0, top: 0, width: 2,
+                height: (progress * stripHeight) + 'px',
+                background: 'linear-gradient(to top, #2563eb 0%, #8b5cf6 60%, transparent 100%)',
+                opacity: progress > 0.02 ? 1 : 0,
+                borderRadius: 9999,
+                transition: 'opacity 0.2s',
+              }} />
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    // ─── Education (timeline) ───────────────────────────────────────────────
+    const EducationSection = () => {
+      const data = (D.education || []).map(e => ({
+        title: e.year,
+        content: (
+          <div>
+            <h4 style={{ fontSize: 17, fontWeight: 600, color: 'var(--ink)', marginBottom: 10, letterSpacing: '-0.01em' }}>
+              {e.title}
+            </h4>
+            <ul style={{ margin: 0, paddingLeft: 18, fontSize: 14, lineHeight: 1.6, color: 'var(--ink-2)' }}>
+              {e.bullets.map((b, i) => <li key={i} style={{ marginBottom: 4 }}>{b}</li>)}
+            </ul>
+          </div>
+        ),
+      }));
+      return (
+        <section id="education" style={{ padding: '64px 0', animation: 'fadeUp 0.7s ease-out' }}>
+          <Container>
+            <SectionHeader eyebrow="Education" title="University of Oregon"
+              sub={`${D.degree} · graduating ${D.graduating}.`} />
+          </Container>
+          <Timeline data={data} />
+        </section>
+      );
+    };
+
+    // ─── Projects (timeline format) ─────────────────────────────────────────
+    const ProjectsTimelineSection = () => {
+      const data = D.projects.map(p => ({
+        title: p.name,
+        content: (
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8, flexWrap: 'wrap' }}>
+              <span style={{ fontSize: 13, color: 'var(--ink-3)' }}>{p.subtitle}</span>
+              <StatusBadge status={p.status} />
+              {p.url && (
+                <a href={p.url} target="_blank" rel="noopener noreferrer"
+                   style={{ marginLeft: 'auto', fontSize: 12, fontWeight: 500, color: 'var(--accent)' }}>
+                  View on GitHub ↗
+                </a>
+              )}
+            </div>
+            {p.bullets && p.bullets.length > 0 && (
+              <ul style={{ margin: '8px 0 12px', paddingLeft: 18, fontSize: 13.5, lineHeight: 1.55, color: 'var(--ink-2)' }}>
+                {p.bullets.map((b, i) => <li key={i} style={{ marginBottom: 4 }}>{b}</li>)}
+              </ul>
+            )}
+            <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
+              {p.tags.map(t => <Tag key={t}>{t}</Tag>)}
+            </div>
+          </div>
+        ),
+      }));
+      return (
+        <section id="projects" style={{ padding: '64px 0', animation: 'fadeUp 0.75s ease-out' }}>
+          <Container>
+            <SectionHeader eyebrow="Selected Work" title="Projects"
+              sub={`${D.projects.length} projects across AI/ML, blockchain, and data infrastructure.`} />
+          </Container>
+          <Timeline data={data} />
+        </section>
+      );
+    };
+
+    const StatusBadge = ({ status }) => {
+      const cfg = status === 'shipped'     ? { dot: '#10b981', label: 'shipped' }
+                : status === 'in-progress' ? { dot: '#f59e0b', label: 'in progress' }
+                : { dot: '#94a3b8', label: status || 'wip' };
+      return (
+        <span style={{
+          display: 'inline-flex', alignItems: 'center', gap: 5,
+          fontSize: 10, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase',
+          color: 'var(--ink-3)', fontFamily: "'JetBrains Mono', monospace",
+        }}>
+          <span style={{ width: 5, height: 5, borderRadius: '50%', background: cfg.dot }} />
+          {cfg.label}
+        </span>
+      );
+    };
+
+    // Keep the legacy (now-unused) ProjectsSection so existing references don't break.
+    const ProjectsSection = ProjectsTimelineSection;
 
     // ─── App ──────────────────────────────────────────────────────────────────
     const App = () => (
@@ -1316,7 +1471,8 @@
         <Nav />
         <Hero />
         <Experience />
-        <ProjectsSection />
+        <ProjectsTimelineSection />
+        <EducationSection />
         <Writing />
         <Skills />
         <Contact />

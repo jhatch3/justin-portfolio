@@ -12,6 +12,7 @@ const FILES = [
   'profile.js',
   'projects.js',
   'experience.js',
+  'education.js',
   'skills.js',
   'writing.js',
   'now.js',
