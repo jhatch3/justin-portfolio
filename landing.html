@@ -1446,24 +1446,7 @@
       );
     };
 
-    const StatusBadge = ({ status }) => {
-      const cfg = status === 'shipped'     ? { dot: '#10b981', label: 'shipped' }
-                : status === 'in-progress' ? { dot: '#f59e0b', label: 'in progress' }
-                : { dot: '#94a3b8', label: status || 'wip' };
-      return (
-        <span style={{
-          display: 'inline-flex', alignItems: 'center', gap: 5,
-          fontSize: 10, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase',
-          color: 'var(--ink-3)', fontFamily: "'JetBrains Mono', monospace",
-        }}>
-          <span style={{ width: 5, height: 5, borderRadius: '50%', background: cfg.dot }} />
-          {cfg.label}
-        </span>
-      );
-    };
-
-    // Keep the legacy (now-unused) ProjectsSection so existing references don't break.
-    const ProjectsSection = ProjectsTimelineSection;
+    // (StatusBadge already defined above near ExpandableCardDemo - reuse that.)
 
     // ─── App ──────────────────────────────────────────────────────────────────
     const App = () => (
