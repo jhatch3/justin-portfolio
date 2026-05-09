@@ -281,9 +281,8 @@ app.post('/api/chat', async (req, res) => {
 // Root → traditional landing page (FAANG-friendly portfolio).
 app.get('/', (_req, res) => res.sendFile(path.join(projectRoot, 'landing.html')));
 
-// /desktop → the macOS-simulation portfolio (file has a space, can't rely on
-// the default index lookup).
-app.get('/desktop', (_req, res) => res.sendFile(path.join(projectRoot, 'Justin Hatch.html')));
+// /desktop → the macOS-simulation portfolio (also reachable as /desktop.html).
+app.get('/desktop', (_req, res) => res.sendFile(path.join(projectRoot, 'desktop.html')));
 
 // Static files (the portfolio prototype). Served LAST so /api routes win.
 app.use(express.static(projectRoot, {
@@ -308,12 +307,12 @@ function lanAddresses() {
 
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`[server] listening on 0.0.0.0:${PORT}`);
-  console.log(`[server] local:   http://localhost:${PORT}/Justin%20Hatch.html`);
+  console.log(`[server] local:   http://localhost:${PORT}/desktop.html`);
   const lans = lanAddresses();
   if (lans.length) {
     console.log(`[server] for iPhone / other devices on this Wi-Fi:`);
     for (const { name, address } of lans) {
-      console.log(`[server]   http://${address}:${PORT}/Justin%20Hatch.html   (${name})`);
+      console.log(`[server]   http://${address}:${PORT}/desktop.html   (${name})`);
     }
   } else {
     console.log(`[server] (no LAN interfaces found - only localhost will work)`);
