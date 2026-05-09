@@ -26,7 +26,7 @@ window.JH_DATA.experience = [
     bullets: [
       'Lead two projects: Crop Share, a supply-chain provenance system that tracks produce from farm to retailer via linked-list-style record chains, with consumer-facing QR codes that surface the full chain-of-custody trail; and Trial Weave, GLP-1 cohort analytics built on real-world evidence.',
       'Translate stakeholder needs into clear scopes, acceptance criteria, and implementation plans.',
-      'Sit on the recruitment board, present in core CS classes, and interview engineering candidates.',
+      'Sat on the recruitment board, present in core CS classes, and interview engineering candidates.',
       'Grew the group by more than 30 percent in under a year.',
     ],
     tags: ['Leadership', 'Rust', 'Postgres', 'Recruitment'],
