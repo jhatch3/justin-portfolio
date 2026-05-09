@@ -284,6 +284,12 @@ app.get('/', (_req, res) => res.sendFile(path.join(projectRoot, 'landing.html'))
 // /desktop → the macOS-simulation portfolio (also reachable as /desktop.html).
 app.get('/desktop', (_req, res) => res.sendFile(path.join(projectRoot, 'desktop.html')));
 
+// Legacy redirect: the desktop file used to be 'Justin Hatch.html' (with a
+// space). Anyone with a stale bookmark gets 301-redirected to the new URL.
+app.get(['/Justin Hatch.html', '/Justin%20Hatch.html'], (_req, res) => {
+  res.redirect(301, '/desktop.html');
+});
+
 // Static files (the portfolio prototype). Served LAST so /api routes win.
 app.use(express.static(projectRoot, {
   extensions: ['html'],
