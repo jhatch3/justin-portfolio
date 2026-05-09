@@ -3,39 +3,39 @@
 window.JH_DATA.education = [
   {
     year: '2026',
-    title: 'Graduating · B.S. Computer Science',
+    title: 'Graduating · Bachelor of Science in Computer Science',
     bullets: [
-      'B.S. Computer Science from the University of Oregon, June 2026.',
-      'Department Honors, Dean\'s List multiple terms.',
-      'Concurrent: AI Engineering Intern at Modern Amenities, Lead Software Engineer at Oregon Blockchain Group.',
-      'ETH Global Hackathon - Top 10% of 470+ projects.',
+      'Bachelor of Science in Computer Science from the University of Oregon, June 2026.',
+      "Department Honors and Dean's List for multiple terms.",
+      'Concurrently AI Engineering Intern at Modern Amenities and Lead Software Engineer at Oregon Blockchain Group.',
+      'ETH Global Hackathon: top 10 percent of more than 470 projects.',
     ],
   },
   {
     year: '2025',
-    title: 'Junior year · CS472/572 (ML), Promoted at OBG',
+    title: 'Junior year · CS472/572 (Machine Learning); promoted at OBG',
     bullets: [
-      'Promoted to Lead Software Engineer at Oregon Blockchain Group (Dec 2025).',
-      'CS472/572 Machine Learning - final project: a churn classifier comparing logistic regression, random forest, and gradient-boosted models on cross-validated metrics.',
-      'Joined Oregon Software Consulting (Oct) for client-facing data + AI engineering.',
-      'Started AIMS sales agent at Modern Amenities prep work.',
+      'Promoted to Lead Software Engineer at Oregon Blockchain Group in December 2025.',
+      'CS472/572 Machine Learning: built a churn classifier that compared logistic regression, random forest, and gradient-boosted models on cross-validated metrics.',
+      'Joined Oregon Software Consulting in October for client-facing data and AI engineering.',
+      'Began preparation work for the AIMS sales agent at Modern Amenities.',
     ],
   },
   {
     year: '2024',
-    title: 'Sophomore year · Quack Hacks II Winner',
+    title: 'Sophomore year · Quack Hacks II winner',
     bullets: [
-      'Quack Hacks II - Winner.',
-      'Built early data-science projects: NBA salary mining, predictors of player value.',
-      'Power Automate + LLM invoice automation at U of O Student Business Operations - reduced manual processing time ~100%.',
+      'Won Quack Hacks II.',
+      'Built early data-science projects, including an NBA salary analysis identifying predictors of player value.',
+      'Built a Power Automate plus LLM invoice-automation system at the University of Oregon Student Business Operations, reducing manual processing time by roughly 100 percent.',
     ],
   },
   {
     year: '2023',
     title: 'Started at the University of Oregon',
     bullets: [
-      'Began B.S. Computer Science at U of O, October 2023.',
-      'Joined U of O Student Business Operations as Assistant - early exposure to internal tooling and workflow automation.',
+      'Began Bachelor of Science in Computer Science at the University of Oregon in October 2023.',
+      'Joined the University of Oregon Student Business Operations as an assistant, gaining early exposure to internal tooling and workflow automation.',
     ],
   },
 ];

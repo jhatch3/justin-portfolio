@@ -6,7 +6,7 @@ window.JH_DATA.skills = {
   'ML Engineering':  ['Model Eval', 'Cross-Validation', 'Hyperparameter Tuning', 'Deployment', 'Inference Opt', 'Experiment Tracking', 'Feature Pipelines', 'Data Versioning', 'MLflow'],
   'Machine Learning':['Feature Eng', 'Predictive Modeling', 'XGBoost', 'PyTorch', 'HF Transformers', 'Hypothesis Testing', 'A/B Testing', 'Statistics', 'EDA', 'Time Series'],
   'Languages':       ['Python', 'SQL', 'C / C++', 'TypeScript', 'Rust'],
-  'Backend / Infra': ['FastAPI', 'Redis', 'REST', 'Linux / Bash', 'Microservices', 'CI/CD', 'Pytest', 'Docker', 'Airflow', 'AWS', 'Postgres'],
+  'Backend / Infrastructure': ['FastAPI', 'Redis', 'REST', 'Linux / Bash', 'Microservices', 'CI/CD', 'Pytest', 'Docker', 'Airflow', 'AWS', 'Postgres'],
   'Data':            ['Pandas', 'NumPy', 'SciPy', 'Scikit-learn', 'PySpark'],
   'Frontend':        ['Next.js', 'React', 'Node.js', 'Streamlit'],
 };
