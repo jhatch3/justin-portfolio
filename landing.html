@@ -46,7 +46,7 @@
      normal CSS, so we use !important here to tighten things on phones. */
   @media (max-width: 768px) {
     section { padding-top: 40px !important; padding-bottom: 40px !important; }
-    #hero  { padding-top: 60px !important; padding-bottom: 40px !important; min-height: auto !important; }
+    #hero  { padding-top: 60px !important; padding-bottom: 90px !important; }
     /* nav: hide section-anchor row, keep name + social icons */
     .nav-sections { display: none !important; }
     /* container side padding */
@@ -908,9 +908,10 @@
     // ─── Hero ─────────────────────────────────────────────────────────────────
     const Hero = () => (
       <section id="hero" style={{
-        minHeight: 'calc(100vh - 64px)',
+        minHeight: '100vh',          // fallback for older browsers
+        height: '100dvh',            // dynamic viewport - exactly fills mobile screen, no peek
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        padding: '40px 0 60px', animation: 'fadeUp 0.6s ease-out',
+        padding: '40px 0 90px', animation: 'fadeUp 0.6s ease-out',
         position: 'relative',
       }}>
         <Container>
@@ -975,6 +976,21 @@
             </div>
           </div>
         </Container>
+        {/* scroll-down indicator pinned to bottom of hero (which equals bottom
+            of viewport thanks to height: 100dvh) */}
+        <a href="#experience" aria-label="Scroll to experience" style={{
+          position: 'absolute', bottom: 28, left: '50%', transform: 'translateX(-50%)',
+          display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: 4,
+          fontSize: 11, fontFamily: "'JetBrains Mono', monospace", color: 'var(--ink-3)',
+          letterSpacing: '0.12em', textTransform: 'uppercase',
+          animation: 'bounce 2s infinite', textDecoration: 'none',
+        }}>
+          <span>scroll</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </a>
+        <style>{`
+          @keyframes bounce { 0%, 100% { transform: translate(-50%, 0); } 50% { transform: translate(-50%, 4px); } }
+        `}</style>
       </section>
     );
 
