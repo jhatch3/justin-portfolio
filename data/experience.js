@@ -10,9 +10,9 @@ window.JH_DATA.experience = [
     end:     'Present',
     bullets: [
       'Built a Claude and FastAPI sales chatbot that qualifies prospects across dozens of machines inside a 3D and AR demo.',
-      "Used Anthropic's tool-use API to emit structured calls so the frontend renders deterministic calls-to-action without parsing free text.",
-      'Red-teamed the system prompt against five jailbreak vectors; all were rejected through a single canonical refusal.',
-      'Cut inference cost through prompt caching, and added per-IP rate limiting, a 24-hour token budget, and structured logs that track request IDs and cached-token counts.',
+      "Used Anthropic's tool-use API so the frontend renders deterministic calls-to-action from structured outputs instead of parsing free-text replies.",
+      'Red-teamed the system prompt against five jailbreak vectors; all rejected with a single canonical refusal.',
+      'Cut inference cost through prompt caching and added per-IP rate limiting, a 24-hour token budget, and structured logs that track request IDs and cached-token counts.',
     ],
     tags: ['Claude', 'FastAPI', 'Tool Use', 'Prompt Caching', 'RAG'],
   },
@@ -26,7 +26,7 @@ window.JH_DATA.experience = [
     bullets: [
       'Lead two projects: Crop Share, a supply-chain provenance system that tracks produce from farm to retailer via linked-list-style record chains, with consumer-facing QR codes that surface the full chain-of-custody trail; and Trial Weave, GLP-1 cohort analytics built on real-world evidence.',
       'Translate stakeholder needs into clear scopes, acceptance criteria, and implementation plans.',
-      'Sat on the recruitment board, present in core CS classes, and interview engineering candidates.',
+      'Sat on the recruitment board, presented in core CS classes, and interviewed engineering candidates.',
       'Grew the group by more than 30 percent in under a year.',
     ],
     tags: ['Leadership', 'Rust', 'Postgres', 'Recruitment'],
@@ -51,7 +51,7 @@ window.JH_DATA.experience = [
     start:   'Oct 2023',
     end:     'Present',
     bullets: [
-      'Built a Power Automate plus LLM automation system that files online invoices and statements without human review.',
+      'Built a Power Automate and LLM automation system that files online invoices and statements without human review.',
       'Reduced manual processing time by roughly 100 percent, effectively eliminating the task.',
     ],
     tags: ['Power Automate', 'Excel', 'Power BI'],
