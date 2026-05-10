@@ -10,6 +10,14 @@ window.JH_DATA.projects = [
       'Cut inference cost through prompt caching and added per-IP rate limiting, a 24-hour token budget, and structured logs that track cached-token counts.',
     ],
   },
+  { id: 'mock-machine-skill', name: 'Mock Machine Generator', subtitle: 'Modern Amenities · 2026',
+    tags: ['AI Agents','Automation','Python'], status: 'shipped',
+    bullets: [
+      'Built a Claude Code skill that generates parameterized placeholder vending-machine 3D models for the vendAR AR sales tool.',
+      'Wraps a Blender Python pipeline (eight archetypes × custom dimensions) and auto-wires entries into a staging-only catalog so production stays untouched.',
+      'Reads manufacturer spec PDFs to auto-populate full machine entries — used to seed six SandStar AI kiosks (dimensions, capacity, power, weight, lead time) in a single command.',
+    ],
+  },
   { id: 'justin-portfolio', name: 'This Portfolio', subtitle: 'macOS desktop simulation with a live AI bot and agent skills',
     tags: ['Frontend','AI Agents','LLM','Full-Stack'], status: 'shipped', url: 'https://github.com/jhatch3/justin-portfolio', image: 'images/projects/justin-portfolio.png',
     bullets: [
