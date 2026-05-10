@@ -13,8 +13,9 @@ window.JH_DATA.experience = [
       "Used Anthropic's tool-use API so the frontend renders deterministic calls-to-action from structured outputs instead of parsing free-text replies.",
       'Red-teamed the system prompt against five jailbreak vectors; all rejected with a single canonical refusal.',
       'Cut inference cost through prompt caching and added per-IP rate limiting, a 24-hour token budget, and structured logs that track request IDs and cached-token counts.',
+      'Authored a Claude Code skill that generates parameterized placeholder vending-machine 3D models via a Blender Python pipeline, wires them into a staging-only catalog, and reads manufacturer PDFs to seed full machine entries — six SandStar AI kiosks added in a single command.',
     ],
-    tags: ['Claude', 'FastAPI', 'Tool Use', 'Prompt Caching', 'RAG'],
+    tags: ['Claude', 'FastAPI', 'Tool Use', 'Prompt Caching', 'RAG', 'Blender', 'Agent Skills'],
   },
   {
     company: 'Oregon Blockchain Group',
