@@ -359,6 +359,16 @@
               from { opacity: 0; transform: translateY(10px); filter: blur(8px); }
               to   { opacity: 1; transform: translateY(0);   filter: blur(0);   }
             }
+            /* Mobile: skip the filter:blur path entirely. iOS and Android both
+               leave residual sub-pixel blur on letters that animate through
+               filter:blur() because the compositor layer doesn't release cleanly.
+               Pure opacity + translate keeps text crisp. */
+            @media (max-width: 768px), (hover: none), (pointer: coarse) {
+              @keyframes flipLetter {
+                from { opacity: 0; transform: translateY(10px); }
+                to   { opacity: 1; transform: translateY(0);   }
+              }
+            }
           `}</style>
         </span>
       );
