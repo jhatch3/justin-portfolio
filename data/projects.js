@@ -84,7 +84,7 @@ window.JH_DATA.projects = [
     ],
   },
   { id: 'trading-strategy-analysis', name: 'Trading Strategy Analysis', subtitle: 'SMA crossover vs. buy-and-hold backtest',
-    tags: ['Data Analysis','Finance','Python'], status: 'shipped', url: 'https://github.com/jhatch3/finance_ds_projects/tree/main/trading_strategy_analysis',
+    tags: ['Data Analysis','Finance','Python'], status: 'shipped', url: 'https://github.com/jhatch3/finance_ds_projects/tree/main/trading_strategy_analysis', image: 'images/projects/trading-strategy-analysis.png',
     bullets: [
       'Backtested a 50/255-day SMA crossover strategy against buy-and-hold across 200 randomized ticker draws.',
       'Built an Investor class that tracks trades, cash, and shares while logging CAGR for each simulation.',
