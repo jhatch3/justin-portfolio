@@ -83,6 +83,22 @@ window.JH_DATA.projects = [
       'Written in JavaScript with modular fetcher, transformer, and sink layers.',
     ],
   },
+  { id: 'trading-strategy-analysis', name: 'Trading Strategy Analysis', subtitle: 'SMA crossover vs. buy-and-hold backtest',
+    tags: ['Data Analysis','Finance','Python'], status: 'shipped', url: 'https://github.com/jhatch3/finance_ds_projects/tree/main/trading_strategy_analysis',
+    bullets: [
+      'Backtested a 50/255-day SMA crossover strategy against buy-and-hold across 200 randomized ticker draws.',
+      'Built an Investor class that tracks trades, cash, and shares while logging CAGR for each simulation.',
+      'Ran a Mann-Whitney U test on the CAGR distributions to check whether the strategy difference is statistically significant.',
+    ],
+  },
+  { id: 'monte-carlo-price-sim', name: 'Monte Carlo Price Simulator', subtitle: 'Geometric Brownian Motion forecasts for stocks and crypto',
+    tags: ['Data Analysis','Finance','Python'], status: 'shipped', url: 'https://github.com/jhatch3/finance_ds_projects/tree/main/Monte_Carlo',
+    bullets: [
+      'Streamlit app that simulates forward price paths using Geometric Brownian Motion fit from historical log returns.',
+      'Configurable horizon (30–730 days), simulation count (100–5,000 paths), and bull/bear/high-volatility scenarios.',
+      'Plots confidence bands, the distribution of terminal prices, and the historical return distribution with skew and kurtosis stats.',
+    ],
+  },
   { id: 'nba-salary-mining', name: 'NBA Salary Mining', subtitle: 'Predictors of player value from salary data',
     tags: ['Data Analysis','Coursework','Python'], status: 'shipped', url: 'https://github.com/jhatch3/NBA-Salary-Minning', image: 'images/projects/nba-salary-mining.png',
     bullets: [
