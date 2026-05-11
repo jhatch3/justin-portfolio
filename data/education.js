@@ -13,10 +13,10 @@ window.JH_DATA.education = [
   },
   {
     year: '2025',
-    title: 'Junior year · CS472/572 (Machine Learning); promoted at OBG',
+    title: 'Junior year · CS472 (Machine Learning); promoted at OBG',
     bullets: [
       'Promoted to Lead Software Engineer at Oregon Blockchain Group in December 2025.',
-      'CS472/572 Machine Learning: built a churn classifier that compared logistic regression, random forest, and gradient-boosted models on cross-validated metrics.',
+      'CS472 Machine Learning: built a churn classifier that compared logistic regression, random forest, and gradient-boosted models on cross-validated metrics.',
       'Joined Oregon Software Consulting in October for client-facing data and AI engineering.',
       'Began early scoping work on the AIMS sales agent at Modern Amenities.',
     ],

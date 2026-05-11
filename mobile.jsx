@@ -449,22 +449,25 @@ const IOSAbout = ({ onClose }) => (
   </IOSAppView>
 );
 
-const SECTOR_PALETTE = {
-  'AI/ML':               { bg: 'rgba(99,102,241,0.12)',  text: '#4338ca', border: 'rgba(99,102,241,0.35)' },
-  'Blockchain':          { bg: 'rgba(245,158,11,0.14)',  text: '#b45309', border: 'rgba(245,158,11,0.40)' },
-  'Finance':             { bg: 'rgba(16,185,129,0.12)',  text: '#047857', border: 'rgba(16,185,129,0.35)' },
-  'Data Infrastructure': { bg: 'rgba(20,184,166,0.12)',  text: '#0f766e', border: 'rgba(20,184,166,0.35)' },
-  'Sports':              { bg: 'rgba(244,63,94,0.12)',   text: '#be123c', border: 'rgba(244,63,94,0.35)' },
+const SECTOR_DOT = {
+  'AI/ML':               '#6366f1',
+  'Blockchain':          '#f59e0b',
+  'Finance':             '#10b981',
+  'Data Infrastructure': '#14b8a6',
+  'Sports':              '#f43f5e',
 };
 const SectorChip = ({ sector }) => {
   if (!sector) return null;
-  const c = SECTOR_PALETTE[sector] || { bg: 'rgba(100,116,139,0.10)', text: '#475569', border: 'rgba(100,116,139,0.30)' };
+  const dot = SECTOR_DOT[sector] || '#94a3b8';
   return (
     <span style={{
-      display: 'inline-flex', alignItems: 'center', padding: '2px 8px', borderRadius: 999,
-      fontSize: 10, fontWeight: 700, letterSpacing: '0.10em', textTransform: 'uppercase',
-      background: c.bg, color: c.text, border: `1px solid ${c.border}`, whiteSpace: 'nowrap',
-    }}>{sector}</span>
+      display: 'inline-flex', alignItems: 'center', gap: 6,
+      fontSize: 10, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase',
+      color: 'rgba(0,0,0,0.55)', fontFamily: "'JetBrains Mono', monospace",
+    }}>
+      <span style={{ width: 6, height: 6, borderRadius: '50%', background: dot }} />
+      {sector}
+    </span>
   );
 };
 
@@ -480,9 +483,10 @@ const IOSProjects = ({ onClose }) => {
           return (
             <div key={i} style={{ background: 'white', borderRadius: 14, overflow: 'hidden', boxShadow: '0 4px 14px rgba(0,0,0,0.08)' }}>
               <button onClick={() => setOpen(isOpen ? null : i)} style={{ width: '100%', textAlign: 'left', background: 'transparent', border: 0, padding: 16, cursor: 'pointer', fontFamily: 'inherit', WebkitTapHighlightColor: 'transparent', display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {p.sector && <SectorChip sector={p.sector} />}
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <div style={{ fontSize: 16, fontWeight: 600, color: '#1d1d1f', flex: 1 }}>{p.name}</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <div style={{ fontSize: 16, fontWeight: 600, color: '#1d1d1f' }}>{p.name}</div>
+                  {p.sector && <SectorChip sector={p.sector} />}
+                  <span style={{ flex: 1 }} />
                   <span style={{ fontSize: 18, color: 'rgba(0,0,0,0.4)', transform: isOpen ? 'rotate(90deg)' : 'none', transition: 'transform 0.18s' }}>›</span>
                 </div>
                 {p.subtitle && <div style={{ fontSize: 13, color: 'rgba(0,0,0,0.6)', lineHeight: 1.4 }}>{p.subtitle}</div>}

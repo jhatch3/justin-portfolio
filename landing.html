@@ -225,8 +225,10 @@
                   <ProjectInitialsTile initials={active.initials} image={active.image} alt={active.title} size="lg" />
                   <div className="flex justify-between items-start p-5 gap-4">
                     <div className="min-w-0 flex-1">
-                      {active.sector && <div style={{ marginBottom: 8 }}><SectorBadge sector={active.sector} size="lg" /></div>}
-                      <h3 className="font-bold text-lg" style={{ color: 'var(--ink)' }}>{active.title}</h3>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+                        <h3 className="font-bold text-lg" style={{ color: 'var(--ink)' }}>{active.title}</h3>
+                        {active.sector && <SectorBadge sector={active.sector} />}
+                      </div>
                       <p className="text-sm mt-1" style={{ color: 'var(--ink-3)' }}>{active.description}</p>
                     </div>
                     <div className="flex gap-2 shrink-0 flex-wrap justify-end">
@@ -319,8 +321,8 @@
                   <ProjectInitialsTile initials={card.initials} image={card.image} alt={card.title} />
                   <div className="min-w-0">
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 2 }}>
-                      {card.sector && <SectorBadge sector={card.sector} />}
                       <h3 className="font-medium text-sm truncate" style={{ color: 'var(--ink)' }}>{card.title}</h3>
+                      {card.sector && <SectorBadge sector={card.sector} />}
                     </div>
                     <p className="text-xs truncate" style={{ color: 'var(--ink-3)' }}>{card.description}</p>
                   </div>
@@ -417,27 +419,25 @@
       }}>{children}</span>
     );
 
-    const SECTOR_PALETTE = {
-      'AI/ML':               { bg: 'rgba(99,102,241,0.12)',  text: '#4338ca', border: 'rgba(99,102,241,0.35)' },
-      'Blockchain':          { bg: 'rgba(245,158,11,0.14)',  text: '#b45309', border: 'rgba(245,158,11,0.40)' },
-      'Finance':             { bg: 'rgba(16,185,129,0.12)',  text: '#047857', border: 'rgba(16,185,129,0.35)' },
-      'Data Infrastructure': { bg: 'rgba(20,184,166,0.12)',  text: '#0f766e', border: 'rgba(20,184,166,0.35)' },
-      'Sports':              { bg: 'rgba(244,63,94,0.12)',   text: '#be123c', border: 'rgba(244,63,94,0.35)' },
+    const SECTOR_DOT = {
+      'AI/ML':               '#6366f1',
+      'Blockchain':          '#f59e0b',
+      'Finance':             '#10b981',
+      'Data Infrastructure': '#14b8a6',
+      'Sports':              '#f43f5e',
     };
-    const SectorBadge = ({ sector, size = 'sm' }) => {
+    const SectorBadge = ({ sector }) => {
       if (!sector) return null;
-      const c = SECTOR_PALETTE[sector] || { bg: 'rgba(100,116,139,0.10)', text: '#475569', border: 'rgba(100,116,139,0.30)' };
-      const large = size === 'lg';
+      const dot = SECTOR_DOT[sector] || '#94a3b8';
       return (
         <span style={{
-          display: 'inline-flex', alignItems: 'center',
-          padding: large ? '4px 12px' : '3px 10px',
-          borderRadius: 999,
-          fontSize: large ? 11 : 10, fontWeight: 700,
-          letterSpacing: '0.10em', textTransform: 'uppercase',
-          background: c.bg, color: c.text, border: `1px solid ${c.border}`,
-          whiteSpace: 'nowrap',
-        }}>{sector}</span>
+          display: 'inline-flex', alignItems: 'center', gap: 6,
+          fontSize: 10, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase',
+          color: 'var(--ink-3)', fontFamily: "'JetBrains Mono', monospace",
+        }}>
+          <span style={{ width: 6, height: 6, borderRadius: '50%', background: dot }} />
+          {sector}
+        </span>
       );
     };
 
@@ -804,9 +804,9 @@
                     <ProjectImage project={p} />
                   </div>
                   <div style={{ padding: '20px 22px', display: 'flex', flexDirection: 'column', gap: 10 }}>
-                    {p.sector && <SectorBadge sector={p.sector} />}
                     <div style={{ display: 'flex', alignItems: 'baseline', gap: 12, flexWrap: 'wrap' }}>
                       <h3 style={{ fontSize: 19, fontWeight: 600 }}>{p.name}</h3>
+                      {p.sector && <SectorBadge sector={p.sector} />}
                       <StatusBadge status={p.status} />
                       <span style={{ flex: 1 }} />
                       {p.writeup && (
