@@ -468,12 +468,15 @@ const IOSProjects = ({ onClose }) => {
                 {p.subtitle && <div style={{ fontSize: 13, color: 'rgba(0,0,0,0.6)', lineHeight: 1.4 }}>{p.subtitle}</div>}
                 {stack.length > 0 && <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>{stack.map(t => <span key={t} style={{ fontSize: 10, padding: '2px 8px', borderRadius: 999, background: 'rgba(0,0,0,0.06)', color: 'rgba(0,0,0,0.7)' }}>{t}</span>)}</div>}
               </button>
-              {isOpen && (bullets.length > 0 || p.url) && (
+              {isOpen && (bullets.length > 0 || p.url || p.writeup) && (
                 <div style={{ padding: '0 16px 16px', borderTop: '0.5px solid rgba(0,0,0,0.06)' }}>
                   <div style={{ fontSize: 13, lineHeight: 1.55, color: 'rgba(0,0,0,0.78)', marginTop: 12 }}>
                     {bullets.map((b, j) => <div key={j} style={{ marginBottom: 6 }}>• {b}</div>)}
                   </div>
-                  {p.url && <a href={p.url} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-block', marginTop: 10, color: '#0a84ff', textDecoration: 'none', fontSize: 13, fontWeight: 500 }}>Open project ↗</a>}
+                  <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap', marginTop: 10 }}>
+                    {p.url && <a href={p.url} target="_blank" rel="noopener noreferrer" style={{ color: '#0a84ff', textDecoration: 'none', fontSize: 13, fontWeight: 500 }}>Open project ↗</a>}
+                    {p.writeup && <a href={p.writeup} target="_blank" rel="noopener noreferrer" style={{ color: '#0a84ff', textDecoration: 'none', fontSize: 13, fontWeight: 500 }}>Write-up ↗</a>}
+                  </div>
                 </div>
               )}
             </div>

@@ -63,6 +63,7 @@ window.JH_DATA.projects = [
   },
   { id: 'ml-churn-report', name: 'ML Churn Report', subtitle: 'Final project · CS472/572 (Machine Learning)',
     tags: ['Machine Learning','Coursework','Python'], status: 'shipped', url: 'https://github.com/jhatch3/ML-Churn_Report', image: 'images/projects/ml-churn-report.png',
+    writeup: 'https://www.linkedin.com/feed/update/urn:li:activity:7335728719178702848/',
     bullets: [
       'Final project for CS472/572: applied multiple classifiers to a customer-churn dataset.',
       'Compared logistic regression, random forest, and gradient-boosted models on cross-validated metrics.',
@@ -85,6 +86,7 @@ window.JH_DATA.projects = [
   },
   { id: 'trading-strategy-analysis', name: 'Trading Strategy Analysis', subtitle: 'SMA crossover vs. buy-and-hold backtest',
     tags: ['Data Analysis','Finance','Python'], status: 'shipped', url: 'https://github.com/jhatch3/finance_ds_projects/tree/main/trading_strategy_analysis', image: 'images/projects/trading-strategy-analysis.png',
+    writeup: 'https://www.linkedin.com/feed/update/urn:li:activity:7416532862109237248/',
     bullets: [
       'Backtested a 50/255-day SMA crossover strategy against buy-and-hold across 200 randomized ticker draws.',
       'Built an Investor class that tracks trades, cash, and shares while logging CAGR for each simulation.',
@@ -101,6 +103,7 @@ window.JH_DATA.projects = [
   },
   { id: 'nba-salary-mining', name: 'NBA Salary Mining', subtitle: 'Predictors of player value from salary data',
     tags: ['Data Analysis','Coursework','Python'], status: 'shipped', url: 'https://github.com/jhatch3/NBA-Salary-Minning', image: 'images/projects/nba-salary-mining.png',
+    writeup: 'https://www.linkedin.com/feed/update/urn:li:activity:7424544588599734272/',
     bullets: [
       'Analyzed NBA salary data to identify predictors of player value.',
       'Includes exploratory analysis, correlation studies, and a written report.',
