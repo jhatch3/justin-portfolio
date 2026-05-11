@@ -1,7 +1,10 @@
-// data/projects.js — portfolio projects, sorted by importance.
+// data/projects.js — portfolio projects, sorted by importance. Each has a `sector`
+// (AI/ML, Blockchain, Finance, Data Infrastructure, Sports) used to render a colored
+// badge on the project card.
 
 window.JH_DATA.projects = [
   { id: 'sales-agent', name: 'Sales Agent', subtitle: 'Modern Amenities · 2026',
+    sector: 'AI/ML',
     tags: ['AI Agents','LLM','Tool Use','Backend'], status: 'shipped', image: 'images/projects/sales-agent.png',
     bullets: [
       'Built a Claude and FastAPI sales chatbot that qualifies prospects across dozens of machines inside a 3D and AR demo.',
@@ -11,6 +14,7 @@ window.JH_DATA.projects = [
     ],
   },
   { id: 'lethe', name: 'Lethe', subtitle: 'ETH Global Hackathon · decentralized AI consensus that audits medical bills',
+    sector: 'Blockchain',
     tags: ['ETH Global','AI Agents','Blockchain','Healthcare','Python'], status: 'in-progress', url: 'https://github.com/jhatch3/lethe-', image: 'images/projects/lethe.png',
     bullets: [
       'Built at ETH Global Hackathon - finished in the top 10 percent of more than 470 projects.',
@@ -20,6 +24,7 @@ window.JH_DATA.projects = [
     ],
   },
   { id: 'justin-portfolio', name: 'This Portfolio', subtitle: 'macOS desktop simulation with a live AI bot and agent skills',
+    sector: 'AI/ML',
     tags: ['Frontend','AI Agents','LLM','Full-Stack'], status: 'shipped', url: 'https://github.com/jhatch3/justin-portfolio', image: 'images/projects/justin-portfolio.png',
     bullets: [
       'macOS desktop simulation with draggable, resizable windows, dock magnification, and a ⌘K spotlight search.',
@@ -30,6 +35,7 @@ window.JH_DATA.projects = [
     ],
   },
   { id: 'trial-weave', name: 'Trial Weave', subtitle: 'Oregon Blockchain Group · GLP-1 cohort analytics',
+    sector: 'AI/ML',
     tags: ['Machine Learning','Healthcare','Python'], status: 'in-progress',
     bullets: [
       'Cohort real-world-evidence analytics that track outcomes across GLP-1 drug regimens.',
@@ -38,6 +44,7 @@ window.JH_DATA.projects = [
     ],
   },
   { id: 'evergreen-capital', name: 'Evergreen Capital', subtitle: 'AI-governed prediction fund trading Polymarket',
+    sector: 'Blockchain',
     tags: ['AI Agents','Blockchain','TypeScript'], status: 'in-progress', url: 'https://github.com/jhatch3/Evergreen-Capital', image: 'images/projects/evergreen-capital.png',
     bullets: [
       'Decentralized, AI-governed prediction fund that trades autonomously on Polymarket.',
@@ -46,6 +53,7 @@ window.JH_DATA.projects = [
     ],
   },
   { id: 'mock-machine-skill', name: 'Mock Machine Generator', subtitle: 'Modern Amenities · 2026',
+    sector: 'AI/ML',
     tags: ['AI Agents','Automation','Python'], status: 'shipped',
     bullets: [
       'Built a Claude Code skill that generates parameterized placeholder vending-machine 3D models for the vendAR AR sales tool.',
@@ -54,6 +62,7 @@ window.JH_DATA.projects = [
     ],
   },
   { id: 'invoice-bot', name: 'Invoice Automation', subtitle: 'University of Oregon · Power Automate plus LLM',
+    sector: 'AI/ML',
     tags: ['Automation','LLM'], status: 'shipped',
     bullets: [
       'Power Automate and LLM automation that files online invoices and statements without human review.',
@@ -62,6 +71,7 @@ window.JH_DATA.projects = [
     ],
   },
   { id: 'link-dashboard', name: 'LINK Dashboard', subtitle: 'Dune Analytics dashboard for $LINK · Penn Blockchain',
+    sector: 'Blockchain',
     tags: ['Blockchain','Data Analysis','SQL'], status: 'shipped', url: 'https://github.com/jhatch3/LINK-dashboard', image: 'images/projects/link-dashboard.png',
     bullets: [
       'Dune Analytics dashboard for the $LINK token, built in collaboration with Penn Blockchain.',
@@ -69,6 +79,7 @@ window.JH_DATA.projects = [
     ],
   },
   { id: 'ml-churn-report', name: 'ML Churn Report', subtitle: 'Final project · CS472/572 (Machine Learning)',
+    sector: 'AI/ML',
     tags: ['Machine Learning','Coursework','Python'], status: 'shipped', url: 'https://github.com/jhatch3/ML-Churn_Report', image: 'images/projects/ml-churn-report.png',
     writeup: 'https://www.linkedin.com/feed/update/urn:li:activity:7335728719178702848/',
     bullets: [
@@ -78,6 +89,7 @@ window.JH_DATA.projects = [
     ],
   },
   { id: 'trading-strategy-analysis', name: 'Trading Strategy Analysis', subtitle: 'SMA crossover vs. buy-and-hold backtest',
+    sector: 'Finance',
     tags: ['Data Analysis','Finance','Python'], status: 'shipped', url: 'https://github.com/jhatch3/finance_ds_projects/tree/main/trading_strategy_analysis', image: 'images/projects/trading-strategy-analysis.png',
     writeup: 'https://www.linkedin.com/feed/update/urn:li:activity:7416532862109237248/',
     bullets: [
@@ -87,6 +99,7 @@ window.JH_DATA.projects = [
     ],
   },
   { id: 'monte-carlo-price-sim', name: 'Monte Carlo Price Simulator', subtitle: 'Geometric Brownian Motion forecasts for stocks and crypto',
+    sector: 'Finance',
     tags: ['Data Analysis','Finance','Python'], status: 'shipped', url: 'https://github.com/jhatch3/finance_ds_projects/tree/main/Monte_Carlo',
     bullets: [
       'Streamlit app that simulates forward price paths using Geometric Brownian Motion fit from historical log returns.',
@@ -95,6 +108,7 @@ window.JH_DATA.projects = [
     ],
   },
   { id: 'nba-salary-mining', name: 'NBA Salary Mining', subtitle: 'Predictors of player value from salary data',
+    sector: 'Sports',
     tags: ['Data Analysis','Coursework','Python'], status: 'shipped', url: 'https://github.com/jhatch3/NBA-Salary-Minning', image: 'images/projects/nba-salary-mining.png',
     writeup: 'https://www.linkedin.com/feed/update/urn:li:activity:7424544588599734272/',
     bullets: [
@@ -103,6 +117,7 @@ window.JH_DATA.projects = [
     ],
   },
   { id: 'stock-pipeline', name: 'Stock Pipeline', subtitle: 'Data pipeline for stock-market analysis',
+    sector: 'Data Infrastructure',
     tags: ['Data Pipeline','JavaScript','Finance'], status: 'shipped', url: 'https://github.com/jhatch3/stock-pipe-line', image: 'images/projects/stock-pipeline.png',
     bullets: [
       'Data pipeline that fetches, cleans, and stores stock-market data for downstream analysis.',
