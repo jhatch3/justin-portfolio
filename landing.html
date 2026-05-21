@@ -71,11 +71,6 @@
   }
   /* Hamburger is hidden on desktop */
   .nav-hamburger { display: none; }
-  /* GitHub contribution grid: slim horizontal scrollbar, hairline on WebKit */
-  .contrib-scroll { scrollbar-width: thin; scrollbar-color: rgba(10,37,64,0.20) transparent; }
-  .contrib-scroll::-webkit-scrollbar { height: 6px; }
-  .contrib-scroll::-webkit-scrollbar-thumb { background: rgba(10,37,64,0.18); border-radius: 3px; }
-  .contrib-scroll::-webkit-scrollbar-track { background: transparent; }
   @media (max-width: 480px) {
     section { padding-top: 32px !important; padding-bottom: 32px !important; }
   }
@@ -643,7 +638,7 @@
         <Container>
           <div style={{ display: 'flex', gap: 48, alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>
             <img src="justin.jpg" alt="Justin Hatch" style={{
-              width: 168, height: 168, borderRadius: 24, objectFit: 'cover',
+              width: 200, height: 200, borderRadius: 24, objectFit: 'cover',
               boxShadow: 'var(--shadow)',
             }} />
             <div style={{ flex: 1, minWidth: 280 }}>
@@ -1139,20 +1134,19 @@
     // GitHub's contributions calendar (no token needed) and is cached in
     // localStorage for 6h so repeat visits paint instantly.
     const CONTRIB_LEVELS = [
-      'rgba(10,37,64,0.06)',   // 0 - no contributions
-      'rgba(29,78,216,0.28)',  // 1
-      'rgba(29,78,216,0.48)',  // 2
-      'rgba(29,78,216,0.72)',  // 3
-      'rgba(29,78,216,1)',     // 4 - busiest days, full --accent
+      'rgba(10,37,64,0.10)',   // 0 - no contributions
+      'rgba(23,62,170,0.45)',  // 1
+      'rgba(23,62,170,0.66)',  // 2
+      'rgba(23,62,170,0.85)',  // 3
+      'rgba(20,52,140,1)',     // 4 - busiest days, deep navy-blue
     ];
     const ContributionGraph = () => {
-      const SQ = 11, GAP = 3;
+      const GAP = 3;
       const handle = ((D.links.github && D.links.github.label) || 'github.com/jhatch3')
         .replace(/^github\.com\//, '').replace(/\/$/, '');
       const githubHref = (D.links.github && D.links.github.href) || ('https://github.com/' + handle);
       const [data, setData] = React.useState(null);   // { total, days: [{date,count,level}] }
       const [failed, setFailed] = React.useState(false);
-      const scrollRef = React.useRef(null);
 
       React.useEffect(() => {
         let alive = true;
@@ -1195,11 +1189,6 @@
         return out;
       }, [data]);
 
-      // On overflow (narrow viewports), reveal the most recent weeks first.
-      React.useEffect(() => {
-        if (scrollRef.current) scrollRef.current.scrollLeft = scrollRef.current.scrollWidth;
-      }, [weeks.length]);
-
       const skeleton = !data && !failed;
       const cols = skeleton ? Array.from({ length: 53 }) : weeks;
 
@@ -1209,23 +1198,22 @@
       // Just the squares — the whole grid is a subtle link to the GitHub profile.
       return (
         <a href={githubHref} target="_blank" rel="noopener noreferrer"
-           ref={scrollRef} className="contrib-grid contrib-scroll"
+           className="contrib-grid"
            aria-label={data ? (data.total.toLocaleString() + ' GitHub contributions in the last year') : 'GitHub contributions'}
            title="GitHub contributions — last 12 months"
            style={{
-             display: 'block', overflowX: 'auto', overflowY: 'hidden',
-             marginTop: 28, paddingBottom: 4, maxWidth: '100%',
+             display: 'block', marginTop: 28, width: '100%',
              opacity: skeleton ? 0.5 : 1, transition: 'opacity 0.3s',
              animation: 'fadeUp 0.6s ease-out',
            }}>
-          <div style={{ display: 'flex', gap: GAP, width: 'max-content' }}>
+          <div style={{ display: 'flex', gap: GAP, width: '100%' }}>
             {cols.map((col, ci) => (
-              <div key={ci} style={{ display: 'grid', gridTemplateRows: 'repeat(7, ' + SQ + 'px)', gap: GAP, flex: '0 0 auto' }}>
+              <div key={ci} style={{ display: 'flex', flexDirection: 'column', gap: GAP, flex: '1 1 0', minWidth: 0 }}>
                 {(skeleton ? Array.from({ length: 7 }) : col).map((d, ri) => (
                   <div key={ri}
                     title={(!skeleton && d) ? (d.count + ' contribution' + (d.count === 1 ? '' : 's') + ' on ' + d.date) : undefined}
                     style={{
-                      width: SQ, height: SQ, borderRadius: 2,
+                      width: '100%', aspectRatio: '1', borderRadius: 2,
                       background: skeleton ? CONTRIB_LEVELS[0] : (d ? CONTRIB_LEVELS[d.level] : 'transparent'),
                       outline: (!skeleton && d) ? '0.5px solid rgba(10,37,64,0.04)' : 'none',
                       outlineOffset: -0.5,
