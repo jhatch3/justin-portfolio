@@ -1,4 +1,4 @@
-// data/writing.js — articles, course reports, dashboards. Most recent first.
+// data/writing.js - articles, course reports, dashboards. Most recent first.
 
 window.JH_DATA.writing = [
   { id: 'nba-salary',        title: 'NBA salary efficiency: a Moneyball-style regression on player value',  date: 'Apr 2026', mins: 4, kind: 'Project Brief', url: 'https://www.linkedin.com/feed/update/urn:li:activity:7424544588599734272/' },

@@ -1,4 +1,4 @@
-// data/profile.js — top-level identity, links, about, certs, honors.
+// data/profile.js - top-level identity, links, about, certs, honors.
 // Loaded FIRST. Creates window.JH_DATA; later data/*.js files extend it.
 
 window.JH_DATA = {
@@ -8,12 +8,12 @@ window.JH_DATA = {
   domain: 'justinhatch.com',
   graduating: 'June 2026',
   school: 'University of Oregon',
-  degree: 'B.S. Computer Science',
+  degree: 'B.S. Computer Science · Specialization in DS, ML & AI',
 
   honors: [
     "Dean's List",
     'Department Honors',
-    'Quack Hacks II - Winner',
+    'QuackHacks II - Winner',
     'ETH Global Hackathon - Top 10% of 470+ projects',
   ],
 
@@ -27,6 +27,7 @@ window.JH_DATA = {
   },
 
   about: [
+    "Anthropic consulting cohort member via Machine & Minds. Currently shipping production LLM systems at Modern Amenities; previously built multi-agent trading infra (1st @ QuackHacks II) and ETL pipelines.",
     "Generalist AI/ML engineer working across language models, autonomous agents, and retrieval-augmented generation. I ship systems that hold up in production: sales agents, cohort analytics, and supply-chain provenance.",
     "Currently an AI Engineering Intern at Modern Amenities and Lead Software Engineer at Oregon Blockchain Group, graduating from the University of Oregon in June 2026.",
   ],

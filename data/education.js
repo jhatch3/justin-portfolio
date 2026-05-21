@@ -1,4 +1,4 @@
-// data/education.js — academic milestones by year (most recent first).
+// data/education.js - academic milestones by year (most recent first).
 
 window.JH_DATA.education = [
   {
@@ -23,9 +23,9 @@ window.JH_DATA.education = [
   },
   {
     year: '2024',
-    title: 'Sophomore year · Quack Hacks II winner',
+    title: 'Sophomore year · QuackHacks II winner',
     bullets: [
-      'Won Quack Hacks II.',
+      'Won QuackHacks II.',
       'Built early data-science projects, including an NBA salary analysis identifying predictors of player value.',
       "Built a Power Automate and LLM invoice-automation system at the University of Oregon's Student Business Operations, reducing manual processing time by roughly 100 percent.",
     ],

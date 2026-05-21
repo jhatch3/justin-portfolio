@@ -1,4 +1,4 @@
-// data/now.js — what I'm doing right now. Most relevant first.
+// data/now.js - what I'm doing right now. Most relevant first.
 
 window.JH_DATA.now = [
   { line: 'Building a sales agent at Modern Amenities.',                       detail: 'Claude · FastAPI · tool-use' },

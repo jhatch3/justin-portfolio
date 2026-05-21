@@ -1,9 +1,9 @@
 <div align="center">
 
-# Justin Hatch — Portfolio
+# Justin Hatch - Portfolio
 
 <a href="https://justin-portfolio-e819.onrender.com">
-  <img src="images/projects/justin-portfolio.png" alt="Justin Hatch portfolio — macOS desktop simulation" width="900" />
+  <img src="images/projects/justin-portfolio.png" alt="Justin Hatch portfolio - macOS desktop simulation" width="900" />
 </a>
 
 **A personal portfolio that's also a working macOS desktop, a streaming Claude chatbot, a live order book, an iOS home screen on phones, and a set of agent skills that let me update the site with a single slash command.**
@@ -26,8 +26,8 @@
 | Surface | What it is |
 |---|---|
 | **`/` Landing page** | Traditional resume-style portfolio: hero, experience, projects, education, writing, skills, embedded PDF, contact. Light theme with navy ink and an animated `FlipWords` tagline. |
-| **`/desktop` Interactive mode** | Full macOS desktop simulation — draggable, resizable windows; dock magnification on hover; ⌘K spotlight; traffic lights; frosted glass everything. Each portfolio section is a window. |
-| **iOS home screen (mobile)** | Viewports under 600×500 get a faithful iOS home screen at `/desktop` — apps in a 4-col grid, frosted dock, status bar, tap-to-open detail sheets. Same React tree, branched at the root. |
+| **`/desktop` Interactive mode** | Full macOS desktop simulation - draggable, resizable windows; dock magnification on hover; ⌘K spotlight; traffic lights; frosted glass everything. Each portfolio section is a window. |
+| **iOS home screen (mobile)** | Viewports under 600×500 get a faithful iOS home screen at `/desktop` - apps in a 4-col grid, frosted dock, status bar, tap-to-open detail sheets. Same React tree, branched at the root. |
 | **Justin's Bot** | Streaming Claude chatbot living in a window. Anthropic SDK + SSE deltas, prompt caching, sliding 24h rate limit. Hardened against 12+ prompt-injection vectors with a built-in red-team suite. |
 | **Live data widgets** | Real Yahoo Finance stock ticker (server-proxied), Coinbase Level-2 WebSocket order book, GitHub + LinkedIn tiles. |
 | **Agent skills** | Six Claude Code skills (`/portfolio-projects`, `/portfolio-experience`, `/portfolio-now`, `/portfolio-writing`, `/portfolio-skills`, `/portfolio-education`) that CRUD the portfolio from any cwd, commit, and push. From inside another GitHub repo, `/portfolio-projects add this repo` scrapes its metadata and adds it as a project automatically. |
@@ -85,7 +85,7 @@ Each skill edits one file in `data/` and auto-commits + pushes. Both the landing
 /portfolio-now add Reading: The Pragmatic Programmer
 /portfolio-now reorder reading top
 
-/portfolio-writing add "How I cut Claude inference 3× via prompt caching" — 6 min — Technical Report
+/portfolio-writing add "How I cut Claude inference 3× via prompt caching" - 6 min - Technical Report
 /portfolio-skills add "AI Engineering" pgvector
 /portfolio-education add bullet 2026 "Won the Hackathon X grand prize"
 ```
@@ -116,8 +116,8 @@ reads the current `git remote`, fetches the repo's GitHub metadata, builds a pro
 
 ```
 /                                Static frontend (no build step)
-  landing.html                   Public landing page (/) — hero, sections, embed
-  desktop.html                   macOS sim (/desktop) — mounts the window manager
+  landing.html                   Public landing page (/) - hero, sections, embed
+  desktop.html                   macOS sim (/desktop) - mounts the window manager
   desktop.jsx                    Wallpaper, menubar, dock, draggable + resizable windows, spotlight
   apps.jsx                       Per-window content (Finder/About, Projects, Experience, Skills, etc.)
   widgets.jsx                    Stock ticker, GitHub + LinkedIn tiles, Coinbase order book
@@ -162,7 +162,7 @@ services:
     healthCheckPath: /api/health
 ```
 
-The free tier sleeps after 15 min of inactivity (~30s cold start). Upgrade to Starter ($7/mo) for always-on. SSE streaming works natively because Render runs a long-lived Node process — Vercel-style serverless functions need a different shape.
+The free tier sleeps after 15 min of inactivity (~30s cold start). Upgrade to Starter ($7/mo) for always-on. SSE streaming works natively because Render runs a long-lived Node process - Vercel-style serverless functions need a different shape.
 
 ---
 
@@ -173,6 +173,15 @@ The free tier sleeps after 15 min of inactivity (~30s cold start). Upgrade to St
 - Add **light-mode toggle** for the desktop sim
 - Real-time **GitHub contribution graph** widget
 - Persist chatbot conversation in `localStorage` so refreshes don't wipe context
+
+---
+
+## Works cited
+
+Third-party components / assets that informed the site:
+
+- **Slide-In Button** by Framer - https://framer.com/m/Slide-In-Button-bb0t.js@AkIIpTKoP29X3k3M6qp2
+  - Inspired the "Hire me" CTA in the landing-page hero (`landing.html`). The original Framer ESM module depends on Framer's proprietary `framer` runtime (not published to any public CDN), so the design is re-implemented in plain CSS using a pseudo-fill that slides in on hover.
 
 ---
 

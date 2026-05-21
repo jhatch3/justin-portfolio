@@ -1,4 +1,4 @@
-# Render.com blueprint — declarative deploy config.
+# Render.com blueprint - declarative deploy config.
 # When you connect this GitHub repo to Render, it reads this file and
 # pre-fills the service settings. You only need to set ANTHROPIC_API_KEY.
 #
@@ -16,7 +16,7 @@ services:
     buildCommand: cd server && npm install
     startCommand: cd server && npm start
     envVars:
-      # SECRET — you set this once in the Render dashboard, not in the repo.
+      # SECRET - you set this once in the Render dashboard, not in the repo.
       - key: ANTHROPIC_API_KEY
         sync: false
 

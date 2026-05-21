@@ -61,6 +61,9 @@
     .hero-ctas a[aria-label="Email"], .hero-ctas a[aria-label="Resume"], .hero-ctas a[aria-label="LinkedIn"] {
       width: 40px !important; height: 40px !important; flex-shrink: 0 !important;
     }
+    /* "Interactive mode" is a secondary CTA - hide on mobile to make room for
+       the primary "Hire me" button + icon links. */
+    .hero-secondary-cta { display: none !important; }
     /* hero photo smaller */
     img[alt="Justin Hatch"] { width: 110px !important; height: 110px !important; }
     /* Inter hero gap tightening */
@@ -68,6 +71,11 @@
   }
   /* Hamburger is hidden on desktop */
   .nav-hamburger { display: none; }
+  /* GitHub contribution grid: slim horizontal scrollbar, hairline on WebKit */
+  .contrib-scroll { scrollbar-width: thin; scrollbar-color: rgba(10,37,64,0.20) transparent; }
+  .contrib-scroll::-webkit-scrollbar { height: 6px; }
+  .contrib-scroll::-webkit-scrollbar-thumb { background: rgba(10,37,64,0.18); border-radius: 3px; }
+  .contrib-scroll::-webkit-scrollbar-track { background: transparent; }
   @media (max-width: 480px) {
     section { padding-top: 32px !important; padding-bottom: 32px !important; }
   }
@@ -86,6 +94,46 @@
   h1, h2, h3 { color: var(--ink); font-weight: 600; letter-spacing: -0.02em; margin: 0; }
 
   @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* Slide-In Button (CSS re-creation of the Framer Slide-In Button design). */
+  .slide-in-btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 11px 22px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+    background: var(--accent);
+    border: 1px solid var(--accent);
+    overflow: hidden;
+    isolation: isolate;
+    cursor: pointer;
+    transition: color 0.45s cubic-bezier(0.65, 0, 0.35, 1);
+    text-decoration: none;
+  }
+  .slide-in-btn__fill {
+    position: absolute;
+    inset: 0;
+    background: #fff;
+    transform: translateX(-101%);
+    transition: transform 0.45s cubic-bezier(0.65, 0, 0.35, 1);
+    z-index: -1;
+  }
+  .slide-in-btn__text, .slide-in-btn__arrow {
+    position: relative;
+    z-index: 1;
+    transition: transform 0.45s cubic-bezier(0.65, 0, 0.35, 1);
+  }
+  .slide-in-btn:hover { color: var(--accent); opacity: 1; }
+  .slide-in-btn:hover .slide-in-btn__fill  { transform: translateX(0); }
+  .slide-in-btn:hover .slide-in-btn__arrow { transform: translateX(3px); }
+  .slide-in-btn:focus-visible {
+    outline: 2px solid rgba(29,78,216,0.5);
+    outline-offset: 2px;
+  }
 </style>
 </head>
 <body>
@@ -562,6 +610,26 @@
       transition: 'background 0.15s, color 0.15s',
     };
 
+    // ─── FramerHireMe ────────────────────────────────────────────────────────
+    // CSS re-creation of the Framer "Slide-In Button" — the original ESM
+    // module from framer.com/m/Slide-In-Button-bb0t.js depends on Framer's
+    // proprietary `framer` runtime, which isn't available standalone on any
+    // public CDN, so the import would never resolve in a vanilla page.
+    // Same visual idea: pill with a colored fill that slides in on hover,
+    // text inverts, arrow icon nudges right.
+    const FramerHireMe = ({ href }) => (
+      <a href={href} className="slide-in-btn">
+        <span className="slide-in-btn__fill" aria-hidden="true" />
+        <span className="slide-in-btn__text">Hire me</span>
+        <svg className="slide-in-btn__arrow" width="14" height="14" viewBox="0 0 24 24"
+             fill="none" stroke="currentColor" strokeWidth="2.2"
+             strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <line x1="5" y1="12" x2="19" y2="12"/>
+          <polyline points="13 6 19 12 13 18"/>
+        </svg>
+      </a>
+    );
+
     // ─── Hero ─────────────────────────────────────────────────────────────────
     const Hero = () => (
       <section id="hero" style={{
@@ -597,7 +665,7 @@
               </div>
               <p style={{ fontSize: 16, lineHeight: 1.55, color: 'var(--ink-2)', margin: '0 0 16px', maxWidth: 580 }}>
                 AI/ML engineer building production agents at <strong style={{ color: 'var(--ink)', fontWeight: 600 }}>Modern Amenities</strong> and
-                engineering at <strong style={{ color: 'var(--ink)', fontWeight: 600 }}>Oregon Blockchain Group</strong>.
+                leading engineering at <strong style={{ color: 'var(--ink)', fontWeight: 600 }}>Oregon Blockchain Group</strong>.
                 Graduating from the University of Oregon in June 2026 and available for full-time roles immediately after.
               </p>
               <p style={{ fontSize: 14, lineHeight: 1.6, color: 'var(--ink-3)', margin: '0 0 24px', maxWidth: 580 }}>
@@ -605,15 +673,18 @@
                 survive prompt injection, cache aggressively, and emit structured outputs the frontend can trust.
               </p>
               <div className="hero-ctas" style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
-                <a href="desktop.html"
-                   className="inline-flex items-center gap-2 px-7 py-2.5 rounded-full bg-gradient-to-b from-blue-500 to-blue-600 text-white text-sm font-semibold shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/50 focus:outline-none focus:ring-2 focus:ring-blue-400 transition duration-200">
+                <FramerHireMe href={`${D.links.email.href}?subject=${encodeURIComponent('Hiring inquiry - ' + D.name)}`} />
+                <a href="desktop.html" className="hero-secondary-cta" style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 6,
+                  padding: '10px 18px', borderRadius: 999, fontSize: 14, fontWeight: 600,
+                  background: 'var(--surface)', color: 'var(--ink-2)',
+                  border: '1px solid var(--border-strong)',
+                  transition: 'border-color 0.15s, color 0.15s',
+                }}
+                  onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--accent)'; e.currentTarget.style.color = 'var(--accent)'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--border-strong)'; e.currentTarget.style.color = 'var(--ink-2)'; }}
+                >
                   Interactive mode ↗
-                </a>
-                <a href={D.links.email.href} title="Email" aria-label="Email" style={iconBtnLg}>
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                    <rect x="2" y="4" width="20" height="16" rx="2.5"/>
-                    <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
-                  </svg>
                 </a>
                 <a href={D.links.resume.href} download="Justin-Hatch-Resume.pdf" title="Resume" aria-label="Resume" style={iconBtnLg}>
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -630,6 +701,7 @@
                   </svg>
                 </a>
               </div>
+              <ContributionGraph />
             </div>
           </div>
         </Container>
@@ -865,15 +937,22 @@
                   fontSize: 12, fontFamily: "'JetBrains Mono', monospace", color: 'var(--ink-3)',
                   marginBottom: 4, letterSpacing: '0.02em',
                 }}>
-                  {e.start} — {e.end}<span style={{ opacity: 0.5 }}> · {e.where}</span>
+                  {e.start} - {e.end}<span style={{ opacity: 0.5 }}> · {e.where}</span>
                 </div>
                 <h3 style={{ fontSize: 18, marginBottom: 2 }}>{e.role}</h3>
                 <div style={{ fontSize: 14, color: 'var(--ink-2)', marginBottom: 10 }}>
                   {e.company}<span style={{ color: 'var(--ink-3)' }}> · {e.type}</span>
                 </div>
                 {e.bullets && e.bullets.length > 0 && (
-                  <ul style={{ margin: 0, paddingLeft: 18, fontSize: 14, lineHeight: 1.6, color: 'var(--ink-2)' }}>
-                    {e.bullets.map((b, j) => <li key={j} style={{ marginBottom: 3 }}>{b}</li>)}
+                  <ul style={{ margin: 0, padding: 0, listStyle: 'none', fontSize: 14, lineHeight: 1.6, color: 'var(--ink-2)' }}>
+                    {e.bullets.map((b, j) => (
+                      <li key={j} style={{
+                        display: 'flex', gap: 10, marginBottom: 12,
+                      }}>
+                        <span style={{ color: 'var(--ink-3)', flexShrink: 0, userSelect: 'none' }}>-</span>
+                        <span>{b}</span>
+                      </li>
+                    ))}
                   </ul>
                 )}
                 {e.tags && (
@@ -1052,6 +1131,112 @@
         </Container>
       </section>
     );
+
+    // ─── GitHub contribution graph (live) ──────────────────────────────────────
+    // Just the 53-week × 7-day square grid of the last year's public
+    // contributions, sitting under the hero text. The whole grid links to the
+    // GitHub profile. Data comes from the open, CORS-enabled jogruber proxy of
+    // GitHub's contributions calendar (no token needed) and is cached in
+    // localStorage for 6h so repeat visits paint instantly.
+    const CONTRIB_LEVELS = [
+      'rgba(10,37,64,0.06)',   // 0 - no contributions
+      'rgba(29,78,216,0.28)',  // 1
+      'rgba(29,78,216,0.48)',  // 2
+      'rgba(29,78,216,0.72)',  // 3
+      'rgba(29,78,216,1)',     // 4 - busiest days, full --accent
+    ];
+    const ContributionGraph = () => {
+      const SQ = 11, GAP = 3;
+      const handle = ((D.links.github && D.links.github.label) || 'github.com/jhatch3')
+        .replace(/^github\.com\//, '').replace(/\/$/, '');
+      const githubHref = (D.links.github && D.links.github.href) || ('https://github.com/' + handle);
+      const [data, setData] = React.useState(null);   // { total, days: [{date,count,level}] }
+      const [failed, setFailed] = React.useState(false);
+      const scrollRef = React.useRef(null);
+
+      React.useEffect(() => {
+        let alive = true;
+        const cacheKey = 'gh-contrib:' + handle;
+        const TTL = 6 * 60 * 60 * 1000;
+        // Paint instantly from cache if it's fresh…
+        try {
+          const raw = localStorage.getItem(cacheKey);
+          if (raw) {
+            const c = JSON.parse(raw);
+            if (c && Date.now() - c.t < TTL && c.d) setData(c.d);
+          }
+        } catch (e) { /* private mode / quota - ignore */ }
+        // …then always refresh in the background.
+        fetch('https://github-contributions-api.jogruber.de/v4/' + encodeURIComponent(handle) + '?y=last')
+          .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
+          .then(json => {
+            if (!alive) return;
+            const payload = { total: (json.total && json.total.lastYear) || 0, days: json.contributions || [] };
+            setData(payload);
+            try { localStorage.setItem(cacheKey, JSON.stringify({ t: Date.now(), d: payload })); } catch (e) {}
+          })
+          .catch(() => { if (alive) setFailed(true); });
+        return () => { alive = false; };
+      }, [handle]);
+
+      // Bucket the flat day list into week-columns (rows = Sun→Sat), padding the
+      // first column so the calendar starts on the right weekday.
+      const weeks = React.useMemo(() => {
+        if (!data || !data.days.length) return [];
+        const out = [];
+        let col = [];
+        const firstDow = new Date(data.days[0].date + 'T00:00:00').getDay();
+        for (let i = 0; i < firstDow; i++) col.push(null);
+        data.days.forEach(d => {
+          col.push(d);
+          if (col.length === 7) { out.push(col); col = []; }
+        });
+        if (col.length) { while (col.length < 7) col.push(null); out.push(col); }
+        return out;
+      }, [data]);
+
+      // On overflow (narrow viewports), reveal the most recent weeks first.
+      React.useEffect(() => {
+        if (scrollRef.current) scrollRef.current.scrollLeft = scrollRef.current.scrollWidth;
+      }, [weeks.length]);
+
+      const skeleton = !data && !failed;
+      const cols = skeleton ? Array.from({ length: 53 }) : weeks;
+
+      // Fetch failed and nothing cached: render nothing rather than an empty frame.
+      if (failed && !data) return null;
+
+      // Just the squares — the whole grid is a subtle link to the GitHub profile.
+      return (
+        <a href={githubHref} target="_blank" rel="noopener noreferrer"
+           ref={scrollRef} className="contrib-grid contrib-scroll"
+           aria-label={data ? (data.total.toLocaleString() + ' GitHub contributions in the last year') : 'GitHub contributions'}
+           title="GitHub contributions — last 12 months"
+           style={{
+             display: 'block', overflowX: 'auto', overflowY: 'hidden',
+             marginTop: 28, paddingBottom: 4, maxWidth: '100%',
+             opacity: skeleton ? 0.5 : 1, transition: 'opacity 0.3s',
+             animation: 'fadeUp 0.6s ease-out',
+           }}>
+          <div style={{ display: 'flex', gap: GAP, width: 'max-content' }}>
+            {cols.map((col, ci) => (
+              <div key={ci} style={{ display: 'grid', gridTemplateRows: 'repeat(7, ' + SQ + 'px)', gap: GAP, flex: '0 0 auto' }}>
+                {(skeleton ? Array.from({ length: 7 }) : col).map((d, ri) => (
+                  <div key={ri}
+                    title={(!skeleton && d) ? (d.count + ' contribution' + (d.count === 1 ? '' : 's') + ' on ' + d.date) : undefined}
+                    style={{
+                      width: SQ, height: SQ, borderRadius: 2,
+                      background: skeleton ? CONTRIB_LEVELS[0] : (d ? CONTRIB_LEVELS[d.level] : 'transparent'),
+                      outline: (!skeleton && d) ? '0.5px solid rgba(10,37,64,0.04)' : 'none',
+                      outlineOffset: -0.5,
+                    }} />
+                ))}
+              </div>
+            ))}
+          </div>
+        </a>
+      );
+    };
 
     // ─── App ──────────────────────────────────────────────────────────────────
     const App = () => (

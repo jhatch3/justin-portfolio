@@ -1,4 +1,4 @@
-// data/projects.js — portfolio projects, sorted by importance. Each has a `sector`
+// data/projects.js - portfolio projects, sorted by importance. Each has a `sector`
 // (AI/ML, Blockchain, Finance, Data Infrastructure, Sports) used to render a colored
 // badge on the project card.
 
@@ -17,7 +17,7 @@ window.JH_DATA.projects = [
     sector: 'Blockchain',
     tags: ['ETH Global','AI Agents','Blockchain','Healthcare','Python'], status: 'in-progress', url: 'https://github.com/jhatch3/lethe-', image: 'images/projects/lethe.png',
     bullets: [
-      'Built a three-LLM consensus system — GPT-4o, Claude Sonnet 4.5, and Gemini Flash — that audits hospital bills via a two-round reflection protocol: independent analysis first, then peer-informed refinement, with 2-of-3 quorum required to dispute a charge.',
+      'Built a three-LLM consensus system - GPT-4o, Claude Sonnet 4.5, and Gemini Flash - that audits hospital bills via a two-round reflection protocol: independent analysis first, then peer-informed refinement, with 2-of-3 quorum required to dispute a charge.',
       'Agents communicate over a Gensyn AXL P2P mesh with cryptographic ed25519 identities, so there is no central orchestrator and no single model can dictate the verdict.',
       'PHI redaction pipeline strips identifiers with deterministic regex plus an LLM sweep before any data reaches the agents; original bill bytes are zeroed from coordinator memory after parsing and never persisted.',
       'Versioned NCCI rulebook and audit blobs anchored to 0G Storage; finding events, salted-SHA-256 NPI hashes, and provider dispute aggregates committed on-chain to 0G Chain with a Sepolia mirror for verifiable provenance.',
@@ -43,14 +43,15 @@ window.JH_DATA.projects = [
       'Translate stakeholder needs into clear scopes, acceptance criteria, and implementation plans.',
     ],
   },
-  { id: 'evergreen-capital', name: 'Evergreen Capital', subtitle: 'QuackHacks II Solana Track winner · five-Gemini-agent prediction fund',
+  { id: 'evergreen-capital', name: 'Evergreen Capital', subtitle: 'QuackHacks II winner (1st Solana, 2nd Polymarket) · five-Gemini-agent prediction fund',
     sector: 'Blockchain',
     tags: ['AI Agents','Blockchain','TypeScript'], status: 'in-progress', url: 'https://github.com/jhatch3/Evergreen-Capital', image: 'images/projects/evergreen-capital.png',
     bullets: [
-      'Five specialized Gemini agents — Quant, Macro Analyst, Skeptic, Data Miner, and Trader — ingest identical Polymarket data packets, run a structured debate, then cast weighted consensus votes to authorize each trade.',
+      'Architected a 5-agent Gemini research desk (Quant, Macro, Skeptic, Data Miner, Trader) where agents independently research, debate via structured cross-examination, and produce weighted consensus votes to trigger autonomous Polymarket trades.',
+      'Built the FastAPI backend handling agent debate orchestration, weighted vote aggregation, and signal handoff to the on-chain execution layer, enabling autonomous trade triggers without human-in-the-loop.',
       'Features pipeline scrapes Polymarket markets and external web signals into Snowflake; time-series engineering surfaces inputs the agents reason over.',
-      'FastAPI + Pydantic decision engine orchestrates the debate and emits signed signals; Solana smart contracts (with WalletConnect) execute trades and distribute returns to pool participants.',
-      'Won 1st place on the Solana Track at QuackHacks II; React + TypeScript dashboard surfaces NAV, balances, and open positions in real time.',
+      'Solana smart contracts (with WalletConnect) execute trades and distribute returns to pool participants; React + TypeScript dashboard surfaces NAV, balances, and open positions in real time.',
+      'Built the full-stack MVP in 24 hours with 2 teammates: 1st Place Solana Track, 2nd Place Polymarket Track at QuackHacks II.',
     ],
   },
   { id: 'mock-machine-skill', name: 'Mock Machine Generator', subtitle: 'Modern Amenities · 2026',
@@ -59,7 +60,7 @@ window.JH_DATA.projects = [
     bullets: [
       'Built a Claude Code skill that generates parameterized placeholder vending-machine 3D models for the vendAR AR sales tool.',
       'Wraps a Blender Python pipeline (eight archetypes × custom dimensions) and auto-wires entries into a staging-only catalog so production stays untouched.',
-      'Reads manufacturer spec PDFs to auto-populate full machine entries — used to seed six SandStar AI kiosks (dimensions, capacity, power, weight, lead time) in a single command.',
+      'Reads manufacturer spec PDFs to auto-populate full machine entries - used to seed six SandStar AI kiosks (dimensions, capacity, power, weight, lead time) in a single command.',
     ],
   },
   { id: 'invoice-bot', name: 'Invoice Automation', subtitle: 'University of Oregon · Power Automate plus LLM',
@@ -75,7 +76,7 @@ window.JH_DATA.projects = [
     sector: 'Blockchain',
     tags: ['Blockchain','Data Analysis','SQL'], status: 'shipped', url: 'https://github.com/jhatch3/LINK-dashboard', image: 'images/projects/link-dashboard.png',
     bullets: [
-      'Co-built a Dune Analytics dashboard for the $LINK token with Penn Blockchain — SQL views over on-chain transfers surface supply, holder concentration, and flow patterns.',
+      'Co-built a Dune Analytics dashboard for the $LINK token with Penn Blockchain - SQL views over on-chain transfers surface supply, holder concentration, and flow patterns.',
       'Notebook companion runs Monte Carlo price simulations across multiple lookback windows (results exported to a 2 MB CSV) with bull and bear scenario overlays.',
       'Pairs on-chain analytics with a Chainlink-as-a-business framing: a key-metrics view and a reconstructed protocol income statement.',
     ],
@@ -85,7 +86,7 @@ window.JH_DATA.projects = [
     tags: ['Machine Learning','Coursework','Python'], status: 'shipped', url: 'https://github.com/jhatch3/ML-Churn_Report', image: 'images/projects/ml-churn-report.png',
     writeup: 'https://www.linkedin.com/feed/update/urn:li:activity:7335728719178702848/',
     bullets: [
-      'Trained four classifiers — Decision Tree, KNN, SVM, and a Multi-Layer Perceptron — on a customer-churn dataset for CS472, with per-model hyperparameter grids and F1 as the headline metric.',
+      'Trained four classifiers - Decision Tree, KNN, SVM, and a Multi-Layer Perceptron - on a customer-churn dataset for CS472, with per-model hyperparameter grids and F1 as the headline metric.',
       'Compared models on cross-validated F1 with boxplots; tracked MLP convergence via accuracy and loss curves and tuned activation functions, depth, and learning rate.',
       'Statistical feature-selection step preceded modeling; documented the full feature engineering → tuning → evaluation pipeline in a written report.',
     ],
@@ -109,25 +110,27 @@ window.JH_DATA.projects = [
       'Surfaces median and mean paths with confidence bands, the distribution of terminal prices with a normal-curve overlay, and the historical log-return distribution annotated with skewness and excess kurtosis.',
     ],
   },
-  { id: 'nba-salary-mining', name: 'NBA Salary Mining', subtitle: 'XGBoost quantile regression that flags over- and under-paid NBA contracts',
+  { id: 'nba-salary-mining', name: 'NBA Salary Efficiency Analysis', subtitle: 'XGBoost regression on 1,500+ player-seasons to flag over- and under-paid NBA contracts',
     sector: 'Sports',
     tags: ['Machine Learning','Sports','Python'], status: 'shipped', url: 'https://github.com/jhatch3/NBA-Salary-Minning', image: 'images/projects/nba-salary-mining.png',
     writeup: 'https://www.linkedin.com/feed/update/urn:li:activity:7424544588599734272/',
     bullets: [
-      'Trained an XGBoost quantile regression on four seasons of NBA salary and advanced stats (2020–21 through 2023–24), with the 2024–25 season held out for residual validation.',
-      'Feature set covers minutes played, Offensive and Defensive BPM, VORP, and one-hot position; salary was log-transformed to stabilize variance across the income distribution.',
-      'Hyperparameter search evaluated 700 configurations under 4-fold cross-validation (2,800 total fits), settling on learning rate 0.0238 and tree depth 3 — RMSE improved from 0.990 → 0.954 and R² from 0.325 → 0.372 in log-space.',
-      'Residual analysis isolates persistently overpaid and underpaid players: a Moneyball-style framework for spotting market inefficiency that generalizes to any compensated market with measurable output.',
+      'Built an XGBoost regression model on 1,500+ player-seasons (2020-21 through 2023-24, with 2024-25 held out) to quantify NBA market efficiency, achieving R² = 0.372 with unexplained variance treated as a mispricing signal - surfacing the top 10 over/underpaid contracts league-wide.',
+      'Scraped multi-year salary data from ESPN; cleaned, joined, and validated merges against player-season identifiers.',
+      'Engineered features (OBPM, DBPM, VORP, position encoding, log transforms on salary) to capture pay-performance relationships across the income distribution.',
+      'Tuned 700 hyperparameter configurations under 4-fold CV (2,800 total fits), settling on learning rate 0.0238 and tree depth 3 - RMSE improved from 0.990 → 0.954 and R² from 0.325 → 0.372 in log-space.',
+      'Performed residual analysis to surface persistently overpaid and underpaid players: a Moneyball-style framework that generalizes to any compensated market with measurable output.',
     ],
   },
-  { id: 'stock-pipeline', name: 'Stock Pipeline', subtitle: 'Medallion-architecture pipeline with a GPT-4o research agent over 230+ tickers',
+  { id: 'stock-pipeline', name: 'Market Data Pipeline + AI News Synthesis', subtitle: 'Medallion-architecture pipeline with a LangChain news synthesis agent over 230+ tickers',
     sector: 'Data Infrastructure',
-    tags: ['Data Pipeline','LLM','Finance','Python'], status: 'shipped', url: 'https://github.com/jhatch3/stock-pipe-line', image: 'images/projects/stock-pipeline.png',
+    tags: ['Data Pipeline','LLM','Finance','Python','AWS','Airflow'], status: 'shipped', url: 'https://github.com/jhatch3/stock-pipe-line', image: 'images/projects/stock-pipeline.png',
     bullets: [
-      'Medallion pipeline (raw → clean → features → AI agent) ingesting 230+ tickers from Yahoo Finance and Alpaca (REST + WebSocket) into PostgreSQL on Supabase, with conflict-aware upserts and replayable backfills.',
-      'Feature layer computes 30+ rolling metrics per bar: Jensen\'s Alpha, Beta, Sharpe and Sortino ratios, 95% Value-at-Risk, max drawdown, RSI(14), MACD(12,26,9), Bollinger Bands, and VWAP — alongside P/E, P/B, ROE, and interest-coverage fundamentals.',
-      'GPT-4o research agent with LangSmith-versioned prompts and Pydantic-typed structured outputs emits per-ticker summaries grounded in the news layer, served from a FastAPI /analyze/{ticker} endpoint and persisted back to Postgres.',
-      'React + Recharts dashboard with adaptive interval charting (1m / 30m / 1h / 1d), SMA 50/200 and Bollinger overlays, and live peer ranking on the risk metrics.',
+      'Designed a Postgres medallion schema (Bronze → Silver → Gold → AI) keyed by (ticker, interval, timestamp), enabling replayable analytics across 4.5M+ rows and unblocking downstream ML/agent workloads.',
+      'Built replayable ETL ingesting 230+ tickers across 1m-1d bars using conflict-aware upserts and historical backfills, achieving 100% idempotent reruns with zero duplicate rows across dozens of scheduled runs.',
+      'Built a news ingestion pipeline (raw JSON → cleaned rows) and engineered 8+ technical features (returns, SMA/EMA, Bollinger Bands, volatility) feeding the AI synthesis layer and downstream screening jobs.',
+      'Deployed a scheduled LangChain agent that synthesizes market context, news, and financial reports into source-attributed summaries persisted to Postgres, powering retrieval for downstream RAG workflows.',
+      'Containerized services and deployed to production on AWS App Runner; orchestrated Airflow DAGs with structured logging.',
     ],
   },
 ];

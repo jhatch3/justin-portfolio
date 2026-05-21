@@ -211,7 +211,7 @@ const cards = [
       <p>
         Decentralized AI consensus system that audits medical bills and disputes overcharges.
         Multi-agent verification across independent reviewers for tamper resistance.
-        Privacy-preserving by design — never stores patient records. Python implementation.
+        Privacy-preserving by design - never stores patient records. Python implementation.
       </p>
     ),
   },
@@ -238,7 +238,7 @@ const cards = [
     content: () => (
       <p>
         End-to-end customer churn prediction: ingestion, feature pipelines, model training, model
-        serving. Reproducible MLOps — tracked experiments, versioned data, deployable model
+        serving. Reproducible MLOps - tracked experiments, versioned data, deployable model
         artifacts. Python + scikit-learn / XGBoost stack with proper cross-validation and holdout
         eval.
       </p>
