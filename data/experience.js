@@ -2,12 +2,37 @@
 
 window.JH_DATA.experience = [
   {
+    company: 'Stealth Startup',
+    role:    'AI Engineer - AWS Bedrock',
+    type:    'Contract',
+    where:   'Remote',
+    start:   'Jun 2026',
+    end:     'Present',
+    bullets: [
+      'Building agent orchestration & harness on AWS Bedrock automating end-to-end business workflows (specifics under NDA).',
+    ],
+    tags: ['AWS Bedrock', 'Agents', 'Orchestration', 'Python'],
+  },
+  {
+    company: 'Machine & Minds',
+    role:    'Applied AI Fellow',
+    type:    'Fellowship',
+    where:   'Remote',
+    start:   'Apr 2026',
+    end:     'Present',
+    bullets: [
+      'Selected for an applied AI fellowship at a firm that helps business leaders identify, build, and deploy AI systems that create real, measurable P&L impact.',
+      'Earning the Anthropic CCA-F (300-level) certification.',
+    ],
+    tags: ['Applied AI', 'Anthropic', 'CCA-F', 'Consulting'],
+  },
+  {
     company: 'Modern Amenities',
     role:    'AI Engineering Intern',
     type:    'Internship',
     where:   'Coburg, Oregon',
     start:   'Mar 2026',
-    end:     'Present',
+    end:     'Jun 2026',
     bullets: [
       'Built FastAPI sales chatbot on Claude API qualifying prospects across dozens of machine SKUs in a 3D/AR demo serving 900+ app users; used tool-use API to emit structured calls so the frontend renders deterministic CTAs.',
       'Hardened the system prompt against 5 jailbreak vectors by wrapping untrusted input in delimiters and adding an output scanner, achieving a 100% block rate across all 5 tested attack patterns with zero system-prompt leaks.',
@@ -21,8 +46,8 @@ window.JH_DATA.experience = [
     role:    'Lead Software Engineer',
     type:    'Promoted from Software Developer in <3 months',
     where:   'University of Oregon · Eugene',
-    start:   'Oct 2025',
-    end:     'Present',
+    start:   'Sep 2024',
+    end:     'Jun 2026',
     bullets: [
       'Led 2 engineering projects, Crop Share (farm-to-store supply-chain provenance) and TrialWeave (GLP-1 cohort RWE analytics), translating stakeholder needs into scoped specs and acceptance criteria, shipping across a team of 3-5 developers.',
       'Drove 30%+ membership growth in under a year by serving on the recruitment board, pitching in core CS classes, and interviewing potential candidates.',
