@@ -3,7 +3,7 @@
 window.JH_DATA.experience = [
   {
     company: 'Stealth Startup',
-    role:    'AI Engineer - AWS Bedrock',
+    role:    'AI Engineer',
     type:    'Contract',
     where:   'Remote',
     start:   'Jun 2026',
