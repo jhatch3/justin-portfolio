@@ -3,15 +3,17 @@
 window.JH_DATA.experience = [
   {
     company: 'Stealth Startup',
-    role:    'AI Engineer',
+    role:    'AI Engineer - AWS Bedrock',
     type:    'Contract',
     where:   'Remote',
     start:   'Jun 2026',
     end:     'Present',
     bullets: [
-      'Building agent orchestration & harness on AWS Bedrock automating end-to-end business workflows (specifics under NDA).',
+      'Building an agent orchestration harness on AWS Bedrock (Claude) that automates end-to-end workflows in a multi-tenant SaaS platform (domain under NDA).',
+      'Designed a tool-using agent loop with a four-tier permission gate and centralized denylist — every agent action gated, audit-logged, and reversible.',
+      'Built a global tool + context-routing layer giving the agent safe reach across the platform, each tool scoped to an explicit entity, integrated with Bedrock-hosted Claude (streaming, tool-calling, SSE) in Next.js / TypeScript and shipped TDD-first.',
     ],
-    tags: ['AWS Bedrock', 'Agents', 'Orchestration', 'Python'],
+    tags: ['AWS Bedrock', 'Claude', 'Agent Orchestration', 'TypeScript', 'Next.js', 'Postgres/RLS', 'TDD'],
   },
   {
     company: 'Machine & Minds',
