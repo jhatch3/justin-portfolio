@@ -86,7 +86,10 @@
   a:hover { opacity: 0.7; }
   button { font-family: inherit; cursor: pointer; }
 
-  h1, h2, h3 { color: var(--ink); font-weight: 600; letter-spacing: -0.02em; margin: 0; }
+  h1 { font-weight: 700 !important; }
+  h2 { font-weight: 700 !important; }
+  h3 { font-weight: 650 !important; }
+  h1, h2, h3 { color: var(--ink); letter-spacing: -0.02em; margin: 0; }
 
   @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
@@ -448,7 +451,7 @@
 
     const Eyebrow = ({ children }) => (
       <div style={{
-        fontSize: 11, fontWeight: 600, letterSpacing: '0.18em', textTransform: 'uppercase',
+        fontSize: 11, fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase',
         color: 'var(--accent)', marginBottom: 14,
       }}>{children}</div>
     );
@@ -730,7 +733,7 @@
 
     // ─── Section header ───────────────────────────────────────────────────────
     const SectionHeader = ({ eyebrow, title, sub }) => (
-      <div style={{ marginBottom: 36 }}>
+      <div style={{ marginBottom: 48 }}>
         <Eyebrow>{eyebrow}</Eyebrow>
         <h2 style={{ fontSize: 'clamp(28px, 3.6vw, 36px)', marginBottom: 8 }}>{title}</h2>
         {sub && <p style={{ fontSize: 15, color: 'var(--ink-3)', margin: 0 }}>{sub}</p>}
@@ -915,14 +918,13 @@
 
     // ─── Experience ───────────────────────────────────────────────────────────
     const Experience = () => (
-      <section id="experience" style={{ padding: '64px 0', animation: 'fadeUp 0.8s ease-out' }}>
+      <section id="experience" style={{ padding: '96px 0', animation: 'fadeUp 0.8s ease-out' }}>
         <Container>
-          <SectionHeader eyebrow="Career" title="Experience"
-            sub={`${D.school} · ${D.degree} · graduating ${D.graduating}`} />
+          <SectionHeader eyebrow="Career" title="Experience" />
           <div style={{ position: 'relative', paddingLeft: 28 }}>
             <div style={{ position: 'absolute', left: 5, top: 8, bottom: 8, width: 1, background: 'var(--border-strong)' }} />
             {D.experience.map((e, i) => (
-              <div key={i} style={{ position: 'relative', marginBottom: 36 }}>
+              <div key={i} style={{ position: 'relative', marginBottom: 56 }}>
                 <div style={{
                   position: 'absolute', left: -27, top: 7, width: 11, height: 11, borderRadius: '50%',
                   background: i === 0 ? 'var(--accent)' : 'var(--surface)',
@@ -934,12 +936,23 @@
                 }}>
                   {e.start} - {e.end}<span style={{ opacity: 0.5 }}> · {e.where}</span>
                 </div>
-                <h3 style={{ fontSize: 18, marginBottom: 2 }}>{e.role}</h3>
-                <div style={{ fontSize: 14, color: 'var(--ink-2)', marginBottom: 10 }}>
-                  {e.company}<span style={{ color: 'var(--ink-3)' }}> · {e.type}</span>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px 16px', flexWrap: 'wrap', marginBottom: 2 }}>
+                  <h3 style={{ fontSize: 18 }}>{e.role}</h3>
+                  {e.tags && (
+                    <div style={{ fontSize: 10.5, fontWeight: 500, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--ink-3)', fontFamily: "'JetBrains Mono', monospace" }}>
+                      {e.tags.map((t, i) => (
+                        <span key={t} style={{ whiteSpace: 'nowrap' }}>
+                          {t}{i < e.tags.length - 1 && <span style={{ color: 'var(--border-strong)', padding: '0 7px' }}>·</span>}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <div style={{ fontSize: 15, fontWeight: 500, color: 'var(--ink-2)', marginBottom: 12 }}>
+                  {e.company}<span style={{ color: 'var(--ink-3)', fontWeight: 400 }}> · {e.type}</span>
                 </div>
                 {e.bullets && e.bullets.length > 0 && (
-                  <ul style={{ margin: 0, padding: 0, listStyle: 'none', fontSize: 14, lineHeight: 1.6, color: 'var(--ink-2)' }}>
+                  <ul style={{ margin: 0, padding: 0, listStyle: 'none', fontSize: 16, fontWeight: 400, lineHeight: 1.65, color: 'var(--ink-2)' }}>
                     {e.bullets.map((b, j) => (
                       <li key={j} style={{
                         display: 'flex', gap: 10, marginBottom: 12,
@@ -950,11 +963,6 @@
                     ))}
                   </ul>
                 )}
-                {e.tags && (
-                  <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', marginTop: 12 }}>
-                    {e.tags.map(t => <Tag key={t}>{t}</Tag>)}
-                  </div>
-                )}
               </div>
             ))}
           </div>
@@ -964,7 +972,7 @@
 
     // ─── Writing ──────────────────────────────────────────────────────────────
     const Writing = () => (
-      <section id="writing" style={{ padding: '64px 0', animation: 'fadeUp 0.85s ease-out' }}>
+      <section id="writing" style={{ padding: '96px 0', animation: 'fadeUp 0.85s ease-out' }}>
         <Container>
           <SectionHeader eyebrow="Writing" title="Notes & reports" />
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -979,13 +987,24 @@
                 onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'rgba(29,78,216,0.3)'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
                 onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.transform = ''; }}
               >
-                <div style={{
-                  fontSize: 11, fontFamily: "'JetBrains Mono', monospace", color: 'var(--ink-3)',
-                  marginBottom: 6, letterSpacing: '0.06em', textTransform: 'uppercase',
-                }}>
-                  {w.kind} · {w.date}{w.mins ? ` · ${w.mins} min read` : ''}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
+                  <div style={{ minWidth: 0 }}>
+                    <div style={{
+                      fontSize: 11, fontFamily: "'JetBrains Mono', monospace", color: 'var(--ink-3)',
+                      marginBottom: 6, letterSpacing: '0.06em', textTransform: 'uppercase',
+                    }}>
+                      {w.kind} · {w.date}{w.mins ? ` · ${w.mins} min read` : ''}
+                    </div>
+                    <div style={{ fontSize: 16, fontWeight: 600 }}>{w.title}</div>
+                  </div>
+                  {w.url && (
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ flexShrink: 0, color: 'var(--ink-3)' }}>
+                      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                      <polyline points="15 3 21 3 21 9"/>
+                      <line x1="10" y1="14" x2="21" y2="3"/>
+                    </svg>
+                  )}
                 </div>
-                <div style={{ fontSize: 16, fontWeight: 600 }}>{w.title}</div>
               </a>
             ))}
           </div>
@@ -995,26 +1014,24 @@
 
     // ─── Skills ───────────────────────────────────────────────────────────────
     const Skills = () => (
-      <section id="skills" style={{ padding: '64px 0', animation: 'fadeUp 0.9s ease-out' }}>
+      <section id="skills" style={{ padding: '96px 0', animation: 'fadeUp 0.9s ease-out' }}>
         <Container>
           <SectionHeader eyebrow="Toolkit" title="Skills & stack" />
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 16 }}>
-            {Object.entries(D.skills).map(([cat, items]) => (
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            {Object.entries(D.skills).map(([cat, items], idx) => (
               <div key={cat} style={{
-                padding: '18px 20px', borderRadius: 12,
-                background: 'var(--surface)', border: '1px solid var(--border)',
-                boxShadow: 'var(--shadow)',
+                padding: '18px 0',
+                borderTop: idx === 0 ? 'none' : '1px solid var(--border)',
               }}>
                 <div style={{
-                  fontSize: 11, fontWeight: 600, color: 'var(--accent)',
-                  letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 10,
+                  fontSize: 13, fontWeight: 800, color: 'var(--ink)',
+                  letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 8,
                 }}>{cat}</div>
-                <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
-                  {items.map(s => (
-                    <span key={s} style={{
-                      fontSize: 12, padding: '3px 9px', borderRadius: 6,
-                      background: 'rgba(10,37,64,0.04)', color: 'var(--ink-2)',
-                    }}>{s}</span>
+                <div style={{ fontSize: 15, lineHeight: 1.9, color: 'var(--ink-2)', overflowWrap: 'anywhere' }}>
+                  {items.map((s, i) => (
+                    <span key={s} style={{ whiteSpace: 'nowrap' }}>
+                      {s}{i < items.length - 1 && <span style={{ color: 'var(--border-strong)', padding: '0 11px' }}>·</span>}
+                    </span>
                   ))}
                 </div>
               </div>
@@ -1091,25 +1108,54 @@
 
     // ─── Education (flat card, no year-by-year) ─────────────────────────────
     const EducationSection = () => (
-      <section id="education" style={{ padding: '64px 0', animation: 'fadeUp 0.7s ease-out' }}>
+      <section id="education" style={{ padding: '96px 0', animation: 'fadeUp 0.7s ease-out' }}>
         <Container>
-          <SectionHeader eyebrow="Education" title="University of Oregon"
-            sub={`${D.degree} · graduating ${D.graduating}.`} />
+          <SectionHeader eyebrow="Education" title="Education" />
           <div style={{
-            background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 14,
-            padding: '24px 26px', boxShadow: 'var(--shadow)',
+            padding: '28px 32px', background: 'var(--surface)',
+            border: '1px solid var(--border)', borderRadius: 14, boxShadow: 'var(--shadow)',
           }}>
-            <div style={{ fontSize: 18, fontWeight: 600, color: 'var(--ink)', marginBottom: 4, letterSpacing: '-0.01em' }}>
-              {D.degree}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', flexWrap: 'wrap', gap: '8px 24px' }}>
+              <div>
+                <div style={{ fontSize: 20, fontWeight: 700, color: 'var(--ink)', letterSpacing: '-0.01em', marginBottom: 4 }}>
+                  {D.school}
+                </div>
+                <div style={{ fontSize: 15, color: 'var(--ink-2)', lineHeight: 1.5 }}>
+                  {D.degree}
+                </div>
+              </div>
+              <div style={{ fontSize: 13, color: 'var(--ink-3)', fontFamily: "'JetBrains Mono', monospace" }}>
+                graduated {D.graduating}
+              </div>
             </div>
-            <div style={{ fontSize: 14, color: 'var(--ink-3)', marginBottom: 16, fontFamily: "'JetBrains Mono', monospace" }}>
-              {D.school} · graduating {D.graduating}
+            <div style={{ borderTop: '1px solid var(--border)', margin: '22px 0' }} />
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '28px 40px' }}>
+            <div>
+              <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--ink)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 10 }}>
+                Honors &amp; awards
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {(D.honors || []).map(h => (
+                  <div key={h} style={{ display: 'flex', gap: 8, fontSize: 13.5, lineHeight: 1.5, color: 'var(--ink-2)' }}>
+                    <span style={{ color: 'var(--border-strong)', flexShrink: 0, userSelect: 'none' }}>—</span>
+                    <span>{h}</span>
+                  </div>
+                ))}
+              </div>
             </div>
-            <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--accent)', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 10 }}>
-              Honors &amp; awards
+            <div>
+              <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--ink)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 10 }}>
+                Extracurriculars
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {['AI Club', 'Oregon Blockchain Group', 'Oregon Software Consulting'].map(x => (
+                  <div key={x} style={{ display: 'flex', gap: 8, fontSize: 13.5, lineHeight: 1.5, color: 'var(--ink-2)' }}>
+                    <span style={{ color: 'var(--border-strong)', flexShrink: 0, userSelect: 'none' }}>—</span>
+                    <span>{x}</span>
+                  </div>
+                ))}
+              </div>
             </div>
-            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-              {(D.honors || []).map(h => <Tag key={h}>{h}</Tag>)}
             </div>
           </div>
         </Container>
@@ -1118,7 +1164,7 @@
 
     // ─── Projects (expandable card grid - the prior 'old way' format) ──────
     const ProjectsCardSection = () => (
-      <section id="projects" style={{ padding: '64px 0', animation: 'fadeUp 0.75s ease-out' }}>
+      <section id="projects" style={{ padding: '96px 0', animation: 'fadeUp 0.75s ease-out' }}>
         <Container>
           <SectionHeader eyebrow="Selected Work" title="Projects"
             sub={`${D.projects.length} projects across AI/ML, blockchain, data infrastructure, finance, and sports. Click any to expand.`} />

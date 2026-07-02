@@ -29,7 +29,7 @@ window.JH_DATA = {
   about: [
     "Anthropic consulting cohort member via Machine & Minds. Currently shipping production LLM systems at Modern Amenities; previously built multi-agent trading infra (1st @ QuackHacks II) and ETL pipelines.",
     "Generalist AI/ML engineer working across language models, autonomous agents, and retrieval-augmented generation. I ship systems that hold up in production: sales agents, cohort analytics, and supply-chain provenance.",
-    "Currently an AI Engineering Intern at Modern Amenities and Lead Software Engineer at Oregon Blockchain Group, graduating from the University of Oregon in June 2026.",
+    "Currently an AI Engineering Intern at Modern Amenities and Lead Software Engineer at Oregon Blockchain Group, graduated from the University of Oregon in June 2026.",
   ],
 
   certs: [
