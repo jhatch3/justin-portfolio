@@ -1,0 +1,50 @@
+# Keep the build context small and never bake secrets or junk into image layers.
+
+# Secrets — the API key is injected at runtime via --env-file / env_file, never baked in.
+.env
+.env.*
+!.env.example
+
+# Dependencies (reinstalled inside the image from the lockfile)
+node_modules
+server/node_modules
+next-app/node_modules
+
+# Version control
+.git
+.gitignore
+
+# Not served by the app
+next-app/
+docs/
+*.md
+LICENSE
+
+# Local tooling / editor / OS cruft
+.claude/
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Docker's own files
+Dockerfile
+.dockerignore
+docker-compose.yml
+
+# Logs / build artifacts / archives
+*.log
+logs/
+dist/
+build/
+out/
+.next/
+.cache/
+coverage/
+*.tmp
+*.bak
+*.zip

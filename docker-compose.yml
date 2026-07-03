@@ -1,0 +1,44 @@
+# Run the portfolio on an EC2 box:
+#   docker compose up -d --build
+#
+# The ANTHROPIC_API_KEY (and any overrides) live in ./.env on the instance —
+# gitignored, never committed, injected at runtime. See DEPLOY.md.
+
+services:
+  web:
+    build: .
+    image: justin-portfolio:latest
+    container_name: justin-portfolio
+    restart: unless-stopped
+    # Host port 80 -> container port 3000. If you enable the caddy proxy below
+    # for HTTPS, change this to "127.0.0.1:3000:3000" so only Caddy is public.
+    ports:
+      - "80:3000"
+    env_file:
+      - .env
+    environment:
+      - PORT=3000
+      - NODE_ENV=production
+
+  # ── Optional: automatic HTTPS via Caddy ───────────────────────────────────
+  # Uncomment this block AND point a domain's A record at the instance, then set
+  # the "web" ports to "127.0.0.1:3000:3000" above so the app isn't public on 80.
+  # Replace portfolio.example.com with your domain inside Caddyfile (see DEPLOY.md).
+  #
+  # caddy:
+  #   image: caddy:2
+  #   container_name: caddy
+  #   restart: unless-stopped
+  #   depends_on:
+  #     - web
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #   volumes:
+  #     - ./Caddyfile:/etc/caddy/Caddyfile:ro
+  #     - caddy_data:/data
+  #     - caddy_config:/config
+
+# volumes:
+#   caddy_data:
+#   caddy_config:
