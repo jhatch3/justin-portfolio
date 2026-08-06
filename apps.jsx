@@ -37,7 +37,7 @@ const FinderAbout = ({ openApp }) => (
     <div style={{ minWidth: 0 }}>
       <div style={{ fontSize: 11, fontWeight: 600, color: 'rgba(0,0,0,0.45)', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 6 }}>{D.role}</div>
       <h1 style={{ fontSize: 44, lineHeight: 1.05, margin: 0, fontWeight: 600, letterSpacing: '-0.02em' }}>{D.name}</h1>
-      <div style={{ fontSize: 14, color: 'rgba(0,0,0,0.55)', marginTop: 6, fontFamily: 'ui-monospace, monospace' }}>{D.location} · graduating {D.graduating}</div>
+      <div style={{ fontSize: 14, color: 'rgba(0,0,0,0.55)', marginTop: 6, fontFamily: 'ui-monospace, monospace' }}>{D.location} · graduated {D.graduating}</div>
       <div style={{ marginTop: 18, fontSize: 15, lineHeight: 1.55, color: 'rgba(0,0,0,0.78)' }}>
         {D.about.map((p, i) => <p key={i} style={{ margin: '0 0 12px' }}>{p}</p>)}
       </div>

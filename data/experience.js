@@ -2,38 +2,40 @@
 
 window.JH_DATA.experience = [
   {
-    company: 'Stealth Startup',
-    role:    'AI Engineer - AWS Bedrock',
-    type:    'Contract',
-    where:   'Remote',
-    start:   'Jun 2026',
+    company: 'AI Stealth Lab',
+    role:    'AI Engineer',
+    type:    'Full-time',
+    where:   'Cambridge, Massachusetts',
+    start:   'Aug 2026',
     end:     'Present',
     bullets: [
-      'Building an agent orchestration harness on AWS Bedrock (Claude) that automates end-to-end workflows in a multi-tenant SaaS platform (domain under NDA).',
+      "Building and deploying production applications on the company's AI platform, reporting directly to the CEO and CTO.",
+      'Designing experiments and benchmarks evaluating model capabilities; contributing to the platform SDK.',
+      'Translating field insights into research directions alongside the research and platform teams.',
+    ],
+    tags: ['Python', 'FastAPI', 'React', 'Google Cloud', 'Docker', 'Evals', 'SDK'],
+  },
+  {
+    company: 'Machine & Minds',
+    role:    'AI Engineer Intern',
+    type:    'Internship',
+    where:   'Remote',
+    start:   'Apr 2026',
+    end:     'Jul 2026',
+    bullets: [
+      'Joined an applied AI firm that helps business leaders identify, build, and deploy AI systems that create real, measurable P&L impact.',
+      'Built an agent orchestration harness on AWS Bedrock (Claude) that automates end-to-end workflows in a multi-tenant SaaS platform (domain under NDA).',
       'Designed a tool-using agent loop with a four-tier permission gate and centralized denylist — every agent action gated, audit-logged, and reversible.',
       'Built a global tool + context-routing layer giving the agent safe reach across the platform, each tool scoped to an explicit entity, integrated with Bedrock-hosted Claude (streaming, tool-calling, SSE) in Next.js / TypeScript and shipped TDD-first.',
     ],
     tags: ['AWS Bedrock', 'Claude', 'Agent Orchestration', 'TypeScript', 'Next.js', 'Postgres/RLS', 'TDD'],
   },
   {
-    company: 'Machine & Minds',
-    role:    'Applied AI Fellow',
-    type:    'Fellowship',
-    where:   'Remote',
-    start:   'Apr 2026',
-    end:     'Present',
-    bullets: [
-      'Selected for an applied AI fellowship at a firm that helps business leaders identify, build, and deploy AI systems that create real, measurable P&L impact.',
-      'Earning the Anthropic CCA-F (300-level) certification.',
-    ],
-    tags: ['Applied AI', 'Anthropic', 'CCA-F', 'Consulting'],
-  },
-  {
     company: 'Modern Amenities',
     role:    'AI Engineering Intern',
     type:    'Internship',
     where:   'Coburg, Oregon',
-    start:   'Mar 2026',
+    start:   'Apr 2026',
     end:     'Jun 2026',
     bullets: [
       'Built FastAPI sales chatbot on Claude API qualifying prospects across dozens of machine SKUs in a 3D/AR demo serving 900+ app users; used tool-use API to emit structured calls so the frontend renders deterministic CTAs.',
@@ -52,7 +54,7 @@ window.JH_DATA.experience = [
     end:     'Jun 2026',
     bullets: [
       'Led 2 engineering projects, Crop Share (farm-to-store supply-chain provenance) and TrialWeave (GLP-1 cohort RWE analytics), translating stakeholder needs into scoped specs and acceptance criteria, shipping across a team of 3-5 developers.',
-      'Drove 30%+ membership growth in under a year by serving on the recruitment board, pitching in core CS classes, and interviewing potential candidates.',
+      'Drove 133%+ membership growth (6 to 14) in under a year by serving on the recruitment board, pitching in core CS classes, and interviewing potential candidates.',
       'Promoted from Software Developer to Lead in under three months after shipping initial Crop Share prototypes.',
     ],
     tags: ['Leadership', 'Rust', 'Postgres', 'Recruitment'],
@@ -75,7 +77,7 @@ window.JH_DATA.experience = [
     type:    'Part-time',
     where:   'Eugene, Oregon',
     start:   'Oct 2023',
-    end:     'Present',
+    end:     'Jun 2026',
     bullets: [
       'Built a Power Automate + LLM automation that files online invoices and statements without human review, drafting summaries, classifying line items, and routing exceptions.',
       'Reduced manual processing time by roughly 100 percent, effectively eliminating the task for the team.',
