@@ -8,11 +8,7 @@ window.JH_DATA.experience = [
     where:   'Cambridge, Massachusetts',
     start:   'Aug 2026',
     end:     'Present',
-    bullets: [
-      "Building and deploying production applications on the company's AI platform, reporting directly to the CEO and CTO.",
-      'Designing experiments and benchmarks evaluating model capabilities; contributing to the platform SDK.',
-      'Translating field insights into research directions alongside the research and platform teams.',
-    ],
+    bullets: [],
     tags: ['Python', 'FastAPI', 'React', 'Google Cloud', 'Docker', 'Evals', 'SDK'],
   },
   {
