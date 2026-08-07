@@ -12,21 +12,6 @@ window.JH_DATA.experience = [
     tags: ['Python', 'FastAPI', 'React', 'Google Cloud', 'Docker', 'Evals', 'SDK'],
   },
   {
-    company: 'Machine & Minds',
-    role:    'AI Engineer Intern',
-    type:    'Internship',
-    where:   'Remote',
-    start:   'Apr 2026',
-    end:     'Jul 2026',
-    bullets: [
-      'Joined an applied AI firm that helps business leaders identify, build, and deploy AI systems that create real, measurable P&L impact.',
-      'Built an agent orchestration harness on AWS Bedrock (Claude) that automates end-to-end workflows in a multi-tenant SaaS platform (domain under NDA).',
-      'Designed a tool-using agent loop with a four-tier permission gate and centralized denylist — every agent action gated, audit-logged, and reversible.',
-      'Built a global tool + context-routing layer giving the agent safe reach across the platform, each tool scoped to an explicit entity, integrated with Bedrock-hosted Claude (streaming, tool-calling, SSE) in Next.js / TypeScript and shipped TDD-first.',
-    ],
-    tags: ['AWS Bedrock', 'Claude', 'Agent Orchestration', 'TypeScript', 'Next.js', 'Postgres/RLS', 'TDD'],
-  },
-  {
     company: 'Modern Amenities',
     role:    'AI Engineering Intern',
     type:    'Internship',
