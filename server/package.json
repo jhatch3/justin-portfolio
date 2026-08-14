@@ -7,7 +7,8 @@
   "scripts": {
     "start": "node index.mjs",
     "dev": "node --watch index.mjs",
-    "grill": "node grill.mjs"
+    "grill": "node grill.mjs",
+    "audit": "node prompt-audit.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.30.1",
