@@ -4,6 +4,8 @@
 
 import dotenv from 'dotenv';
 import express from 'express';
+import helmet from 'helmet';
+import compression from 'compression';
 import path from 'node:path';
 import os from 'node:os';
 import { fileURLToPath } from 'node:url';
@@ -66,6 +68,52 @@ setInterval(() => {
 
 // ─── App ─────────────────────────────────────────────────────────────────────
 const app = express();
+
+// ─── Security headers ────────────────────────────────────────────────────────
+// The CSP is deliberately permissive in two places because the site has no build
+// step: Babel Standalone compiles JSX at runtime (needs 'unsafe-eval') and both
+// pages carry inline <script>/<style> blocks (needs 'unsafe-inline'). Everything
+// else is locked to the specific CDNs we actually load. Tightening these two
+// requires precompiling JSX - see DEPLOY.md.
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", 'https://unpkg.com', 'https://cdn.tailwindcss.com'],
+      styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
+      fontSrc: ["'self'", 'https://fonts.gstatic.com', 'data:'],
+      imgSrc: ["'self'", 'data:', 'blob:'],
+      // /api/chat and /api/quote are same-origin. The other two are direct
+      // browser calls: the order-book widget opens a Coinbase WSS, and the
+      // contribution graph fetches the jogruber GitHub-calendar proxy.
+      connectSrc: [
+        "'self'",
+        'https://unpkg.com',
+        'wss://ws-feed.exchange.coinbase.com',
+        'https://github-contributions-api.jogruber.de',
+      ],
+      // The resume section embeds Resume.pdf via <object> with an <iframe>
+      // fallback. Because this CSP is applied to *every* response, the PDF
+      // itself carries frame-ancestors too - 'none' would stop the page from
+      // framing its own resume. 'self' still blocks cross-origin clickjacking.
+      objectSrc: ["'self'"],
+      frameSrc: ["'self'"],
+      frameAncestors: ["'self'"],
+      baseUri: ["'self'"],
+      formAction: ["'self'"],
+      upgradeInsecureRequests: [],
+    },
+  },
+  // The resume renders in an <object>/<iframe> from the same origin; the default
+  // require-corp value would block it without CORP headers on the PDF.
+  crossOriginEmbedderPolicy: false,
+  referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
+  hsts: { maxAge: 31536000, includeSubDomains: true, preload: true },
+}));
+
+// gzip/brotli every text response. landing.html alone is ~70KB uncompressed.
+app.use(compression());
+
 app.use(express.json({ limit: '32kb' }));
 
 // Trust X-Forwarded-For for one proxy hop (lets RateCheck see real IP if you put nginx/cloudflare in front).
@@ -278,11 +326,19 @@ app.post('/api/chat', async (req, res) => {
   }
 });
 
+// These two bypass express.static, so they need the same revalidate policy the
+// static handler applies to .html - otherwise the entry points are the one thing
+// a browser would happily serve stale.
+const sendPage = (res, file) =>
+  res.sendFile(path.join(projectRoot, file), {
+    headers: { 'Cache-Control': 'no-cache' },
+  });
+
 // Root → traditional landing page (FAANG-friendly portfolio).
-app.get('/', (_req, res) => res.sendFile(path.join(projectRoot, 'landing.html')));
+app.get('/', (_req, res) => sendPage(res, 'landing.html'));
 
 // /desktop → the macOS-simulation portfolio (also reachable as /desktop.html).
-app.get('/desktop', (_req, res) => res.sendFile(path.join(projectRoot, 'desktop.html')));
+app.get('/desktop', (_req, res) => sendPage(res, 'desktop.html'));
 
 // Legacy redirect: the desktop file used to be 'Justin Hatch.html' (with a
 // space). Anyone with a stale bookmark gets 301-redirected to the new URL.
@@ -291,10 +347,26 @@ app.get(['/Justin Hatch.html', '/Justin%20Hatch.html'], (_req, res) => {
 });
 
 // Static files (the portfolio prototype). Served LAST so /api routes win.
+//
+// Cache policy: nothing here is content-hashed, so anything that can change on a
+// deploy must revalidate or a returning visitor gets a stale mix of old code and
+// new data. `no-cache` still allows a cheap 304 via ETag - it means "revalidate",
+// not "don't cache". Images and the resume are content-stable, so they get a real
+// TTL; rename the file to bust them.
+const REVALIDATE = new Set(['.html', '.js', '.jsx', '.mjs', '.json', '.css']);
+
 app.use(express.static(projectRoot, {
   extensions: ['html'],
   setHeaders: (res, filePath) => {
-    if (filePath.endsWith('.pdf')) res.setHeader('Content-Type', 'application/pdf');
+    const ext = path.extname(filePath).toLowerCase();
+    if (ext === '.pdf') res.setHeader('Content-Type', 'application/pdf');
+
+    if (REVALIDATE.has(ext)) {
+      res.setHeader('Cache-Control', 'no-cache');
+    } else {
+      // Images, fonts, the PDF - safe to hold for a day.
+      res.setHeader('Cache-Control', 'public, max-age=86400');
+    }
   },
 }));
 

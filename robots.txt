@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+
+# The chat + quote endpoints are dynamic and rate-limited; nothing to index.
+Disallow: /api/
+
+Sitemap: https://justinhatch.com/sitemap.xml

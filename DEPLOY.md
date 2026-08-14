@@ -161,11 +161,45 @@ Caddy fetches and renews a Let's Encrypt cert automatically. The site is now at
 
 ---
 
+## Security headers and the CSP
+
+The server sends a Content-Security-Policy via `helmet` (see the top of
+`server/index.mjs`). Two directives are deliberately loose because the site has
+no build step:
+
+- `script-src` allows **`'unsafe-eval'`** — Babel Standalone compiles the JSX in
+  `landing.html` / `desktop.html` / `*.jsx` in the browser at runtime.
+- `script-src` / `style-src` allow **`'unsafe-inline'`** — both pages carry large
+  inline `<script>` and `<style>` blocks.
+
+Everything else is pinned to the origins actually in use. If you add a new
+external script, font, image host, or `fetch`/WebSocket target, **add it to the
+matching directive or the browser will silently block it.** Current allowlist:
+
+| Directive | Allowed beyond `'self'` | Why |
+|---|---|---|
+| `script-src` | `unpkg.com`, `cdn.tailwindcss.com` | React + Babel UMD builds, Tailwind Play CDN |
+| `style-src` | `fonts.googleapis.com` | Google Fonts stylesheet |
+| `font-src` | `fonts.gstatic.com`, `data:` | Google Fonts payloads |
+| `connect-src` | `ws-feed.exchange.coinbase.com` (WSS), `github-contributions-api.jogruber.de` | Order-book widget, contribution graph |
+| `object-src` / `frame-src` / `frame-ancestors` | `'self'` | The resume section embeds `Resume.pdf` in an `<object>`; `'none'` here blocks the page from framing its own PDF |
+
+To verify after a change, load both pages and confirm the console shows no
+`Content Security Policy` violations.
+
+**Caching:** HTML/JS/JSX/CSS are served `no-cache` (revalidate via ETag) because
+nothing is content-hashed — a long TTL would let a returning visitor mix old code
+with new `data/*.js`. Images and the PDF get `max-age=86400`; rename the file to
+bust them.
+
+---
+
 ## Troubleshooting
 
 | Symptom | Check |
 |---|---|
 | `curl /api/health` refused | `docker compose ps` — is `web` running? `docker compose logs web` |
+| A widget silently stops working | CSP — open devtools, look for a `Content Security Policy` violation, then add the origin to `server/index.mjs` |
 | Container keeps restarting | Usually a missing/invalid `ANTHROPIC_API_KEY` in `.env` |
 | Chatbot 500s, site loads | API key or model name in `.env`; check logs for the Anthropic error |
 | Can't reach site from browser | Security group inbound 80; using the **public** IP; container mapped to `:80` |

@@ -433,7 +433,7 @@ const IOSAbout = ({ onClose }) => (
   <IOSAppView title="About" onClose={onClose}>
     <Pad>
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, padding: '12px 0' }}>
-        <img src="justin.jpg" alt={PD.name} style={{ width: 110, height: 110, borderRadius: 26, objectFit: 'cover', boxShadow: '0 8px 24px rgba(0,0,0,0.2)' }} />
+        <img src="justin.jpg" alt={PD.name} width="110" height="110" decoding="async" style={{ width: 110, height: 110, borderRadius: 26, objectFit: 'cover', boxShadow: '0 8px 24px rgba(0,0,0,0.2)' }} />
         <Eyebrow>{PD.role}</Eyebrow>
         <div style={{ fontSize: 32, fontWeight: 600, letterSpacing: '-0.025em', margin: 0, lineHeight: 1.05 }}>{PD.name}</div>
         <div style={{ fontSize: 12, fontFamily: 'ui-monospace, monospace', color: 'rgba(0,0,0,0.55)' }}>{PD.location} · graduated {PD.graduating}</div>

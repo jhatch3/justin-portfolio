@@ -4,11 +4,58 @@
 <meta charset="utf-8" />
 <title>Justin Hatch - AI / ML Engineer</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<meta name="description" content="AI / ML engineer at a stealth AI lab in Cambridge, MA, building production applications and evals on the company's AI platform." />
+<meta name="description" content="Software Engineer, AI/ML at Horizon Intelligence Labs in Cambridge, MA, building production applications and evals on Cortex, the company's AI platform." />
+<link rel="canonical" href="https://justinhatch.com/" />
+<meta name="theme-color" content="#1d4ed8" />
+
+<!-- Icons -->
+<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+<link rel="apple-touch-icon" href="/justin.jpg" />
+
+<!-- Open Graph / Twitter: controls the link preview card on LinkedIn, Slack, X, iMessage -->
+<meta property="og:type" content="profile" />
+<meta property="og:site_name" content="Justin Hatch" />
+<meta property="og:title" content="Justin Hatch - AI / ML Engineer" />
+<meta property="og:description" content="Software Engineer, AI/ML at Horizon Intelligence Labs in Cambridge, MA, building production applications and evals on Cortex, the company's AI platform." />
+<meta property="og:url" content="https://justinhatch.com/" />
+<meta property="og:image" content="https://justinhatch.com/justin.jpg" />
+<meta property="og:image:width" content="800" />
+<meta property="og:image:height" content="800" />
+<meta property="og:image:alt" content="Justin Hatch" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:creator" content="@jjhatch11" />
+<meta name="twitter:title" content="Justin Hatch - AI / ML Engineer" />
+<meta name="twitter:description" content="Software Engineer, AI/ML at Horizon Intelligence Labs in Cambridge, MA, building production applications and evals on Cortex, the company's AI platform." />
+<meta name="twitter:image" content="https://justinhatch.com/justin.jpg" />
+
+<!-- Structured data: lets search engines render a knowledge-panel-style result -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "name": "Justin Hatch",
+  "url": "https://justinhatch.com/",
+  "image": "https://justinhatch.com/justin.jpg",
+  "jobTitle": "Software Engineer, AI/ML",
+  "email": "mailto:jjhatch03@gmail.com",
+  "worksFor": { "@type": "Organization", "name": "Horizon Intelligence Labs" },
+  "address": { "@type": "PostalAddress", "addressLocality": "Cambridge", "addressRegion": "MA", "addressCountry": "US" },
+  "alumniOf": { "@type": "CollegeOrUniversity", "name": "University of Oregon" },
+  "sameAs": [
+    "https://github.com/jhatch3",
+    "https://www.linkedin.com/in/justinhatch/",
+    "https://x.com/jjhatch11"
+  ]
+}
+</script>
 
 <!-- Inter for the body, JetBrains Mono for the mono touches -->
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<!-- React, Babel and Tailwind all come from these two hosts; warm the connections
+     early so the render-blocking script fetches don't each pay a TLS handshake. -->
+<link rel="preconnect" href="https://unpkg.com" crossorigin />
+<link rel="preconnect" href="https://cdn.tailwindcss.com" />
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" />
 
 <!-- Tailwind Play CDN: lets us use utility classes in components copied from
@@ -132,10 +179,52 @@
     outline: 2px solid rgba(29,78,216,0.5);
     outline-offset: 2px;
   }
+
+  /* Every section fades up on entry, the hero headline flips letter-by-letter,
+     and the scroll cue bounces. For a visitor with a vestibular disorder that's
+     a page full of motion they can't opt out of - honour the OS-level setting.
+     Animations are reduced to a single frame rather than removed, so anything
+     that relies on an animationend/transitionend callback still fires. */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+    html { scroll-behavior: auto !important; }
+  }
+
+  /* Keyboard users need to see where focus is. The site is heavily custom-styled,
+     so several interactive elements otherwise render no visible focus ring. */
+  a:focus-visible,
+  button:focus-visible,
+  [tabindex]:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
 </style>
 </head>
 <body>
   <div id="root"></div>
+
+  <!-- The whole page is client-rendered. Without this a visitor with JS disabled
+       (or a crawler that doesn't execute JS) sees a blank white page and no way
+       to reach the resume or the contact address. -->
+  <noscript>
+    <div style="max-width:640px;margin:12vh auto;padding:0 24px;font-family:system-ui,-apple-system,sans-serif;line-height:1.6;color:#0a2540">
+      <h1 style="font-size:32px;margin:0 0 8px">Justin Hatch</h1>
+      <p style="color:#2a4365;margin:0 0 20px">Software Engineer, AI/ML at Horizon Intelligence Labs &middot; Cambridge, Massachusetts</p>
+      <p style="color:#5a7090">This portfolio renders with JavaScript. With it disabled, you can still reach:</p>
+      <ul style="color:#1d4ed8">
+        <li><a href="/Resume.pdf" style="color:#1d4ed8">Resume (PDF)</a></li>
+        <li><a href="mailto:jjhatch03@gmail.com" style="color:#1d4ed8">jjhatch03@gmail.com</a></li>
+        <li><a href="https://github.com/jhatch3" style="color:#1d4ed8">github.com/jhatch3</a></li>
+        <li><a href="https://www.linkedin.com/in/justinhatch/" style="color:#1d4ed8">linkedin.com/in/justinhatch</a></li>
+      </ul>
+    </div>
+  </noscript>
 
   <script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js" crossorigin="anonymous"></script>
   <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" crossorigin="anonymous"></script>
@@ -196,7 +285,8 @@
         return (
           <div className={cn('overflow-hidden rounded-lg shrink-0', sizeClass)}
                style={{ background: '#f0f3f8' }}>
-            <img src={image} alt={alt || ''} loading="lazy"
+            <img src={image} alt={alt || ''} loading="lazy" decoding="async"
+              width="1200" height="800"
               className="h-full w-full object-cover object-top" />
           </div>
         );
@@ -640,7 +730,10 @@
         <div style={{ flex: 1, display: 'flex', alignItems: 'center' }}>
         <Container>
           <div style={{ display: 'flex', gap: 48, alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>
-            <img src="justin.jpg" alt="Justin Hatch" style={{
+            {/* Above the fold - eager + high priority, and width/height reserve
+                the box so the hero text doesn't jump when it lands. */}
+            <img src="justin.jpg" alt="Justin Hatch"
+              width="200" height="200" decoding="async" fetchPriority="high" style={{
               width: 200, height: 200, borderRadius: 24, objectFit: 'cover',
               boxShadow: 'var(--shadow)',
             }} />
@@ -662,9 +755,9 @@
                 </span>
               </div>
               <p style={{ fontSize: 16, lineHeight: 1.55, color: 'var(--ink-2)', margin: '0 0 16px', maxWidth: 580 }}>
-                AI Engineer at a <strong style={{ color: 'var(--ink)', fontWeight: 600 }}>stealth AI lab</strong> in Cambridge, MA,
-                building and deploying production applications on the company's AI platform and running the evals behind them.
-                Previously agent orchestration on AWS Bedrock at <strong style={{ color: 'var(--ink)', fontWeight: 600 }}>Machine &amp; Minds</strong>.
+                Software Engineer, AI/ML at <strong style={{ color: 'var(--ink)', fontWeight: 600 }}>Horizon Intelligence Labs</strong> in Cambridge, MA,
+                building and deploying production applications on Cortex, the company's AI platform, and running the evals behind them.
+                Previously production LLM systems at <strong style={{ color: 'var(--ink)', fontWeight: 600 }}>Modern Amenities</strong>.
               </p>
               <p style={{ fontSize: 14, lineHeight: 1.6, color: 'var(--ink-3)', margin: '0 0 24px', maxWidth: 580 }}>
                 I train and serve predictive models with reproducible MLOps, and ship language-model agents that
@@ -747,7 +840,8 @@
       // initials placeholder with a subtle gradient.
       if (project.image) {
         return (
-          <img src={project.image} alt={project.name} style={{
+          <img src={project.image} alt={project.name}
+            loading="lazy" decoding="async" width="1200" height="800" style={{
             width: '100%', height: '100%', objectFit: 'cover', display: 'block',
           }} />
         );
@@ -939,7 +1033,14 @@
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px 16px', flexWrap: 'wrap', marginBottom: 2 }}>
                   <h3 style={{ fontSize: 18 }}>{e.role}</h3>
                   {e.tags && (
-                    <div style={{ fontSize: 10.5, fontWeight: 500, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--ink-3)', fontFamily: "'JetBrains Mono', monospace" }}>
+                    /* Two things are load-bearing here. minWidth:0 lets this div
+                       shrink (as a flex item it defaults to min-width:auto and
+                       refuses to go below max-content). display:flex+wrap gives
+                       the tags a break opportunity - JSX emits adjacent <span>s
+                       with no whitespace between them, so as inline content the
+                       line can never break and the row pushed the page ~180px
+                       past a phone viewport. */
+                    <div style={{ fontSize: 10.5, fontWeight: 500, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--ink-3)', fontFamily: "'JetBrains Mono', monospace", minWidth: 0, display: 'flex', flexWrap: 'wrap' }}>
                       {e.tags.map((t, i) => (
                         <span key={t} style={{ whiteSpace: 'nowrap' }}>
                           {t}{i < e.tags.length - 1 && <span style={{ color: 'var(--border-strong)', padding: '0 7px' }}>·</span>}
