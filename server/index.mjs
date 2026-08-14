@@ -17,7 +17,7 @@ const projectRoot = path.resolve(here, '..');
 
 // The static web root. Only what lives under public/ is reachable over HTTP.
 // This used to be projectRoot, which meant the whole repo was downloadable from
-// the live site - Dockerfile, render.yaml, DEPLOY.md, server/index.mjs, and
+// the live site - Dockerfile, docker-compose.yml, DEPLOY.md, server/index.mjs, and
 // worst of all server/grill.mjs, which enumerates exactly which jailbreak
 // vectors are covered. Keep infra, docs and server source outside public/.
 const publicDir = path.join(projectRoot, 'public');

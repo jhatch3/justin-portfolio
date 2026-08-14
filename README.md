@@ -2,19 +2,19 @@
 
 # Justin Hatch - Portfolio
 
-<a href="https://justin-portfolio-e819.onrender.com">
+<a href="https://justinhatch.dev">
   <img src="public/images/projects/justin-portfolio.png" alt="Justin Hatch portfolio - macOS desktop simulation" width="900" />
 </a>
 
 **A personal portfolio that's also a working macOS desktop, a streaming Claude chatbot, a live order book, an iOS home screen on phones, and a set of agent skills that let me update the site with a single slash command.**
 
-[**Live site →**](https://justin-portfolio-e819.onrender.com) &nbsp;·&nbsp; [**Interactive mode →**](https://justin-portfolio-e819.onrender.com/desktop) &nbsp;·&nbsp; [Resume](public/Resume.pdf)
+[**Live site →**](https://justinhatch.dev) &nbsp;·&nbsp; [**Interactive mode →**](https://justinhatch.dev/desktop) &nbsp;·&nbsp; [Resume](public/Resume.pdf)
 
 ![Stack](https://img.shields.io/badge/React-18-61dafb?logo=react&logoColor=fff)
 ![Stack](https://img.shields.io/badge/Express-Node%2020-339933?logo=node.js&logoColor=fff)
 ![Stack](https://img.shields.io/badge/Anthropic-Claude%20Sonnet%204.6-D97757?logo=anthropic&logoColor=fff)
 ![Stack](https://img.shields.io/badge/Tailwind-v3%20(Play%20CDN)-06b6d4?logo=tailwindcss&logoColor=fff)
-![Deploy](https://img.shields.io/badge/Deploy-Render-46e3b7)
+![Deploy](https://img.shields.io/badge/Deploy-AWS%20EC2%20%2B%20Caddy-232F3E?logo=amazonaws&logoColor=fff)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 
 </div>
@@ -108,7 +108,7 @@ reads the current `git remote`, fetches the repo's GitHub metadata, builds a pro
 
 **Live data** &nbsp;Yahoo Finance v8 (proxied) · Coinbase WebSocket level2 feed
 
-**Deploy** &nbsp;Render (long-lived Node process for SSE) · GitHub auto-deploy on push to `main` · `render.yaml` blueprint
+**Deploy** &nbsp;AWS EC2 (t3.micro) · Docker Compose · Caddy for automatic TLS · Elastic IP + GoDaddy DNS
 
 ---
 
@@ -150,7 +150,9 @@ server/                          Express backend - NOT served over HTTP
 
 docs/                            Historical build spec + handoff notes
 Dockerfile  docker-compose.yml   Container build / local run
-render.yaml                      Render blueprint: build, start, env vars, autoDeploy from main
+Caddyfile                        Caddy vhosts: apex + www→apex 301, automatic Let's Encrypt
+docker-compose.prod.yml          Production stack: Caddy on 80/443, app on the internal network only
+scripts/deploy-aws.sh            Guided 10-stage EC2 + DNS deployment wizard
 
 next-app/                        Phase-2 Next.js 16 + Tailwind v4 + TypeScript scaffold
                                  (unbuilt, unserved - see the note in Deployment)
@@ -158,20 +160,26 @@ next-app/                        Phase-2 Next.js 16 + Tailwind v4 + TypeScript s
 
 ## Deployment
 
-Render auto-deploys on every push to `main` via [`render.yaml`](render.yaml).
+Runs on a single **AWS EC2 t3.micro** behind **Caddy**, which terminates TLS and
+proxies to the Node app on the internal Docker network. Caddy provisions and
+renews the Let's Encrypt certificate automatically — nothing to cron.
 
-```yaml
-services:
-  - type: web
-    name: justin-hatch-portfolio
-    runtime: node
-    plan: free
-    buildCommand: cd server && npm install
-    startCommand: cd server && npm start
-    healthCheckPath: /api/health
+```bash
+# on the instance
+git pull && docker compose -f docker-compose.prod.yml up -d --build
 ```
 
-The free tier sleeps after 15 min of inactivity (~30s cold start). Upgrade to Starter ($7/mo) for always-on. SSE streaming works natively because Render runs a long-lived Node process - Vercel-style serverless functions need a different shape.
+A long-lived Node process is a requirement, not a preference: `/api/chat` streams
+SSE, which serverless request/response functions can't hold open.
+
+`scripts/deploy-aws.sh` walks the whole thing from an empty AWS account —
+instance, Elastic IP, Docker, DNS cutover, TLS — gating each stage on a real
+check (SSH reachability, DNS propagation, certificate issuance) rather than on
+"did you click it". See [DEPLOY.md](DEPLOY.md).
+
+> **`.dev` note:** the TLD is HSTS-preloaded into every browser, so the site is
+> unreachable over plain HTTP by design. Get TLS working *before* the DNS
+> cutover — details in DEPLOY.md §6.
 
 ---
 

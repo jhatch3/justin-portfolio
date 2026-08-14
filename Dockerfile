@@ -15,7 +15,7 @@ RUN cd server && npm ci --omit=dev && npm cache clean --force
 
 # Copy the rest of the app. The server resolves its web root as
 # path.resolve(here, '..', 'public') and serves ONLY that, so everything else
-# copied here (Dockerfile, render.yaml, server source) stays off the public
+# copied here (Dockerfile, docker-compose files, server source) stays off the public
 # surface - see .dockerignore for what never enters the image at all.
 COPY . .
 
