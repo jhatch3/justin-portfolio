@@ -319,13 +319,54 @@ write_env SSH_KEY "$SSH_KEY"
 
 printf '\n'
 say "Connecting to $REMOTE_USER@$ELASTIC_IP ..."
-until ssh -i "$SSH_KEY" -o StrictHostKeyChecking=accept-new -o ConnectTimeout=10 \
-          "$REMOTE_USER@$ELASTIC_IP" 'echo CONNECTED' 2>/dev/null | grep -q CONNECTED; do
+while : ; do
+  err=$(ssh -i "$SSH_KEY" -o StrictHostKeyChecking=accept-new -o ConnectTimeout=10 \
+            -o BatchMode=yes "$REMOTE_USER@$ELASTIC_IP" 'echo CONNECTED' 2>&1) || true
+  [[ "$err" == *CONNECTED* ]] && break
+
   printf '\n'
-  warn "couldn't connect."
-  note "  - instance still booting? give it ~30s after 'Running'"
-  note "  - security group SSH rule set to 'My IP', and your IP changed?"
-  note "  - Amazon Linux uses user 'ec2-user'"
+  warn "couldn't connect. ssh said:"
+  note "  ${err:-(no output)}"
+  printf '\n'
+
+  # The failure mode tells you where to look, so say which one this is rather
+  # than printing the same generic checklist every time.
+  if [[ "$err" == *"Operation timed out"* || "$err" == *"Connection timed out"* ]]; then
+    say "Timed out = packets dropped, so nothing is answering at that address."
+    printf '\n'
+    # If 80/443 are dark too, it isn't the SSH rule - it's the address itself.
+    open80=0; nc -z -G 5 "$ELASTIC_IP" 80 >/dev/null 2>&1 && open80=1
+    if (( ! open80 )); then
+      warn "ports 80 and 443 are dark too, not just 22."
+      note "  The SSH rule can't explain that - those are open to the world."
+      note "  Almost always: the Elastic IP was ALLOCATED but never ASSOCIATED."
+      printf '\n'
+      step "EC2 → Elastic IPs → check 'Associated instance ID' for $ELASTIC_IP"
+      step "If blank: Actions → Associate Elastic IP address → Instance → pick it"
+      step "Also confirm the instance state is 'Running', not 'Stopped'"
+    else
+      note "  Port 80 answers but 22 doesn't, so the box is up and the Elastic IP"
+      note "  is attached - it's specifically the SSH inbound rule."
+      printf '\n'
+      myip=$(curl -s --max-time 8 https://checkip.amazonaws.com 2>/dev/null | tr -d '\n')
+      [[ -z "$myip" ]] && myip="(could not detect)"
+      step "Security group → Inbound rules → the SSH/22 rule"
+      step "Its source must be your current public IP: $myip"
+      note "  My-IP is captured once at launch - it goes stale when your"
+      note "  network changes. Set it to $myip/32, or 0.0.0.0/0 temporarily."
+    fi
+  elif [[ "$err" == *"Permission denied"* ]]; then
+    say "The box answered and rejected the credentials - networking is fine."
+    step "Is $SSH_KEY the key pair you attached to THIS instance?"
+    step "Amazon Linux 2023 logs in as 'ec2-user' (Ubuntu would be 'ubuntu')"
+  elif [[ "$err" == *"Connection refused"* ]]; then
+    say "Refused = reached the host, but sshd isn't listening yet."
+    step "Usually still booting - wait ~30s and retry."
+  else
+    step "Instance still booting? Give it ~30s after it shows 'Running'."
+    step "Amazon Linux uses user 'ec2-user'."
+  fi
+  printf '\n'
   confirm "Retry?" || exit 1
 done
 printf '  %s✓%s SSH works.\n' "$GREEN" "$RESET"
