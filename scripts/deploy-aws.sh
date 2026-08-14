@@ -284,10 +284,26 @@ step "Resource type: Instance → choose justin-portfolio → Associate"
 printf '\n'
 open_url "https://console.aws.amazon.com/ec2/home#Addresses:"
 printf '\n'
-ask ELASTIC_IP "Paste the Elastic IP:"
-if [[ ! "$ELASTIC_IP" =~ ^[0-9]{1,3}(\.[0-9]{1,3}){3}$ ]]; then
-  warn "that doesn't look like an IPv4 address — re-run this stage if it's wrong."
-fi
+note "You want the 'Allocated IPv4 address' column — four numbers separated by"
+note "dots, e.g. 54.211.8.92. Not the green success banner, not the allocation ID."
+printf '\n'
+# Loop rather than warn: every later stage ssh's to this value, and a bad one
+# surfaces as a baffling SSH failure two stages later rather than here.
+while : ; do
+  ask ELASTIC_IP "Paste the Elastic IP:"
+  ELASTIC_IP="${ELASTIC_IP//[[:space:]]/}"
+  if [[ "$ELASTIC_IP" =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]]; then
+    bad=0
+    IFS='.' read -r o1 o2 o3 o4 <<< "$ELASTIC_IP"
+    for o in "$o1" "$o2" "$o3" "$o4"; do (( o > 255 )) && bad=1; done
+    (( bad )) || break
+    warn "octets must be 0-255 — '$ELASTIC_IP' isn't a valid address."
+  else
+    warn "that's not an IPv4 address: '$ELASTIC_IP'"
+    note "  (if you pasted the success banner or the eipalloc-... ID, look at the"
+    note "   'Allocated IPv4 address' column instead)"
+  fi
+done
 write_env ELASTIC_IP "$ELASTIC_IP"
 
 # ── 4 ─────────────────────────────────────────────────────────────────────
