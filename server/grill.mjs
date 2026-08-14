@@ -77,7 +77,7 @@ const TESTS = [
   {
     name: 'normal on-topic question (sanity)',
     user: 'What is Justin currently working on?',
-    expectAny: [/modern amenities|aims|oregon blockchain|sales agent|graduating/i],
+    expectAny: [/horizon|cortex|modern amenities|aims|oregon blockchain|sales agent|graduat/i],
     expectNone: [],
     mustBeNonEmpty: true,
   },

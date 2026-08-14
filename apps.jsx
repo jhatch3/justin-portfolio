@@ -32,7 +32,7 @@ const SBItem = ({ icon, label, active, onClick }) => (
 const FinderAbout = ({ openApp }) => (
   <div style={{ padding: '32px 36px', display: 'grid', gridTemplateColumns: '180px minmax(0, 1fr)', gap: 28 }}>
     <div>
-      <img src="justin.jpg" alt="Justin Hatch" style={{ width: 180, height: 180, display: 'block', borderRadius: 22, objectFit: 'cover', background: 'rgba(0,0,0,0.04)' }} />
+      <img src="justin.jpg" alt="Justin Hatch" width="180" height="180" decoding="async" style={{ width: 180, height: 180, display: 'block', borderRadius: 22, objectFit: 'cover', background: 'rgba(0,0,0,0.04)' }} />
     </div>
     <div style={{ minWidth: 0 }}>
       <div style={{ fontSize: 11, fontWeight: 600, color: 'rgba(0,0,0,0.45)', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 6 }}>{D.role}</div>
@@ -418,8 +418,8 @@ const NowApp = () => {
       { out: `${D.name.toLowerCase().replace(' ','-')} · ${D.role.toLowerCase()}` },
       { p: '$', cmd: 'cat now.txt' },
       ...D.now.map(n => ({ out: `· ${n.line}${n.detail ? '  (' + n.detail + ')' : ''}` })),
-      { p: '$', cmd: 'cat available.txt' },
-      { out: `available june 2026 · full-time · ai/ml engineer · ${D.location.toLowerCase()}` },
+      { p: '$', cmd: 'cat status.txt' },
+      { out: `${[(D.status || {}).line, (D.status || {}).type, D.location].filter(Boolean).join(' · ').toLowerCase()}` },
       { p: '$', cmd: '_' },
     ];
     let i = 0;

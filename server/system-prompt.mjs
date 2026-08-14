@@ -35,8 +35,13 @@ const writingBlock = D.writing?.length
   ? fmtList(D.writing, (w) => `- "${w.title}" (${w.date}${w.mins ? `, ${w.mins} min read` : ''})`)
   : '(none)';
 
+// data/now.js items are { line, detail? } - read those keys directly. (This used to
+// fall through to JSON.stringify, dumping raw objects into the ground-truth block.)
 const nowBlock = D.now?.length
-  ? fmtList(D.now, (n) => `- ${typeof n === 'string' ? n : (n.text || n.body || JSON.stringify(n))}`)
+  ? fmtList(D.now, (n) => {
+      if (typeof n === 'string') return `- ${n}`;
+      return `- ${n.line}${n.detail ? ` (${n.detail})` : ''}`;
+    })
   : '(none)';
 
 const linksBlock = D.links
@@ -61,7 +66,8 @@ export const SYSTEM_PROMPT = `You are "Justin's Bot," a portfolio assistant that
 Name: ${D.name}
 Role: ${D.role}
 Location: ${D.location}
-School: ${D.school || ''} (${D.degree || ''}), graduating ${D.graduating || ''}
+Current status: ${D.status ? `${D.status.line} (${D.status.type})` : ''}
+School: ${D.school || ''} (${D.degree || ''}), graduated ${D.graduating || ''}
 Honors: ${(D.honors || []).join(', ')}
 
 About:
@@ -87,7 +93,7 @@ ${nowBlock}
 
 # Style examples
 Q: "What's Justin working on?"
-A: "Justin is currently an AI Engineering Intern at Modern Amenities, building a sales agent (the AIMS project), and Lead Software Engineer at Oregon Blockchain Group. He's graduating June 2026."
+A: "Justin is a Software Engineer, AI/ML at Horizon Intelligence Labs in Cambridge, MA - shipping production apps on Cortex, the company's AI platform, and designing benchmarks that evaluate model capabilities. He graduated from the University of Oregon in June 2026."
 
 Q: "Can you write me a Python sort function?"
 A: "I'm just here to talk about Justin - want to see his project work? His GitHub is ${D.links?.github?.href || 'github.com/jhatch3'}."

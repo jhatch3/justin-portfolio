@@ -294,11 +294,21 @@ const OrderBookWidget = ({ top = 442, right = 18, w = 300, h = 340 }) => {
 };
 
 // ─── Generating / Token stream ───────────────────────────────────────────────
+// Split a string into typewriter tokens (words keep their trailing space; newlines
+// stay their own token) so these samples can be built from JH_DATA instead of
+// hardcoded - the "currently" and "reach out" lines used to drift out of date.
+const tokenize = (s) => s.match(/\n+|[^\s\n]+[ \t]?/g) || [s];
+const JD = window.JH_DATA || {};
+
 const SAMPLES = [
   ['Hire', ' Justin', '.', '\n\n', 'He', ' ships', ' AI', ' systems', ' that', ' actually', ' work', '.'],
-  ['Currently', ' building', ' a', ' sales', ' agent', ' at', ' Modern', ' Amenities', '.', '\n', 'Available', ' June', ' 2026', '.'],
+  tokenize([
+    (JD.status && JD.status.line) || 'Building AI systems.',
+    '\n',
+    [(JD.status && JD.status.type), JD.location].filter(Boolean).join(' · '),
+  ].join('')),
   ['Looking', ' for', ':', ' applied', ' AI', ',', ' agents', ',', ' or', ' anything', ' weird', ' and', ' new', '.'],
-  ['Reach', ' out', ':', ' justin', '@', 'hatch', '.', 'dev'],
+  tokenize(`Reach out: ${(JD.links && JD.links.email && JD.links.email.label) || 'jjhatch03@gmail.com'}`),
 ];
 
 const TokenStreamWidget = ({ top = 230, right = 18 }) => {
