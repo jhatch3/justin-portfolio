@@ -131,6 +131,25 @@ docker compose up -d --build
 
 ---
 
+## Guided path: `scripts/deploy-aws.sh`
+
+The rest of this document is the manual reference. If you'd rather be walked
+through it, the repo ships an interactive wizard that does the same thing with a
+verification gate at every step (SSH reachability, DNS propagation, certificate
+issuance, a final end-to-end check of the live site):
+
+```bash
+./scripts/deploy-aws.sh
+```
+
+It drives your browser to the right consoles, captures the values you copy back
+(Elastic IP, key path), installs Docker over SSH, and reuses the
+`ANTHROPIC_API_KEY` already in your local `.env` rather than making you find it
+again. Safe to Ctrl-C and re-run - it remembers what it already has in
+`.deploy.env` (gitignored).
+
+---
+
 ## 6. HTTPS + the `justinhatch.dev` domain (GoDaddy)
 
 > ### ⚠️ `.dev` requires HTTPS. There is no HTTP fallback.
@@ -193,24 +212,30 @@ dig +short www.justinhatch.dev
 ### 6c. Switch the stack to Caddy
 
 The repo ships a ready `Caddyfile` (apex + a `www` → apex 301, matching the
-`<link rel="canonical">` in `public/*.html`). On the instance:
+`<link rel="canonical">` in `public/*.html`) and a complete production stack in
+`docker-compose.prod.yml`. On the instance:
 
-1. In `docker-compose.yml`, change the `web` service's ports from `"80:3000"` to
-   **`"127.0.0.1:3000:3000"`** so the app is no longer reachable directly and
-   only Caddy is public.
-2. **Uncomment** the `caddy` service and the `volumes:` block at the bottom.
-3. Open **443** in the security group, and **leave 80 open** (ACME challenge +
+1. Open **443** in the security group, and **leave 80 open** (ACME challenge +
    the HTTP→HTTPS redirect).
-4. Apply:
+2. Swap the HTTP-only stack for the production one:
 
    ```bash
-   docker compose up -d
+   docker compose down
+   docker compose -f docker-compose.prod.yml up -d --build
    ```
+
+> **Why a separate file rather than uncommenting a block:** Compose *appends*
+> `ports` when merging files, so an override would leave the app still bound to
+> host port 80 alongside Caddy and the two would fight over it.
+> `docker-compose.prod.yml` is a complete stack — Caddy owns 80/443 and the app
+> is only reachable on the internal compose network. Keep using the plain
+> `docker-compose.yml` for the pre-DNS smoke test, where you *want* the app
+> directly on port 80.
 
 Caddy requests the certificate on first boot. Watch it happen:
 
 ```bash
-docker compose logs -f caddy
+docker compose -f docker-compose.prod.yml logs -f caddy
 # look for: certificate obtained successfully
 ```
 

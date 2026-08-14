@@ -42,3 +42,6 @@ coverage/
 *.tmp
 *.bak
 .claude/settings.local.json
+
+# Wizard state written by scripts/deploy-aws.sh (Elastic IP, key path).
+.deploy.env

@@ -1,0 +1,45 @@
+# Production stack: Caddy terminates TLS on 80/443, the app is private on the
+# docker network. Use this INSTEAD of docker-compose.yml, not alongside it:
+#
+#   docker compose -f docker-compose.prod.yml up -d --build
+#
+# It is a complete stack rather than an override because Compose *appends*
+# `ports` when merging files - an override would leave the app still bound to
+# host port 80 next to Caddy, and the two would fight over it.
+#
+# The plain docker-compose.yml stays useful for the pre-DNS smoke test, where
+# you want the app directly on port 80 over HTTP. See DEPLOY.md §6.
+
+services:
+  web:
+    build: .
+    image: justin-portfolio:latest
+    container_name: justin-portfolio
+    restart: unless-stopped
+    # No host port: only Caddy reaches it, over the compose network.
+    expose:
+      - "3000"
+    env_file:
+      - .env
+    environment:
+      - PORT=3000
+      - NODE_ENV=production
+
+  caddy:
+    image: caddy:2
+    container_name: caddy
+    restart: unless-stopped
+    depends_on:
+      - web
+    ports:
+      - "80:80"    # required: ACME HTTP-01 challenge + HTTP->HTTPS redirect
+      - "443:443"
+      - "443:443/udp"  # HTTP/3
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data      # certificates live here - persist or you re-issue
+      - caddy_config:/config
+
+volumes:
+  caddy_data:
+  caddy_config:
