@@ -131,33 +131,112 @@ docker compose up -d --build
 
 ---
 
-## 6. (Optional) HTTPS with a custom domain
+## 6. HTTPS + the `justinhatch.dev` domain (GoDaddy)
 
-Free automatic TLS via Caddy — needs a domain pointed at the instance.
+> ### ⚠️ `.dev` requires HTTPS. There is no HTTP fallback.
+>
+> The entire `.dev` TLD is on the **HSTS preload list baked into every major
+> browser**. A browser will not load `http://justinhatch.dev` — it rewrites the
+> request to `https://` before it leaves the machine, and if TLS isn't working
+> it shows a full-page error with **no "proceed anyway" link**.
+>
+> Practical consequences:
+> - Do **not** do the DNS cutover before Caddy is configured. A working
+>   HTTP-only box will look completely broken on the domain.
+> - You cannot smoke-test the domain over plain HTTP at any point. Test against
+>   `http://<elastic-ip>` *before* cutover, and `https://justinhatch.dev` after.
+> - This is a browser-side rule only. Let's Encrypt's HTTP-01 challenge on port
+>   80 is made by Let's Encrypt's servers, not a browser, so it still works —
+>   **keep port 80 open**.
 
-1. In your DNS, create an **A record** for e.g. `portfolio.example.com` → the
-   instance's public IP (an Elastic IP is worth allocating so it survives stop/start).
-2. Create a `Caddyfile` next to `docker-compose.yml`:
+### 6a. Give the instance a stable IP
 
-   ```
-   portfolio.example.com {
-       reverse_proxy web:3000
-   }
-   ```
+An instance's default public IP changes on stop/start, which would silently
+break the domain. Allocate an **Elastic IP** and associate it with the instance:
 
-3. In `docker-compose.yml`: change the `web` service's ports to
-   `"127.0.0.1:3000:3000"` (so the app isn't exposed directly), then **uncomment**
-   the `caddy` service and the `volumes:` block at the bottom.
-4. Make sure the security group allows **443** (and keep **80** open — Caddy needs
-   it for the ACME challenge and to redirect to HTTPS).
-5. Apply:
+EC2 console → *Network & Security* → *Elastic IPs* → **Allocate Elastic IP
+address** → select it → *Actions* → **Associate** → pick the instance.
+
+Note the address; it's `ELASTIC_IP` below.
+
+### 6b. Point GoDaddy at it
+
+GoDaddy → **My Products** → the domain → **DNS** / *Manage DNS*.
+
+Create (or edit) these two records:
+
+| Type | Name | Value | TTL |
+|---|---|---|---|
+| `A` | `@` | `ELASTIC_IP` | 600 seconds |
+| `A` | `www` | `ELASTIC_IP` | 600 seconds |
+
+Three GoDaddy-specific gotchas:
+
+1. **Delete the parked-page records first.** A new GoDaddy domain ships with an
+   `A @` record pointing at their parking IP and often a `CNAME www` →
+   `@`. Edit the `A @` in place rather than adding a second one — two `A`
+   records on `@` will round-robin, and half your traffic will hit the parking
+   page.
+2. **Turn off Domain Forwarding** if it's set (*Manage DNS* → *Forwarding*).
+   It injects a redirect that will fight Caddy.
+3. Use a short TTL (600s) while setting up. Raise it to 1 hour once it's stable
+   — GoDaddy's default is 1 hour, which makes mistakes slow to undo.
+
+Verify propagation before touching the server:
+
+```bash
+dig +short justinhatch.dev
+dig +short www.justinhatch.dev
+# both should print ELASTIC_IP
+```
+
+### 6c. Switch the stack to Caddy
+
+The repo ships a ready `Caddyfile` (apex + a `www` → apex 301, matching the
+`<link rel="canonical">` in `public/*.html`). On the instance:
+
+1. In `docker-compose.yml`, change the `web` service's ports from `"80:3000"` to
+   **`"127.0.0.1:3000:3000"`** so the app is no longer reachable directly and
+   only Caddy is public.
+2. **Uncomment** the `caddy` service and the `volumes:` block at the bottom.
+3. Open **443** in the security group, and **leave 80 open** (ACME challenge +
+   the HTTP→HTTPS redirect).
+4. Apply:
 
    ```bash
    docker compose up -d
    ```
 
-Caddy fetches and renews a Let's Encrypt cert automatically. The site is now at
-`https://portfolio.example.com/`.
+Caddy requests the certificate on first boot. Watch it happen:
+
+```bash
+docker compose logs -f caddy
+# look for: certificate obtained successfully
+```
+
+### 6d. Verify
+
+```bash
+# 1. Certificate is real and for the right name
+curl -sI https://justinhatch.dev | head -1
+
+# 2. www redirects to the apex
+curl -sI https://www.justinhatch.dev | grep -i location
+
+# 3. Security headers survived the proxy hop
+curl -sI https://justinhatch.dev | grep -iE 'strict-transport|content-security|x-content-type'
+
+# 4. Infra is still not served
+curl -s -o /dev/null -w '%{http_code}\n' https://justinhatch.dev/server/grill.mjs   # expect 404
+
+# 5. The chatbot works end to end
+curl -s -X POST https://justinhatch.dev/api/chat \
+  -H 'Content-Type: application/json' \
+  -d '{"messages":[{"role":"user","content":"Where does Justin work?"}]}' | head -5
+```
+
+Then submit `https://justinhatch.dev/sitemap.xml` in Google Search Console —
+`public/robots.txt` already advertises it.
 
 ---
 

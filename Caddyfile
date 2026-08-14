@@ -1,0 +1,36 @@
+# Caddy reverse proxy - terminates TLS and forwards to the Node app.
+#
+# Used by the optional `caddy` service in docker-compose.yml. See DEPLOY.md §6.
+# Caddy provisions and renews a Let's Encrypt certificate automatically; there
+# is nothing to run by hand and nothing to renew on a cron.
+#
+# NOTE ON .dev: the entire .dev TLD is on the HSTS preload list that ships
+# inside every major browser, so https is not optional here - a browser will
+# refuse to load http://justinhatch.dev at all, with no click-through. That
+# makes this file load-bearing rather than a nice-to-have, and it means you
+# cannot smoke-test the domain over plain http at any point. Test by IP before
+# the DNS cutover, and by https after.
+{
+	# Where Let's Encrypt sends expiry warnings if renewal ever breaks.
+	email jjhatch03@gmail.com
+}
+
+justinhatch.dev {
+	reverse_proxy web:3000
+
+	# The app already sets its own CSP/HSTS/etc via helmet - don't duplicate.
+	# Compression is handled by the app too (compression middleware).
+
+	log {
+		output file /data/access.log {
+			roll_size 10MiB
+			roll_keep 5
+		}
+	}
+}
+
+# Send www to the apex so there's exactly one canonical origin - matches the
+# <link rel="canonical"> and og:url in public/*.html.
+www.justinhatch.dev {
+	redir https://justinhatch.dev{uri} permanent
+}

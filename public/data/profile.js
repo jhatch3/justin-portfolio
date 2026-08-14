@@ -5,7 +5,7 @@ window.JH_DATA = {
   name: 'Justin Hatch',
   role: 'AI / ML Engineer',
   location: 'Cambridge, Massachusetts',
-  domain: 'justinhatch.com',
+  domain: 'justinhatch.dev',
   graduating: 'June 2026',
 
   // Current employment status. Consumed by the desktop terminal (apps.jsx), the

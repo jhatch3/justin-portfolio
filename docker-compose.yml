@@ -23,7 +23,7 @@ services:
   # ── Optional: automatic HTTPS via Caddy ───────────────────────────────────
   # Uncomment this block AND point a domain's A record at the instance, then set
   # the "web" ports to "127.0.0.1:3000:3000" above so the app isn't public on 80.
-  # Replace portfolio.example.com with your domain inside Caddyfile (see DEPLOY.md).
+  # The Caddyfile in this repo is already set up for justinhatch.dev (see DEPLOY.md §6).
   #
   # caddy:
   #   image: caddy:2

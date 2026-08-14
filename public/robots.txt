@@ -4,4 +4,4 @@ Allow: /
 # The chat + quote endpoints are dynamic and rate-limited; nothing to index.
 Disallow: /api/
 
-Sitemap: https://justinhatch.com/sitemap.xml
+Sitemap: https://justinhatch.dev/sitemap.xml
