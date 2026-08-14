@@ -2,13 +2,17 @@
 
 window.JH_DATA.experience = [
   {
-    company: 'AI Stealth Lab',
-    role:    'AI Engineer',
+    company: 'Horizon Intelligence Labs',
+    role:    'Software Engineer, AI/ML',
     type:    'Full-time',
     where:   'Cambridge, Massachusetts',
     start:   'Aug 2026',
     end:     'Present',
-    bullets: [],
+    bullets: [
+      "Building and deploying production applications on Cortex, the company's AI platform, reporting directly to the COO and CTO.",
+      'Designing experiments and benchmarks evaluating model capabilities; contributing to Cortex SDK development.',
+      'Translating field insights into research directions alongside the research and platform teams.',
+    ],
     tags: ['Python', 'FastAPI', 'React', 'Google Cloud', 'Docker', 'Evals', 'SDK'],
   },
   {
@@ -34,11 +38,12 @@ window.JH_DATA.experience = [
     start:   'Sep 2024',
     end:     'Jun 2026',
     bullets: [
-      'Led 2 engineering projects, Crop Share (farm-to-store supply-chain provenance) and TrialWeave (GLP-1 cohort RWE analytics), translating stakeholder needs into scoped specs and acceptance criteria, shipping across a team of 3-5 developers.',
+      'Led 3 engineering projects - Crop Share (farm-to-store supply-chain provenance), TrialWeave (GLP-1 cohort RWE analytics), and an agent orchestration platform (domain under NDA) - translating stakeholder needs into scoped specs and acceptance criteria, shipping across a team of 3-5 developers.',
+      'Built an agent orchestration harness on AWS Bedrock (Claude) that automates end-to-end workflows in a multi-tenant SaaS platform (domain under NDA).',
       'Drove 133%+ membership growth (6 to 14) in under a year by serving on the recruitment board, pitching in core CS classes, and interviewing potential candidates.',
       'Promoted from Software Developer to Lead in under three months after shipping initial Crop Share prototypes.',
     ],
-    tags: ['Leadership', 'Rust', 'Postgres', 'Recruitment'],
+    tags: ['Leadership', 'FastAPI', 'React', 'AWS Bedrock', 'Postgres', 'Recruitment'],
   },
   {
     company: 'Oregon Software Consulting',
