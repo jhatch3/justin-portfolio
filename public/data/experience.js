@@ -9,7 +9,7 @@ window.JH_DATA.experience = [
     start:   'Aug 2026',
     end:     'Present',
     bullets: [
-      "Building and deploying production applications on Cortex, the company's AI platform, reporting directly to the COO and CTO.",
+      "Building and deploying production applications on Cortex, the company's AI platform.",
       'Designing experiments and benchmarks evaluating model capabilities; contributing to Cortex SDK development.',
       'Translating field insights into research directions alongside the research and platform teams.',
     ],
