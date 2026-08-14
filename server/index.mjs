@@ -82,41 +82,60 @@ const app = express();
 // pages carry inline <script>/<style> blocks (needs 'unsafe-inline'). Everything
 // else is locked to the specific CDNs we actually load. Tightening these two
 // requires precompiling JSX - see DEPLOY.md.
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", 'https://unpkg.com', 'https://cdn.tailwindcss.com'],
-      styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
-      fontSrc: ["'self'", 'https://fonts.gstatic.com', 'data:'],
-      imgSrc: ["'self'", 'data:', 'blob:'],
-      // /api/chat and /api/quote are same-origin. The other two are direct
-      // browser calls: the order-book widget opens a Coinbase WSS, and the
-      // contribution graph fetches the jogruber GitHub-calendar proxy.
-      connectSrc: [
-        "'self'",
-        'https://unpkg.com',
-        'wss://ws-feed.exchange.coinbase.com',
-        'https://github-contributions-api.jogruber.de',
-      ],
-      // The resume section embeds Resume.pdf via <object> with an <iframe>
-      // fallback. Because this CSP is applied to *every* response, the PDF
-      // itself carries frame-ancestors too - 'none' would stop the page from
-      // framing its own resume. 'self' still blocks cross-origin clickjacking.
-      objectSrc: ["'self'"],
-      frameSrc: ["'self'"],
-      frameAncestors: ["'self'"],
-      baseUri: ["'self'"],
-      formAction: ["'self'"],
-      upgradeInsecureRequests: [],
-    },
-  },
-  // The resume renders in an <object>/<iframe> from the same origin; the default
-  // require-corp value would block it without CORP headers on the PDF.
+const cspDirectives = () => ({
+  defaultSrc: ["'self'"],
+  scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", 'https://unpkg.com', 'https://cdn.tailwindcss.com'],
+  styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
+  fontSrc: ["'self'", 'https://fonts.gstatic.com', 'data:'],
+  imgSrc: ["'self'", 'data:', 'blob:'],
+  // /api/chat and /api/quote are same-origin. The other two are direct
+  // browser calls: the order-book widget opens a Coinbase WSS, and the
+  // contribution graph fetches the jogruber GitHub-calendar proxy.
+  connectSrc: [
+    "'self'",
+    'https://unpkg.com',
+    'wss://ws-feed.exchange.coinbase.com',
+    'https://github-contributions-api.jogruber.de',
+  ],
+  // The resume section embeds Resume.pdf via <object> with an <iframe>
+  // fallback. Because this CSP is applied to *every* response, the PDF
+  // itself carries frame-ancestors too - 'none' would stop the page from
+  // framing its own resume. 'self' still blocks cross-origin clickjacking.
+  objectSrc: ["'self'"],
+  frameSrc: ["'self'"],
+  frameAncestors: ["'self'"],
+  baseUri: ["'self'"],
+  formAction: ["'self'"],
+});
+
+// upgrade-insecure-requests rewrites every subresource URL to https://. That is
+// right in production behind Caddy, and actively breaks the pre-DNS smoke test:
+// browsing the instance by raw IP over http, the HTML loads but all seven
+// data/*.js and the JSX get upgraded to https, hit a port nobody is listening
+// on, and React never mounts - a blank page, while curl reports 200 on
+// everything. So emit it only when the connection actually is TLS.
+const isSecure = (req) =>
+  req.secure || req.get('x-forwarded-proto') === 'https';
+
+const helmetSecure = helmet({
+  contentSecurityPolicy: { directives: { ...cspDirectives(), upgradeInsecureRequests: [] } },
   crossOriginEmbedderPolicy: false,
   referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
   hsts: { maxAge: 31536000, includeSubDomains: true, preload: true },
-}));
+});
+
+const helmetPlain = helmet({
+  // null, not omitted: helmet's CSP defaults include upgrade-insecure-requests,
+  // so leaving it out still emits it. null is how you actively remove it.
+  contentSecurityPolicy: { directives: { ...cspDirectives(), upgradeInsecureRequests: null } },
+  crossOriginEmbedderPolicy: false,
+  referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
+  // HSTS over plain http is ignored by browsers anyway; omit it so the
+  // smoke-test origin doesn't get pinned to https in the tester's browser.
+  hsts: false,
+});
+
+app.use((req, res, next) => (isSecure(req) ? helmetSecure : helmetPlain)(req, res, next));
 
 // gzip/brotli every text response. landing.html alone is ~70KB uncompressed.
 app.use(compression());
