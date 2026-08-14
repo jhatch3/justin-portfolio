@@ -15,6 +15,13 @@ import { SYSTEM_PROMPT } from './system-prompt.mjs';
 const here = path.dirname(fileURLToPath(import.meta.url));
 const projectRoot = path.resolve(here, '..');
 
+// The static web root. Only what lives under public/ is reachable over HTTP.
+// This used to be projectRoot, which meant the whole repo was downloadable from
+// the live site - Dockerfile, render.yaml, DEPLOY.md, server/index.mjs, and
+// worst of all server/grill.mjs, which enumerates exactly which jailbreak
+// vectors are covered. Keep infra, docs and server source outside public/.
+const publicDir = path.join(projectRoot, 'public');
+
 // Load .env from server/ first, then project root - regardless of CWD.
 // dotenv won't overwrite already-set vars, so first wins.
 dotenv.config({ path: path.join(here, '.env') });
@@ -330,7 +337,7 @@ app.post('/api/chat', async (req, res) => {
 // static handler applies to .html - otherwise the entry points are the one thing
 // a browser would happily serve stale.
 const sendPage = (res, file) =>
-  res.sendFile(path.join(projectRoot, file), {
+  res.sendFile(path.join(publicDir, file), {
     headers: { 'Cache-Control': 'no-cache' },
   });
 
@@ -355,7 +362,7 @@ app.get(['/Justin Hatch.html', '/Justin%20Hatch.html'], (_req, res) => {
 // TTL; rename the file to bust them.
 const REVALIDATE = new Set(['.html', '.js', '.jsx', '.mjs', '.json', '.css']);
 
-app.use(express.static(projectRoot, {
+app.use(express.static(publicDir, {
   extensions: ['html'],
   setHeaders: (res, filePath) => {
     const ext = path.extname(filePath).toLowerCase();

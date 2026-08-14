@@ -13,8 +13,10 @@ WORKDIR /app
 COPY server/package.json server/package-lock.json ./server/
 RUN cd server && npm ci --omit=dev && npm cache clean --force
 
-# Copy the rest of the app: static frontend + data live at the repo root because
-# the server resolves projectRoot = path.resolve(here, '..') and serves from there.
+# Copy the rest of the app. The server resolves its web root as
+# path.resolve(here, '..', 'public') and serves ONLY that, so everything else
+# copied here (Dockerfile, render.yaml, server source) stays off the public
+# surface - see .dockerignore for what never enters the image at all.
 COPY . .
 
 # Drop root privileges (the built-in `node` user ships with the base image).

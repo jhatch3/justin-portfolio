@@ -6,7 +6,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
-const dataDir = path.resolve(here, '..', 'data');
+const dataDir = path.resolve(here, '..', 'public', 'data');
 
 const FILES = [
   'profile.js',

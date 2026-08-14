@@ -3,12 +3,12 @@
 # Justin Hatch - Portfolio
 
 <a href="https://justin-portfolio-e819.onrender.com">
-  <img src="images/projects/justin-portfolio.png" alt="Justin Hatch portfolio - macOS desktop simulation" width="900" />
+  <img src="public/images/projects/justin-portfolio.png" alt="Justin Hatch portfolio - macOS desktop simulation" width="900" />
 </a>
 
 **A personal portfolio that's also a working macOS desktop, a streaming Claude chatbot, a live order book, an iOS home screen on phones, and a set of agent skills that let me update the site with a single slash command.**
 
-[**Live site →**](https://justin-portfolio-e819.onrender.com) &nbsp;·&nbsp; [**Interactive mode →**](https://justin-portfolio-e819.onrender.com/desktop) &nbsp;·&nbsp; [Resume](Resume.pdf)
+[**Live site →**](https://justin-portfolio-e819.onrender.com) &nbsp;·&nbsp; [**Interactive mode →**](https://justin-portfolio-e819.onrender.com/desktop) &nbsp;·&nbsp; [Resume](public/Resume.pdf)
 
 ![Stack](https://img.shields.io/badge/React-18-61dafb?logo=react&logoColor=fff)
 ![Stack](https://img.shields.io/badge/Express-Node%2020-339933?logo=node.js&logoColor=fff)
@@ -71,7 +71,7 @@ Hammers `/api/chat` with 12 adversarial prompts (jailbreaks, prompt-injections, 
 
 ## Agent skills
 
-Each skill edits one file in `data/` and auto-commits + pushes. Both the landing page and the desktop sim read from the same data files, so any edit propagates everywhere with one push.
+Each skill edits one file in `public/data/` and auto-commits + pushes. Both the landing page and the desktop sim read from the same data files, so any edit propagates everywhere with one push.
 
 ```
 /portfolio-projects add Sales Agent for Modern Amenities, stack Claude/FastAPI/Tool Use
@@ -114,37 +114,46 @@ reads the current `git remote`, fetches the repo's GitHub metadata, builds a pro
 
 ## Architecture
 
+`public/` is the **entire** public surface - it is the only directory served over
+HTTP. Anything outside it (server source, infra, docs) is not reachable from the
+live site. Put new web assets in `public/`; keep everything else out.
+
 ```
-/                                Static frontend (no build step)
+public/                          Static frontend (no build step) - THE WEB ROOT
   landing.html                   Public landing page (/) - hero, sections, embed
   desktop.html                   macOS sim (/desktop) - mounts the window manager
-  desktop.jsx                    Wallpaper, menubar, dock, draggable + resizable windows, spotlight
-  apps.jsx                       Per-window content (Finder/About, Projects, Experience, Skills, etc.)
-  widgets.jsx                    Stock ticker, GitHub + LinkedIn tiles, Coinbase order book
-  mobile.jsx                     iOS home screen + per-app sheets for phones
+  js/
+    desktop.jsx                  Wallpaper, menubar, dock, draggable + resizable windows, spotlight
+    apps.jsx                     Per-window content (Finder/About, Projects, Experience, Skills, etc.)
+    widgets.jsx                  Stock ticker, GitHub + LinkedIn tiles, Coinbase order book
+    mobile.jsx                   iOS home screen + per-app sheets for phones
   data/
-    profile.js                   identity, links, about, certs, honors
-    projects.js                  13 portfolio projects with bullets + tags + images
-    experience.js                4 roles with bullets
+    profile.js                   identity, links, about, certs, honors, current status
+    projects.js                  14 portfolio projects with bullets + tags + images
+    experience.js                5 roles with bullets
     education.js                 4 academic milestones
-    skills.js                    7 categorized skill groups
+    skills.js                    8 categorized skill groups
     writing.js                   3 articles / reports / dashboards
     now.js                       5 'what I'm doing right now' lines
   images/projects/               1200×800 (3:2) images for each project card
-  Resume.pdf
+  justin.jpg                     headshot
+  Resume.pdf                     also embedded in the /#resume section
+  favicon.svg  robots.txt  sitemap.xml
 
-/server                          Express backend
-  index.mjs                      /api/chat (SSE streaming), /api/quote (Yahoo proxy), static serving, LAN-print
+server/                          Express backend - NOT served over HTTP
+  index.mjs                      /api/chat (SSE), /api/quote (Yahoo proxy), helmet CSP, static serving of public/
   system-prompt.mjs              Identity-pinned, override-resistant system prompt with prompt-cache markers
-  load-data.mjs                  Loads data/*.js into Node so the bot reads the same content
-  grill.mjs                      Red-team test suite (12 adversarial prompts)
-  package.json                   { @anthropic-ai/sdk, express, dotenv }
+  load-data.mjs                  Loads public/data/*.js into Node so the bot reads the same content
+  grill.mjs                      Red-team suite, 12 adversarial prompts (needs a key + running server)
+  prompt-audit.mjs               Offline prompt structure checks, no key needed (`npm run audit`)
+  package.json                   { @anthropic-ai/sdk, express, helmet, compression, dotenv }
 
-/.github                         Render auto-deploy on push (no Actions yet)
-render.yaml                      Render blueprint: build, start, env vars
+docs/                            Historical build spec + handoff notes
+Dockerfile  docker-compose.yml   Container build / local run
+render.yaml                      Render blueprint: build, start, env vars, autoDeploy from main
 
 next-app/                        Phase-2 Next.js 16 + Tailwind v4 + TypeScript scaffold
-                                 (where shadcn/Aceternity components paste in cleanly)
+                                 (unbuilt, unserved - see the note in Deployment)
 ```
 
 ## Deployment
