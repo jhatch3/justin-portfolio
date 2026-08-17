@@ -97,7 +97,20 @@
     /* nav: hide section-anchor row, keep name + social icons */
     .nav-sections { display: none !important; }
     /* container side padding */
-    .container { padding-left: 18px !important; padding-right: 18px !important; }
+    .container { padding-left: 16px !important; padding-right: 16px !important; }
+    /* Skills: the desktop run-on "a · b · c" line wraps into ragged rows with
+       large holes on a narrow screen, because every item is white-space:nowrap.
+       On phones render each item as a chip that wraps cleanly instead. */
+    .skills-line {
+      display: flex !important; flex-wrap: wrap !important; gap: 6px !important;
+      font-size: 13.5px !important; line-height: 1.35 !important;
+    }
+    .skill-item {
+      white-space: normal !important;
+      background: rgba(10,37,64,0.05); border: 1px solid var(--border);
+      border-radius: 999px; padding: 5px 11px; color: var(--ink-2);
+    }
+    .skill-sep { display: none !important; }
     /* push social icons right when section anchors are hidden */
     .nav-icons { margin-left: auto !important; }
     /* show hamburger on mobile */
@@ -120,7 +133,12 @@
   .nav-hamburger { display: none; }
   @media (max-width: 480px) {
     section { padding-top: 32px !important; padding-bottom: 32px !important; }
+    .container { padding-left: 14px !important; padding-right: 14px !important; }
+    .skills-line { font-size: 13px !important; gap: 5px !important; }
+    .skill-item { padding: 5px 10px; }
   }
+  /* Nothing should be able to push the page wider than the viewport. */
+  img, object, iframe, video, canvas, table { max-width: 100%; }
 
   html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink-2);
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
@@ -926,11 +944,14 @@
                   fontSize: 13, fontWeight: 800, color: 'var(--ink)',
                   letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 8,
                 }}>{cat}</div>
-                <div style={{ fontSize: 15, lineHeight: 1.9, color: 'var(--ink-2)', overflowWrap: 'anywhere' }}>
+                {/* Separator lives outside the item span so the mobile
+                    stylesheet can turn each item into a chip and drop the dot. */}
+                <div className="skills-line" style={{ fontSize: 15, lineHeight: 1.9, color: 'var(--ink-2)', overflowWrap: 'anywhere' }}>
                   {items.map((s, i) => (
-                    <span key={s} style={{ whiteSpace: 'nowrap' }}>
-                      {s}{i < items.length - 1 && <span style={{ color: 'var(--border-strong)', padding: '0 11px' }}>·</span>}
-                    </span>
+                    <React.Fragment key={s}>
+                      <span className="skill-item" style={{ whiteSpace: 'nowrap' }}>{s}</span>
+                      {i < items.length - 1 && <span className="skill-sep" style={{ color: 'var(--border-strong)', padding: '0 11px' }}>·</span>}
+                    </React.Fragment>
                   ))}
                 </div>
               </div>
