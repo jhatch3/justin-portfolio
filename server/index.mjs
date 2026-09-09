@@ -377,9 +377,16 @@ app.get(['/Justin Hatch.html', '/Justin%20Hatch.html'], (_req, res) => {
 // Cache policy: nothing here is content-hashed, so anything that can change on a
 // deploy must revalidate or a returning visitor gets a stale mix of old code and
 // new data. `no-cache` still allows a cheap 304 via ETag - it means "revalidate",
-// not "don't cache". Images and the resume are content-stable, so they get a real
-// TTL; rename the file to bust them.
-const REVALIDATE = new Set(['.html', '.js', '.jsx', '.mjs', '.json', '.css']);
+// not "don't cache". Images are content-stable, so they get a real TTL; rename
+// the file to bust them.
+//
+// .pdf revalidates too. Resume.pdf keeps its name across revisions - it's linked
+// from the nav, the hero, the contact row and the noscript block, and it's the
+// path recruiters bookmark - so a TTL meant a refreshed resume stayed invisible
+// for a full day to anyone who had already loaded the old one, with no way to
+// bust it short of renaming every link. At ~130KB one conditional GET per visit
+// is the right trade for a document that actually changes.
+const REVALIDATE = new Set(['.html', '.js', '.jsx', '.mjs', '.json', '.css', '.pdf']);
 
 app.use(express.static(publicDir, {
   extensions: ['html'],
@@ -390,7 +397,7 @@ app.use(express.static(publicDir, {
     if (REVALIDATE.has(ext)) {
       res.setHeader('Cache-Control', 'no-cache');
     } else {
-      // Images, fonts, the PDF - safe to hold for a day.
+      // Images and fonts - safe to hold for a day.
       res.setHeader('Cache-Control', 'public, max-age=86400');
     }
   },
