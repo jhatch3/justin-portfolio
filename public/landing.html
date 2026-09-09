@@ -262,72 +262,79 @@
       }, [ref, callback]);
     };
 
-    // ─── ExpandableCardDemo (light theme, CSS transitions, no motion) ────────
-    // Wired to all of Justin's projects from data/projects.js, with search + tag filter.
-    const expandCards = D.projects.map(p => ({
+    // ─── Projects list ───────────────────────────────────────────────────────
+    // Hairline-separated text rows, the same shape as Writing: no search box,
+    // no tag filter, no visible thumbnails. Each project's screenshot is hidden
+    // until you hover its row, when it fades in beside the cursor.
+    const projectRows = D.projects.map(p => ({
       id: p.id,
       title: p.name,
       description: p.subtitle,
-      // No repo (client work, or under NDA) means no button at all - the old
-      // 'View' fallback linked back to #projects, which went nowhere.
-      ctaText: p.url ? 'GitHub ↗' : null,
-      ctaLink: p.url || null,
-      writeup: p.writeup,
+      url: p.url || null,
+      writeup: p.writeup || null,
       bullets: p.bullets || [],
       tags: p.tags,
-      status: p.status,
       sector: p.sector,
       image: p.image,
-      initials: p.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase(),
     }));
 
-    const ProjectInitialsTile = ({ initials, image, alt, size = 'sm' }) => {
-      const isLarge = size !== 'sm';
-      const sizeClass = isLarge ? 'h-80 w-full' : 'h-14 w-14';
-      if (image) {
-        return (
-          <div className={cn('overflow-hidden rounded-lg shrink-0', sizeClass)}
-               style={{ background: '#f0f3f8' }}>
-            <img src={image} alt={alt || ''} loading="lazy" decoding="async"
-              width="1200" height="800"
-              className="h-full w-full object-cover object-top" />
-          </div>
-        );
-      }
+    // ─── HoverPreview ────────────────────────────────────────────────────────
+    // The screenshot that follows the cursor. position:fixed with
+    // pointer-events:none so it can never intercept the click on the row it is
+    // previewing, and clamped to the viewport so a row near the right edge or
+    // the bottom of the window doesn't push it offscreen.
+    const PREVIEW_W = 260;
+    const HoverPreview = ({ preview }) => {
+      if (!preview) return null;
+      const pad = 16;
+      const h = Math.round(PREVIEW_W * 0.66);
+      // Flip to the left of the cursor when there isn't room on the right.
+      const flip = preview.x + 24 + PREVIEW_W > window.innerWidth - pad;
+      const left = flip ? Math.max(pad, preview.x - 24 - PREVIEW_W) : preview.x + 24;
+      const top = Math.min(Math.max(preview.y - h / 2, pad), Math.max(pad, window.innerHeight - h - pad));
       return (
-        <div className={cn(
-          'flex items-center justify-center rounded-lg font-mono font-bold tracking-tighter shrink-0',
-          isLarge ? 'h-80 w-full text-6xl' : 'h-14 w-14 text-base',
-        )} style={{
-          background: 'linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 50%, #a5b4fc 100%)',
-          color: 'rgba(10,37,64,0.55)',
-        }}>{initials}</div>
+        <div aria-hidden="true" style={{
+          position: 'fixed', left, top, width: PREVIEW_W, zIndex: 40,
+          pointerEvents: 'none', borderRadius: 10, overflow: 'hidden',
+          border: '0.5px solid var(--border)', boxShadow: 'var(--shadow)',
+          background: 'var(--surface)', animation: 'fadeIn 0.14s ease-out',
+        }}>
+          <img src={preview.image} alt="" loading="lazy" decoding="async"
+            style={{ display: 'block', width: '100%', height: h, objectFit: 'cover', objectPosition: 'top' }} />
+        </div>
       );
     };
 
-    const ExpandableCardDemo = () => {
+    const ProjectsList = () => {
       const [active, setActive] = React.useState(null);
-      const [query, setQuery] = React.useState('');
-      const [activeTags, setActiveTags] = React.useState([]);
+      const [hoverId, setHoverId] = React.useState(null);
+      const [preview, setPreview] = React.useState(null);
       const ref = React.useRef(null);
+      const frame = React.useRef(0);
 
-      const allTags = React.useMemo(() => {
-        const counts = {};
-        expandCards.forEach(c => c.tags.forEach(t => { counts[t] = (counts[t] || 0) + 1; }));
-        return Object.keys(counts).sort((a, b) => counts[b] - counts[a]).map(t => ({ tag: t, count: counts[t] }));
-      }, []);
+      // Touch devices fire a synthetic mouseenter on tap, which would flash the
+      // preview over the card it is opening. Gate the whole thing on a pointer
+      // that can actually hover.
+      const canHover = React.useMemo(
+        () => !!(window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches),
+        [],
+      );
 
-      const toggleTag = (t) => setActiveTags(prev => prev.includes(t) ? prev.filter(x => x !== t) : [...prev, t]);
-
-      const filtered = expandCards.filter(c => {
-        if (query.trim()) {
-          const q = query.toLowerCase();
-          const hay = `${c.title} ${c.description} ${c.tags.join(' ')} ${(c.bullets || []).join(' ')}`.toLowerCase();
-          if (!hay.includes(q)) return false;
-        }
-        if (activeTags.length > 0 && !activeTags.some(t => c.tags.includes(t))) return false;
-        return true;
-      });
+      // One state update per animation frame instead of one per mousemove.
+      const trackPreview = (p, e) => {
+        if (!canHover || !p.image) return;
+        const x = e.clientX, y = e.clientY;
+        if (frame.current) return;
+        frame.current = requestAnimationFrame(() => {
+          frame.current = 0;
+          setPreview({ image: p.image, x, y });
+        });
+      };
+      const clearPreview = () => {
+        if (frame.current) { cancelAnimationFrame(frame.current); frame.current = 0; }
+        setPreview(null);
+      };
+      React.useEffect(() => () => { if (frame.current) cancelAnimationFrame(frame.current); }, []);
 
       React.useEffect(() => {
         const onKey = (e) => { if (e.key === 'Escape') setActive(null); };
@@ -341,64 +348,81 @@
 
       useOutsideClick(ref, () => setActive(null));
 
+      const open = (p) => { clearPreview(); setHoverId(null); setActive(p); };
+
       return (
         <>
-          {/* Backdrop + modal */}
+          {/* The cursor-following screenshot. Hidden while a card is open. */}
+          {!active && <HoverPreview preview={preview} />}
+
+          {/* Detail panel */}
           {active && (
             <>
-              {/* Backdrop sits above the sticky nav (z:50) so the hamburger
-                  becomes both visually covered AND non-clickable while a
-                  project is open. */}
+              {/* Backdrop sits above the sticky nav (z:50) so the hamburger is
+                  both visually covered AND non-clickable while a project is
+                  open. */}
               <div className="fixed inset-0 bg-black/30 z-[60] animate-[fadeIn_0.18s_ease-out]" />
               <div className="fixed inset-0 grid place-items-center z-[100] p-4">
-                <div ref={ref} className="relative w-full max-w-[560px] max-h-[90vh] flex flex-col bg-white rounded-3xl overflow-hidden shadow-2xl animate-[scaleIn_0.18s_ease-out]">
-                  {/* Close button lives INSIDE the card, top-right corner of
-                      the project image. Keeps it far from the page nav so
-                      mobile taps can't hit the hamburger by accident. */}
-                  <button
-                    className="absolute top-3 right-3 z-[5] flex items-center justify-center bg-white/95 backdrop-blur rounded-full h-9 w-9 shadow-md hover:bg-white"
-                    onClick={() => setActive(null)} aria-label="Close"
-                  >
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-black"><path d="M18 6l-12 12"/><path d="M6 6l12 12"/></svg>
-                  </button>
-                  <ProjectInitialsTile initials={active.initials} image={active.image} alt={active.title} size="lg" />
-                  <div className="flex justify-between items-start p-5 gap-4">
-                    <div className="min-w-0 flex-1">
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-                        <h3 className="font-bold text-lg" style={{ color: 'var(--ink)' }}>{active.title}</h3>
-                        {active.sector && <SectorBadge sector={active.sector} />}
-                      </div>
-                      <p className="text-sm mt-1" style={{ color: 'var(--ink-3)' }}>{active.description}</p>
+                <div ref={ref} style={{
+                  width: '100%', maxWidth: 560, maxHeight: '90vh',
+                  display: 'flex', flexDirection: 'column',
+                  background: 'var(--surface)', borderRadius: 14, overflow: 'hidden',
+                  border: '1px solid var(--border)', boxShadow: 'var(--shadow)',
+                  animation: 'scaleIn 0.18s ease-out',
+                }}>
+                  {active.image && (
+                    <img src={active.image} alt={active.title} loading="lazy" decoding="async"
+                      width="1200" height="800"
+                      style={{
+                        display: 'block', width: '100%', height: 240,
+                        objectFit: 'cover', objectPosition: 'top',
+                        borderBottom: '0.5px solid var(--border)', background: '#f0f3f8',
+                      }} />
+                  )}
+                  <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, padding: '22px 24px 0' }}>
+                    <div style={{ minWidth: 0 }}>
+                      <SectorBadge sector={active.sector} />
+                      <h3 style={{ fontSize: 19, marginTop: 8 }}>{active.title}</h3>
+                      <p style={{ fontSize: 13.5, color: 'var(--ink-3)', margin: '6px 0 0', lineHeight: 1.5 }}>
+                        {active.description}
+                      </p>
                     </div>
-                    <div className="flex gap-2 shrink-0 flex-wrap justify-end">
-                      {active.writeup && (
-                        <a href={active.writeup} target="_blank" rel="noopener noreferrer"
-                           className="px-4 py-2 text-sm rounded-full font-semibold shrink-0"
-                           style={{ background: 'transparent', color: 'var(--accent)', border: '1px solid var(--accent)' }}>
-                          Write-up ↗
-                        </a>
-                      )}
-                      {active.ctaLink && (
-                        <a href={active.ctaLink} target="_blank" rel="noopener noreferrer"
-                           className="px-4 py-2 text-sm rounded-full font-semibold text-white shrink-0" style={{ background: 'var(--accent)' }}>
-                          {active.ctaText}
-                        </a>
-                      )}
-                    </div>
+                    {/* Bare icon, not a floating pill over the image. */}
+                    <button onClick={() => setActive(null)} aria-label="Close"
+                      style={{ background: 'transparent', border: 0, padding: 4, margin: -4, lineHeight: 0, color: 'var(--ink-3)', flexShrink: 0, transition: 'color 0.15s' }}
+                      onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--ink)'; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--ink-3)'; }}>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6l-12 12"/><path d="M6 6l12 12"/></svg>
+                    </button>
                   </div>
-                  <div className="px-5 pb-5 overflow-y-auto" style={{ color: 'var(--ink-2)' }}>
+                  <div style={{ padding: '20px 24px 24px', overflowY: 'auto' }}>
                     {active.bullets.length > 0 && (
-                      <ul className="text-sm leading-relaxed pl-5 list-disc space-y-1.5 mb-4">
-                        {active.bullets.map((b, i) => <li key={i}>{b}</li>)}
-                      </ul>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 9, marginBottom: 20 }}>
+                        {active.bullets.map((b, i) => (
+                          <div key={i} style={{ display: 'flex', gap: 10, fontSize: 13.5, lineHeight: 1.6, color: 'var(--ink-2)' }}>
+                            <span style={{ color: 'var(--border-strong)', flexShrink: 0, userSelect: 'none' }}>-</span>
+                            <span>{b}</span>
+                          </div>
+                        ))}
+                      </div>
                     )}
-                    <div className="flex gap-1.5 flex-wrap">
-                      {active.tags.map(t => (
-                        <span key={t} className="text-[11px] px-2.5 py-0.5 rounded-full"
-                          style={{ background: 'rgba(29,78,216,0.06)', color: 'var(--accent)', border: '0.5px solid rgba(29,78,216,0.15)' }}>
-                          {t}
-                        </span>
-                      ))}
+                    {/* Text links, no pills. Absent entirely when there's no
+                        public repo - the old fallback pointed at #projects. */}
+                    {(active.url || active.writeup) && (
+                      <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap', marginBottom: 18, fontSize: 14, fontWeight: 600 }}>
+                        {active.url && (
+                          <a href={active.url} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent)' }}>GitHub ↗</a>
+                        )}
+                        {active.writeup && (
+                          <a href={active.writeup} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent)' }}>Write-up ↗</a>
+                        )}
+                      </div>
+                    )}
+                    <div style={{
+                      fontSize: 11, fontFamily: "'JetBrains Mono', monospace",
+                      color: 'var(--ink-3)', letterSpacing: '0.04em', lineHeight: 1.7,
+                    }}>
+                      {active.tags.join(' · ')}
                     </div>
                   </div>
                 </div>
@@ -406,88 +430,48 @@
             </>
           )}
 
-          {/* Search + tag filter */}
-          <div className="max-w-4xl mx-auto w-full mb-6">
-            <div className="flex items-center gap-2 px-4 py-2.5 rounded-lg shadow-sm transition-colors"
-              style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--ink-3)' }}>
-                <circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-              </svg>
-              <input value={query} onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search projects, tech, descriptions..."
-                style={{ flex: 1, border: 0, outline: 0, background: 'transparent', fontSize: 14, fontFamily: 'inherit', color: 'var(--ink)' }} />
-              {(query || activeTags.length > 0) && (
-                <button onClick={() => { setQuery(''); setActiveTags([]); }}
-                  style={{ background: 'transparent', border: 0, padding: 0, fontSize: 12, color: 'var(--ink-3)', fontFamily: 'inherit', cursor: 'pointer' }}>clear ✕</button>
-              )}
-              <span style={{ fontSize: 12, color: 'var(--ink-3)', fontFamily: "'JetBrains Mono', monospace", marginLeft: 4 }}>
-                {filtered.length}/{expandCards.length}
-              </span>
-            </div>
-            <div className="flex gap-1.5 flex-wrap mt-3">
-              {allTags.map(({ tag, count }) => {
-                const active = activeTags.includes(tag);
-                return (
-                  <button key={tag} onClick={() => toggleTag(tag)}
-                    style={{
-                      fontSize: 11, padding: '4px 11px', borderRadius: 999,
-                      border: active ? '0.5px solid var(--accent)' : '0.5px solid var(--border-strong)',
-                      background: active ? 'rgba(29,78,216,0.1)' : 'var(--surface)',
-                      color: active ? 'var(--accent)' : 'var(--ink-2)',
-                      fontFamily: 'inherit', fontWeight: active ? 600 : 500, cursor: 'pointer',
-                    }}>
-                    {tag} <span style={{ opacity: 0.6, marginLeft: 2 }}>{count}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Two-column grid of projects */}
-          {filtered.length === 0 ? (
-            <div className="max-w-4xl mx-auto p-10 text-center rounded-xl"
-              style={{ background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--ink-3)', fontSize: 14 }}>
-              No projects match.{' '}
-              <button onClick={() => { setQuery(''); setActiveTags([]); }}
-                style={{ background: 'transparent', border: 0, padding: 0, color: 'var(--accent)', fontFamily: 'inherit', fontSize: 14, textDecoration: 'underline', cursor: 'pointer' }}>Clear filters</button>
-            </div>
-          ) : (
-          <div className="max-w-4xl mx-auto w-full grid grid-cols-1 md:grid-cols-2 gap-2">
-            {filtered.map((card) => (
-              <div key={card.id || card.title}
-                onClick={() => setActive(card)}
-                className="p-3 flex justify-between items-center hover:bg-neutral-100/70 rounded-xl cursor-pointer transition-colors"
-              >
-                <div className="flex gap-3 items-center min-w-0">
-                  <ProjectInitialsTile initials={card.initials} image={card.image} alt={card.title} />
-                  <div className="min-w-0">
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 2 }}>
-                      <h3 className="font-medium text-sm truncate" style={{ color: 'var(--ink)' }}>{card.title}</h3>
-                      {card.sector && <SectorBadge sector={card.sector} />}
-                    </div>
-                    <p className="text-xs truncate" style={{ color: 'var(--ink-3)' }}>{card.description}</p>
-                  </div>
-                </div>
-                {/* Bare text affordance - no pill, no background. Kept as a
-                    <button> so keyboard users still have a focusable way to
-                    open the card (Enter bubbles to the row's onClick). */}
-                <button className="ml-3 shrink-0 transition-colors"
+          {/* Bare rows */}
+          <div>
+            {projectRows.map((p, i) => {
+              const hot = hoverId === p.id;
+              return (
+                <div key={p.id}
+                  onClick={() => open(p)}
+                  onMouseEnter={(e) => { setHoverId(p.id); trackPreview(p, e); }}
+                  onMouseMove={(e) => trackPreview(p, e)}
+                  onMouseLeave={() => { setHoverId(null); clearPreview(); }}
                   style={{
-                    background: 'transparent', border: 0, padding: 0,
-                    fontSize: 12, fontWeight: 600, letterSpacing: '0.04em',
-                    color: 'var(--ink-3)', fontFamily: 'inherit',
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                    gap: 20, padding: '20px 0', cursor: 'pointer',
+                    borderTop: i === 0 ? 'none' : '0.5px solid var(--border)',
                   }}
-                  onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--accent)'; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--ink-3)'; }}
-                >Open</button>
-              </div>
-            ))}
+                >
+                  <div style={{ minWidth: 0 }}>
+                    <SectorBadge sector={p.sector} />
+                    <div style={{
+                      fontSize: 16, fontWeight: 600, marginTop: 7,
+                      color: hot ? 'var(--accent)' : 'var(--ink)', transition: 'color 0.15s',
+                    }}>{p.title}</div>
+                    <div style={{ fontSize: 13.5, color: 'var(--ink-3)', marginTop: 4, lineHeight: 1.5 }}>
+                      {p.description}
+                    </div>
+                  </div>
+                  {/* Bare text, no pill. Kept as a <button> so keyboard users
+                      still have a focusable way in (Enter bubbles to the row). */}
+                  <button style={{
+                    background: 'transparent', border: 0, padding: 0,
+                    fontSize: 12, fontWeight: 600, letterSpacing: '0.04em', flexShrink: 0,
+                    fontFamily: 'inherit', color: hot ? 'var(--accent)' : 'var(--ink-3)',
+                    transition: 'color 0.15s',
+                  }}>Open</button>
+                </div>
+              );
+            })}
           </div>
-          )}
 
           <style>{`
             @keyframes fadeIn  { from { opacity: 0 } to { opacity: 1 } }
-            @keyframes scaleIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+            @keyframes scaleIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
           `}</style>
         </>
       );
@@ -990,7 +974,7 @@
       <section id="projects" style={{ padding: '96px 0', animation: 'fadeUp 0.75s ease-out' }}>
         <Container>
           <SectionHeader eyebrow="Selected Work" title="Projects" />
-          <ExpandableCardDemo />
+          <ProjectsList />
         </Container>
       </section>
     );
