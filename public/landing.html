@@ -268,8 +268,10 @@
       id: p.id,
       title: p.name,
       description: p.subtitle,
-      ctaText: p.url ? 'GitHub ↗' : 'View',
-      ctaLink: p.url || '#projects',
+      // No repo (client work, or under NDA) means no button at all - the old
+      // 'View' fallback linked back to #projects, which went nowhere.
+      ctaText: p.url ? 'GitHub ↗' : null,
+      ctaLink: p.url || null,
       writeup: p.writeup,
       bullets: p.bullets || [],
       tags: p.tags,
@@ -376,10 +378,12 @@
                           Write-up ↗
                         </a>
                       )}
-                      <a href={active.ctaLink} target={active.ctaLink.startsWith('http') ? '_blank' : undefined} rel="noopener noreferrer"
-                         className="px-4 py-2 text-sm rounded-full font-semibold text-white shrink-0" style={{ background: 'var(--accent)' }}>
-                        {active.ctaText}
-                      </a>
+                      {active.ctaLink && (
+                        <a href={active.ctaLink} target="_blank" rel="noopener noreferrer"
+                           className="px-4 py-2 text-sm rounded-full font-semibold text-white shrink-0" style={{ background: 'var(--accent)' }}>
+                          {active.ctaText}
+                        </a>
+                      )}
                     </div>
                   </div>
                   <div className="px-5 pb-5 overflow-y-auto" style={{ color: 'var(--ink-2)' }}>
@@ -464,10 +468,17 @@
                     <p className="text-xs truncate" style={{ color: 'var(--ink-3)' }}>{card.description}</p>
                   </div>
                 </div>
-                <button className="ml-3 shrink-0 px-3 py-1.5 text-xs rounded-full font-semibold transition-colors"
-                  style={{ background: 'rgba(10,37,64,0.06)', color: 'var(--ink-2)' }}
-                  onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--accent)'; e.currentTarget.style.color = 'white'; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(10,37,64,0.06)'; e.currentTarget.style.color = 'var(--ink-2)'; }}
+                {/* Bare text affordance - no pill, no background. Kept as a
+                    <button> so keyboard users still have a focusable way to
+                    open the card (Enter bubbles to the row's onClick). */}
+                <button className="ml-3 shrink-0 transition-colors"
+                  style={{
+                    background: 'transparent', border: 0, padding: 0,
+                    fontSize: 12, fontWeight: 600, letterSpacing: '0.04em',
+                    color: 'var(--ink-3)', fontFamily: 'inherit',
+                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--accent)'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--ink-3)'; }}
                 >Open</button>
               </div>
             ))}
