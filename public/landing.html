@@ -542,8 +542,8 @@
       const sectionLinks = [
         { href: '#resume',     label: 'Resume' },
         { href: '#projects',   label: 'Projects' },
-        { href: '#education',  label: 'Education' },
         { href: '#writing',    label: 'Writing' },
+        { href: '#education',  label: 'Education' },
       ];
 
       return (
@@ -893,33 +893,26 @@
               </div>
             </div>
             <div style={{ height: 30 }} />
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '28px 40px' }}>
-            <div>
-              <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--ink)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 10 }}>
-                Honors &amp; awards
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {(D.honors || []).map(h => (
-                  <div key={h} style={{ display: 'flex', gap: 8, fontSize: 13.5, lineHeight: 1.5, color: 'var(--ink-2)' }}>
-                    <span style={{ color: 'var(--border-strong)', flexShrink: 0, userSelect: 'none' }}>-</span>
-                    <span>{h}</span>
+            {/* Two full-width rows, honors above extracurriculars, rather than
+                two columns. Each row is its own label plus an inline list, so
+                neither one has to be read across a gutter. */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 22 }}>
+              {[
+                { label: 'Honors & awards', items: D.honors || [] },
+                { label: 'Extracurriculars', items: ['AI Club', 'Oregon Blockchain Group', 'Oregon Software Consulting'] },
+              ].map(row => (
+                <div key={row.label} style={{
+                  display: 'flex', gap: '10px 28px', alignItems: 'baseline', flexWrap: 'wrap',
+                }}>
+                  <div style={{
+                    fontSize: 11, fontWeight: 800, color: 'var(--ink)', letterSpacing: '0.1em',
+                    textTransform: 'uppercase', flex: '0 0 auto', minWidth: 150,
+                  }}>{row.label}</div>
+                  <div style={{ fontSize: 13.5, lineHeight: 1.6, color: 'var(--ink-2)', flex: '1 1 320px' }}>
+                    {row.items.join('  ·  ')}
                   </div>
-                ))}
-              </div>
-            </div>
-            <div>
-              <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--ink)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 10 }}>
-                Extracurriculars
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {['AI Club', 'Oregon Blockchain Group', 'Oregon Software Consulting'].map(x => (
-                  <div key={x} style={{ display: 'flex', gap: 8, fontSize: 13.5, lineHeight: 1.5, color: 'var(--ink-2)' }}>
-                    <span style={{ color: 'var(--border-strong)', flexShrink: 0, userSelect: 'none' }}>-</span>
-                    <span>{x}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
+                </div>
+              ))}
             </div>
           </div>
         </Container>
@@ -1042,8 +1035,8 @@
         <Hero />
         <ResumeEmbed />
         <ProjectsCardSection />
-        <EducationSection />
         <Writing />
+        <EducationSection />
         <Contact />
       </>
     );

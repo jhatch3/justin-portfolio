@@ -6,7 +6,7 @@ window.JH_DATA.education = [
     title: 'Graduated · Bachelor of Science in Computer Science',
     bullets: [
       'Bachelor of Science in Computer Science from the University of Oregon, June 2026.',
-      "Department Honors and Dean's List for multiple terms.",
+      "Dean's List for multiple terms.",
       'Worked concurrently as AI Engineering Intern at Modern Amenities and Lead Software Engineer at Oregon Blockchain Group.',
       'ETH Global Hackathon: top 10 percent of more than 470 projects.',
     ],

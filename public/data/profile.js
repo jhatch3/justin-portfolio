@@ -21,7 +21,6 @@ window.JH_DATA = {
 
   honors: [
     "Dean's List",
-    'Department Honors',
     'QuackHacks II - Winner',
     'ETH Global Hackathon - Top 10% of 470+ projects',
   ],
