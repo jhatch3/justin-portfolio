@@ -263,9 +263,15 @@
     };
 
     // ─── Projects list ───────────────────────────────────────────────────────
-    // Hairline-separated text rows, the same shape as Writing: no search box,
-    // no tag filter, no visible thumbnails. Each project's screenshot is hidden
-    // until you hover its row, when it fades in beside the cursor.
+    // A compact index: one line per project, title plus sector. The subtitle is
+    // hidden until you hover the row (or focus it), so the default state is
+    // eleven titles rather than eleven paragraphs. Screenshots live only in the
+    // detail panel.
+    //
+    // Hover, focus and the reveal are plain CSS rather than React state: it
+    // keeps the row from re-rendering on every pointer move, and it lets the
+    // (hover: none) query below pin the subtitles open on touch, where there is
+    // no hover to reveal them with.
     const projectRows = D.projects.map(p => ({
       id: p.id,
       title: p.name,
@@ -278,63 +284,9 @@
       image: p.image,
     }));
 
-    // ─── HoverPreview ────────────────────────────────────────────────────────
-    // The screenshot that follows the cursor. position:fixed with
-    // pointer-events:none so it can never intercept the click on the row it is
-    // previewing, and clamped to the viewport so a row near the right edge or
-    // the bottom of the window doesn't push it offscreen.
-    const PREVIEW_W = 260;
-    const HoverPreview = ({ preview }) => {
-      if (!preview) return null;
-      const pad = 16;
-      const h = Math.round(PREVIEW_W * 0.66);
-      // Flip to the left of the cursor when there isn't room on the right.
-      const flip = preview.x + 24 + PREVIEW_W > window.innerWidth - pad;
-      const left = flip ? Math.max(pad, preview.x - 24 - PREVIEW_W) : preview.x + 24;
-      const top = Math.min(Math.max(preview.y - h / 2, pad), Math.max(pad, window.innerHeight - h - pad));
-      return (
-        <div aria-hidden="true" style={{
-          position: 'fixed', left, top, width: PREVIEW_W, zIndex: 40,
-          pointerEvents: 'none', borderRadius: 10, overflow: 'hidden',
-          border: '0.5px solid var(--border)', boxShadow: 'var(--shadow)',
-          background: 'var(--surface)', animation: 'fadeIn 0.14s ease-out',
-        }}>
-          <img src={preview.image} alt="" loading="lazy" decoding="async"
-            style={{ display: 'block', width: '100%', height: h, objectFit: 'cover', objectPosition: 'top' }} />
-        </div>
-      );
-    };
-
     const ProjectsList = () => {
       const [active, setActive] = React.useState(null);
-      const [hoverId, setHoverId] = React.useState(null);
-      const [preview, setPreview] = React.useState(null);
       const ref = React.useRef(null);
-      const frame = React.useRef(0);
-
-      // Touch devices fire a synthetic mouseenter on tap, which would flash the
-      // preview over the card it is opening. Gate the whole thing on a pointer
-      // that can actually hover.
-      const canHover = React.useMemo(
-        () => !!(window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches),
-        [],
-      );
-
-      // One state update per animation frame instead of one per mousemove.
-      const trackPreview = (p, e) => {
-        if (!canHover || !p.image) return;
-        const x = e.clientX, y = e.clientY;
-        if (frame.current) return;
-        frame.current = requestAnimationFrame(() => {
-          frame.current = 0;
-          setPreview({ image: p.image, x, y });
-        });
-      };
-      const clearPreview = () => {
-        if (frame.current) { cancelAnimationFrame(frame.current); frame.current = 0; }
-        setPreview(null);
-      };
-      React.useEffect(() => () => { if (frame.current) cancelAnimationFrame(frame.current); }, []);
 
       React.useEffect(() => {
         const onKey = (e) => { if (e.key === 'Escape') setActive(null); };
@@ -348,13 +300,8 @@
 
       useOutsideClick(ref, () => setActive(null));
 
-      const open = (p) => { clearPreview(); setHoverId(null); setActive(p); };
-
       return (
         <>
-          {/* The cursor-following screenshot. Hidden while a card is open. */}
-          {!active && <HoverPreview preview={preview} />}
-
           {/* Detail panel */}
           {active && (
             <>
@@ -430,48 +377,68 @@
             </>
           )}
 
-          {/* Bare rows */}
+          {/* The index */}
           <div>
-            {projectRows.map((p, i) => {
-              const hot = hoverId === p.id;
-              return (
-                <div key={p.id}
-                  onClick={() => open(p)}
-                  onMouseEnter={(e) => { setHoverId(p.id); trackPreview(p, e); }}
-                  onMouseMove={(e) => trackPreview(p, e)}
-                  onMouseLeave={() => { setHoverId(null); clearPreview(); }}
-                  style={{
-                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                    gap: 20, padding: '20px 0', cursor: 'pointer',
-                    borderTop: i === 0 ? 'none' : '0.5px solid var(--border)',
-                  }}
-                >
-                  <div style={{ minWidth: 0 }}>
+            {projectRows.map(p => (
+              <div key={p.id} className="proj-row" onClick={() => setActive(p)}>
+                <div style={{ minWidth: 0, flex: 1 }}>
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: 12, minWidth: 0 }}>
+                    <span className="proj-title">{p.title}</span>
                     <SectorBadge sector={p.sector} />
-                    <div style={{
-                      fontSize: 16, fontWeight: 600, marginTop: 7,
-                      color: hot ? 'var(--accent)' : 'var(--ink)', transition: 'color 0.15s',
-                    }}>{p.title}</div>
-                    <div style={{ fontSize: 13.5, color: 'var(--ink-3)', marginTop: 4, lineHeight: 1.5 }}>
+                  </div>
+                  <div className="proj-sub">
+                    <div style={{ fontSize: 13, color: 'var(--ink-3)', lineHeight: 1.45, paddingTop: 5 }}>
                       {p.description}
                     </div>
                   </div>
-                  {/* Bare text, no pill. Kept as a <button> so keyboard users
-                      still have a focusable way in (Enter bubbles to the row). */}
-                  <button style={{
-                    background: 'transparent', border: 0, padding: 0,
-                    fontSize: 12, fontWeight: 600, letterSpacing: '0.04em', flexShrink: 0,
-                    fontFamily: 'inherit', color: hot ? 'var(--accent)' : 'var(--ink-3)',
-                    transition: 'color 0.15s',
-                  }}>Open</button>
                 </div>
-              );
-            })}
+                {/* Bare text, no pill. Kept as a <button> so keyboard users
+                    still have a focusable way in - and focusing it reveals the
+                    subtitle via :focus-within, the same as hovering. */}
+                <button className="proj-open">Open</button>
+              </div>
+            ))}
           </div>
 
           <style>{`
             @keyframes fadeIn  { from { opacity: 0 } to { opacity: 1 } }
             @keyframes scaleIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
+
+            .proj-row {
+              display: flex; align-items: center; justify-content: space-between;
+              gap: 20px; padding: 13px 0; cursor: pointer;
+            }
+            .proj-row + .proj-row { border-top: 0.5px solid var(--border); }
+            .proj-title {
+              font-size: 16.5px; font-weight: 600; letter-spacing: -0.015em;
+              color: var(--ink);
+              transition: color 0.15s; overflow: hidden; text-overflow: ellipsis;
+              white-space: nowrap;
+            }
+            .proj-open {
+              background: transparent; border: 0; padding: 0; flex-shrink: 0;
+              font-family: inherit; font-size: 12px; font-weight: 600;
+              letter-spacing: 0.04em; color: var(--ink-3); transition: color 0.15s;
+            }
+            .proj-row:hover .proj-title, .proj-row:focus-within .proj-title,
+            .proj-row:hover .proj-open,  .proj-row:focus-within .proj-open {
+              color: var(--accent);
+            }
+            /* Collapsed by default, revealed on hover/focus. max-height rather
+               than display:none so it can animate; 72px clears three wrapped
+               lines at the narrowest desktop width. */
+            .proj-sub {
+              overflow: hidden; max-height: 0; opacity: 0;
+              transition: max-height 0.22s ease, opacity 0.18s ease;
+            }
+            .proj-row:hover .proj-sub, .proj-row:focus-within .proj-sub {
+              max-height: 72px; opacity: 1;
+            }
+            /* No hover to reveal them with, so leave them open. */
+            @media (hover: none), (pointer: coarse) {
+              .proj-sub { max-height: none; opacity: 1; }
+              .proj-title { white-space: normal; }
+            }
           `}</style>
         </>
       );
@@ -542,25 +509,15 @@
       }}>{children}</div>
     );
 
-    const SECTOR_DOT = {
-      'AI/ML':               '#6366f1',
-      'Blockchain':          '#f59e0b',
-      'Finance':             '#10b981',
-      'Data Infrastructure': '#14b8a6',
-      'Sports':              '#f43f5e',
-    };
+    // Sector, as mono uppercase text. No colored dot: five hues competing with
+    // the single blue accent was the loudest thing left on the page.
     const SectorBadge = ({ sector }) => {
       if (!sector) return null;
-      const dot = SECTOR_DOT[sector] || '#94a3b8';
       return (
         <span style={{
-          display: 'inline-flex', alignItems: 'center', gap: 6,
-          fontSize: 10, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase',
-          color: 'var(--ink-3)', fontFamily: "'JetBrains Mono', monospace",
-        }}>
-          <span style={{ width: 6, height: 6, borderRadius: '50%', background: dot }} />
-          {sector}
-        </span>
+          fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase',
+          color: 'var(--ink-3)', fontFamily: "'JetBrains Mono', monospace", whiteSpace: 'nowrap',
+        }}>{sector}</span>
       );
     };
 

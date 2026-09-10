@@ -1,9 +1,13 @@
 // data/projects.js - portfolio projects, sorted by importance. Each has a `sector`
-// (AI/ML, Blockchain, Finance, Data Infrastructure, Sports) used to render a colored
-// badge on the project card.
+// (AI/ML, Blockchain, Finance, Data Infrastructure, Sports), rendered as a mono
+// label beside the title.
+//
+// `name` and `subtitle` are the whole row on the landing page, and the subtitle
+// only appears on hover, so keep both short: a name of a few words and a
+// subtitle under about eight. No em or en dashes anywhere in this file.
 
 window.JH_DATA.projects = [
-  { id: 'sales-agent', name: 'Sales Agent', subtitle: 'Modern Amenities · 2026',
+  { id: 'sales-agent', name: 'Sales Agent', subtitle: 'Modern Amenities · Claude agent serving 900+ users',
     sector: 'AI/ML',
     tags: ['AI Agents','LLM','Tool Use','Backend'], status: 'shipped', image: 'images/projects/sales-agent.png',
     bullets: [
@@ -13,7 +17,7 @@ window.JH_DATA.projects = [
       'Cut inference cost through prompt caching and added per-IP rate limiting, a 24-hour token budget, and structured logs that track cached-token counts.',
     ],
   },
-  { id: 'churn-retention-pipeline', name: 'Churn Prediction + LLM Retention Emails', subtitle: 'Nightly Dagster pipeline scoring 18,618 customers into Claude-written retention emails',
+  { id: 'churn-retention-pipeline', name: 'Churn Retention Pipeline', subtitle: '18,618 customers scored nightly, emails drafted by Claude',
     sector: 'AI/ML',
     tags: ['Machine Learning','LLM','Data Pipeline','Python','Postgres'], status: 'shipped', url: 'https://github.com/jhatch3/retention-flow',
     bullets: [
@@ -23,7 +27,7 @@ window.JH_DATA.projects = [
       'Orchestrated the full Dagster asset graph (dbt build → training → batch scoring + SHAP → email gen → judge eval) over a Postgres medallion, automating proactive outreach for the top 500 priority users.',
     ],
   },
-  { id: 'lethe', name: 'Lethe', subtitle: 'ETH Global Hackathon · 3-LLM consensus that audits medical bills',
+  { id: 'lethe', name: 'Lethe', subtitle: 'ETH Global · three LLMs audit medical bills',
     sector: 'Blockchain',
     tags: ['ETH Global','AI Agents','Blockchain','Healthcare','Python'], status: 'in-progress', url: 'https://github.com/jhatch3/lethe-', image: 'images/projects/lethe.png',
     bullets: [
@@ -34,7 +38,7 @@ window.JH_DATA.projects = [
       'Finished in the top 10 percent of more than 470 projects at ETH Global; a fourth Claude agent drafts the formal appeal letter from the consensus findings, with on-chain anchor references the user can verify.',
     ],
   },
-  { id: 'justin-portfolio', name: 'This Portfolio', subtitle: 'macOS desktop simulation with a live Claude chatbot and Claude Code agent skills',
+  { id: 'justin-portfolio', name: 'This Portfolio', subtitle: 'macOS desktop simulation with a live Claude chatbot',
     sector: 'AI/ML',
     tags: ['Frontend','AI Agents','LLM','Full-Stack'], status: 'shipped', url: 'https://github.com/jhatch3/justin-portfolio', image: 'images/projects/justin-portfolio.png',
     bullets: [
@@ -53,7 +57,7 @@ window.JH_DATA.projects = [
       'Translate stakeholder needs into clear scopes, acceptance criteria, and implementation plans.',
     ],
   },
-  { id: 'evergreen-capital', name: 'Evergreen Capital', subtitle: 'QuackHacks II winner (1st Solana, 2nd Polymarket) · five-Gemini-agent prediction fund',
+  { id: 'evergreen-capital', name: 'Evergreen Capital', subtitle: 'QuackHacks II winner · five agents trade Polymarket',
     sector: 'Blockchain',
     tags: ['AI Agents','Blockchain','TypeScript'], status: 'in-progress', url: 'https://github.com/jhatch3/Evergreen-Capital', image: 'images/projects/evergreen-capital.png',
     bullets: [
@@ -64,7 +68,7 @@ window.JH_DATA.projects = [
       'Built the full-stack MVP in 24 hours with 2 teammates: 1st Place Solana Track, 2nd Place Polymarket Track at QuackHacks II.',
     ],
   },
-  { id: 'invoice-bot', name: 'Invoice Automation', subtitle: 'University of Oregon · Power Automate plus LLM',
+  { id: 'invoice-bot', name: 'Invoice Automation', subtitle: 'University of Oregon · invoices filed without review',
     sector: 'AI/ML',
     tags: ['Automation','LLM'], status: 'shipped',
     bullets: [
@@ -73,7 +77,7 @@ window.JH_DATA.projects = [
       'Built while working as a Student Business Operations Assistant at the University of Oregon.',
     ],
   },
-  { id: 'ml-churn-report', name: 'ML Churn Report', subtitle: 'Final project · CS472 (Machine Learning)',
+  { id: 'ml-churn-report', name: 'Churn Model Comparison', subtitle: 'CS472 · four classifiers ranked on cross-validated F1',
     sector: 'AI/ML',
     tags: ['Machine Learning','Coursework','Python'], status: 'shipped', url: 'https://github.com/jhatch3/ML-Churn_Report', image: 'images/projects/ml-churn-report.png',
     writeup: 'https://www.linkedin.com/feed/update/urn:li:activity:7335728719178702848/',
@@ -83,7 +87,7 @@ window.JH_DATA.projects = [
       'Statistical feature-selection step preceded modeling; documented the full feature engineering → tuning → evaluation pipeline in a written report.',
     ],
   },
-  { id: 'trading-strategy-analysis', name: 'Trading Strategy Analysis', subtitle: 'SMA crossover vs. buy-and-hold backtest',
+  { id: 'trading-strategy-analysis', name: 'SMA Crossover Backtest', subtitle: 'Monte Carlo test against buy and hold, 200 runs',
     sector: 'Finance',
     tags: ['Data Analysis','Finance','Python'], status: 'shipped', url: 'https://github.com/jhatch3/finance_ds_projects/tree/main/trading_strategy_analysis', image: 'images/projects/trading-strategy-analysis.png',
     writeup: 'https://www.linkedin.com/feed/update/urn:li:activity:7416532862109237248/',
@@ -93,16 +97,16 @@ window.JH_DATA.projects = [
       'Mann-Whitney U test on the paired CAGR distributions evaluates whether SMA outperforms buy-and-hold non-parametrically; finding: no consistent edge, despite occasional standout wins.',
     ],
   },
-  { id: 'monte-carlo-price-sim', name: 'Monte Carlo Price Simulator', subtitle: 'Geometric Brownian Motion forecasts for stocks and crypto',
+  { id: 'monte-carlo-price-sim', name: 'Monte Carlo Price Simulator', subtitle: 'Geometric Brownian Motion forecasts, stocks and crypto',
     sector: 'Finance',
     tags: ['Data Analysis','Finance','Python'], status: 'shipped', url: 'https://github.com/jhatch3/finance_ds_projects/tree/main/Monte_Carlo',
     bullets: [
-      'Streamlit forecaster for individual equities and crypto: fits drift and volatility from historical daily log returns, then runs up to 5,000 Geometric Brownian Motion paths over a configurable 30–730-day horizon.',
+      'Streamlit forecaster for individual equities and crypto: fits drift and volatility from historical daily log returns, then runs up to 5,000 Geometric Brownian Motion paths over a configurable 30-730-day horizon.',
       'Scenario engine applies multiplicative shifts to μ and σ for Bull, Bear, High-Volatility, or fully custom regimes; the confidence interval is user-selected between 80% and 99%.',
       'Surfaces median and mean paths with confidence bands, the distribution of terminal prices with a normal-curve overlay, and the historical log-return distribution annotated with skewness and excess kurtosis.',
     ],
   },
-  { id: 'nba-salary-mining', name: 'NBA Salary Efficiency Analysis', subtitle: 'XGBoost regression on 1,500+ player-seasons to flag over- and under-paid NBA contracts',
+  { id: 'nba-salary-mining', name: 'NBA Salary Efficiency', subtitle: 'XGBoost flags over and underpaid contracts',
     sector: 'Sports',
     tags: ['Machine Learning','Sports','Python'], status: 'shipped', url: 'https://github.com/jhatch3/NBA-Salary-Minning', image: 'images/projects/nba-salary-mining.png',
     writeup: 'https://www.linkedin.com/feed/update/urn:li:activity:7424544588599734272/',
@@ -114,7 +118,7 @@ window.JH_DATA.projects = [
       'Performed residual analysis to surface persistently overpaid and underpaid players: a Moneyball-style framework that generalizes to any compensated market with measurable output.',
     ],
   },
-  { id: 'stock-pipeline', name: 'Market Data Pipeline + AI News Synthesis', subtitle: 'Medallion-architecture pipeline with a LangChain news synthesis agent over 230+ tickers',
+  { id: 'stock-pipeline', name: 'Market Data Pipeline', subtitle: 'Medallion schema over 230+ tickers, LangChain news agent',
     sector: 'Data Infrastructure',
     tags: ['Data Pipeline','LLM','Finance','Python','AWS','Airflow'], status: 'shipped', url: 'https://github.com/jhatch3/stock-pipe-line', image: 'images/projects/stock-pipeline.png',
     bullets: [
