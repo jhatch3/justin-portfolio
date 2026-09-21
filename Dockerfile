@@ -19,6 +19,12 @@ RUN cd server && npm ci --omit=dev && npm cache clean --force
 # surface - see .dockerignore for what never enters the image at all.
 COPY . .
 
+# Where contact messages are appended (CONTACT_LOG). Created and chowned in the
+# image on purpose: when Docker initialises an empty named volume it inherits the
+# mountpoint's ownership from the image, so this is what keeps /data writable
+# after privileges are dropped below.
+RUN mkdir -p /data && chown node:node /data
+
 # Drop root privileges (the built-in `node` user ships with the base image).
 USER node
 

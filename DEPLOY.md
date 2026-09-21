@@ -87,7 +87,33 @@ RATE_LIMIT_WINDOW_HOURS=24
 RATE_LIMIT_MAX_MESSAGES=30
 MAX_INPUT_CHARS=2000
 MAX_OUTPUT_TOKENS=600
+
+# Contact composer → your inbox
+RESEND_API_KEY=re_...
+CONTACT_TO=jjhatch03@gmail.com
+CONTACT_FROM=Portfolio <hello@your-verified-domain.com>
+RATE_LIMIT_MAX_CONTACT=5
 ```
+
+### The contact composer
+
+The chat panel can send you a message directly (`/contact`, or the **Hire me** and
+**Send a message** buttons). `POST /api/contact` appends every message to
+`CONTACT_LOG` **first**, then emails it through Resend:
+
+| State | What the visitor sees | Where the message is |
+|---|---|---|
+| `RESEND_API_KEY` set, send works | "Sent" | your inbox, `reply_to` = their address |
+| Key set, Resend fails or times out | "Sent" | `CONTACT_LOG`, plus a `RESEND FAILED` line in the logs |
+| No key set | "Sent" | `CONTACT_LOG` only — nothing notifies you |
+
+A message is never lost for want of an email, but nothing chases you either — so
+set the key, and run `docker compose logs web | grep RESEND` after any suspiciously
+quiet stretch. `CONTACT_FROM` must be a domain verified in Resend;
+`onboarding@resend.dev` works for testing but only delivers to the address that
+owns the Resend account. In production `CONTACT_LOG=/data/messages.jsonl` lives on
+the `messages` named volume — include it in backups, and read it before you ever
+`docker volume rm` it.
 
 ---
 

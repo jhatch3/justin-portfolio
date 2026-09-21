@@ -24,6 +24,11 @@ services:
     environment:
       - PORT=3000
       - NODE_ENV=production
+      # Contact messages land here. Inside the image this path is a named
+      # volume, so `up --build` doesn't take the inbox with it.
+      - CONTACT_LOG=/data/messages.jsonl
+    volumes:
+      - messages:/data
 
   caddy:
     image: caddy:2
@@ -43,3 +48,4 @@ services:
 volumes:
   caddy_data:
   caddy_config:
+  messages:     # visitor messages from the chat composer - back this up

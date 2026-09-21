@@ -8,6 +8,7 @@ import helmet from 'helmet';
 import compression from 'compression';
 import path from 'node:path';
 import os from 'node:os';
+import fs from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import Anthropic from '@anthropic-ai/sdk';
 import { SYSTEM_PROMPT } from './system-prompt.mjs';
@@ -33,6 +34,18 @@ const RATE_WINDOW_MS = (parseFloat(process.env.RATE_LIMIT_WINDOW_HOURS || '24'))
 const RATE_MAX = parseInt(process.env.RATE_LIMIT_MAX_MESSAGES || '30', 10);
 const MAX_INPUT_CHARS = parseInt(process.env.MAX_INPUT_CHARS || '2000', 10);
 const MAX_OUTPUT_TOKENS = parseInt(process.env.MAX_OUTPUT_TOKENS || '600', 10);
+
+// Contact composer. RESEND_API_KEY is the only one that has to be set for mail
+// to actually go out; without it messages still land in MESSAGES_LOG.
+const CONTACT_TO = process.env.CONTACT_TO || 'jjhatch03@gmail.com';
+const CONTACT_FROM = process.env.CONTACT_FROM || 'Portfolio <onboarding@resend.dev>';
+const RESEND_KEY = process.env.RESEND_API_KEY || '';
+const MESSAGES_LOG = process.env.CONTACT_LOG || path.join(here, 'messages.jsonl');
+const CONTACT_MAX = { name: 80, email: 160, subject: 120, message: 4000 };
+// Overridable only so the delivery path can be pointed at a local mock in tests.
+const RESEND_URL = process.env.RESEND_API_URL || 'https://api.resend.com/emails';
+const CONTACT_RATE_MAX = parseInt(process.env.RATE_LIMIT_MAX_CONTACT || '5', 10);
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 if (!process.env.ANTHROPIC_API_KEY) {
   console.error('[server] ANTHROPIC_API_KEY missing - copy .env.example to .env and fill it in.');
@@ -63,13 +76,31 @@ function rateCheck(ip) {
   return { ok: true, remaining: RATE_MAX - arr.length };
 }
 
+// Same sliding window, separate budget: a visitor gets plenty of chat turns but
+// only a handful of messages to Justin's inbox.
+const contactHits = new Map();
+
+function contactRateCheck(ip) {
+  const now = Date.now();
+  const cutoff = now - RATE_WINDOW_MS;
+  const arr = (contactHits.get(ip) || []).filter(t => t > cutoff);
+  if (arr.length >= CONTACT_RATE_MAX) {
+    return { ok: false, retryMs: (arr[0] + RATE_WINDOW_MS) - now };
+  }
+  arr.push(now);
+  contactHits.set(ip, arr);
+  return { ok: true, remaining: CONTACT_RATE_MAX - arr.length };
+}
+
 // Periodic cleanup so the map doesn't grow unbounded.
 setInterval(() => {
   const cutoff = Date.now() - RATE_WINDOW_MS;
-  for (const [ip, arr] of hits) {
-    const fresh = arr.filter(t => t > cutoff);
-    if (fresh.length === 0) hits.delete(ip);
-    else hits.set(ip, fresh);
+  for (const map of [hits, contactHits]) {
+    for (const [ip, arr] of map) {
+      const fresh = arr.filter(t => t > cutoff);
+      if (fresh.length === 0) map.delete(ip);
+      else map.set(ip, fresh);
+    }
   }
 }, 60 * 60 * 1000).unref();
 
@@ -349,6 +380,96 @@ app.post('/api/chat', async (req, res) => {
       send({ type: 'error', message: msg });
       res.end();
     }
+  }
+});
+
+// ─── Contact ─────────────────────────────────────────────────────────────────
+// The chat panel's composer posts here, so a visitor can reach Justin without
+// leaving the page or owning a working mail client.
+//
+// Two-step delivery, in this order: append the message to messages.jsonl, then
+// try to email it. The disk write comes first on purpose - if Resend is
+// unconfigured, rate-limited or down, the message still exists somewhere Justin
+// can read it, and we can honestly tell the sender it landed. An email that
+// fails after a successful write is a notification problem, not a lost message.
+app.post('/api/contact', async (req, res) => {
+  const ip = req.ip || req.socket?.remoteAddress || 'unknown';
+  const tag = `[contact ${Date.now().toString(36).slice(-5)}]`;
+
+  const rl = contactRateCheck(ip);
+  if (!rl.ok) {
+    console.log(`${tag} rate limited`);
+    return res.status(429).json({
+      error: 'rate_limited',
+      message: `That's a lot of messages. Try again in ${Math.ceil(rl.retryMs / 60000)} minutes, or email ${CONTACT_TO} directly.`,
+    });
+  }
+
+  const b = req.body || {};
+
+  // Honeypot: a field no human sees and every naive bot fills. Answer 200 so
+  // the bot thinks it worked and doesn't come back looking for the real path.
+  if (typeof b.company === 'string' && b.company.trim()) {
+    console.log(`${tag} honeypot tripped from ${ip}, dropped`);
+    return res.json({ ok: true, delivered: 'dropped' });
+  }
+
+  const name = String(b.name ?? '').trim().slice(0, CONTACT_MAX.name);
+  const email = String(b.email ?? '').trim().slice(0, CONTACT_MAX.email);
+  const message = String(b.message ?? '').trim().slice(0, CONTACT_MAX.message);
+  // Optional, and the one field here that becomes a mail header - so CR/LF go
+  // before it gets anywhere near one ("Subject: x\r\nBcc: ..." is the classic
+  // header-injection trick).
+  const subject = String(b.subject ?? '').replace(/[\r\n]+/g, ' ').trim().slice(0, CONTACT_MAX.subject);
+
+  const fields = [];
+  if (name.length < 2) fields.push('name');
+  if (!EMAIL_RE.test(email)) fields.push('email');
+  if (message.length < 4) fields.push('message');
+  if (fields.length) {
+    return res.status(400).json({ error: 'bad_request', fields, message: 'Check the highlighted fields.' });
+  }
+
+  const record = { at: new Date().toISOString(), ip, name, email, subject: subject || null, message };
+  let stored = false;
+  try {
+    await fs.appendFile(MESSAGES_LOG, JSON.stringify(record) + '\n', 'utf8');
+    stored = true;
+  } catch (e) {
+    console.error(`${tag} could not append to ${MESSAGES_LOG}:`, e?.message);
+  }
+
+  if (!RESEND_KEY) {
+    console.log(`${tag} from ${name} <${email}> - stored${stored ? '' : ' FAILED'}, no RESEND_API_KEY so no email sent`);
+    return res.json(stored
+      ? { ok: true, delivered: 'stored' }
+      : { ok: false, delivered: 'none', message: `Couldn't save that. Email ${CONTACT_TO} directly?` });
+  }
+
+  try {
+    const r = await fetch(RESEND_URL, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${RESEND_KEY}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        from: CONTACT_FROM,
+        to: [CONTACT_TO],
+        reply_to: email,                       // hitting reply answers the visitor
+        // Prefixed either way, so every one of these is one filter away.
+        subject: subject ? `Portfolio: ${subject}` : `Portfolio message from ${name}`,
+        text: `${message}\n\n---\nFrom: ${name} <${email}>\nSent: ${record.at}\nVia: the chat composer on the portfolio site`,
+      }),
+      signal: AbortSignal.timeout(10_000),
+    });
+    if (!r.ok) throw new Error(`Resend HTTP ${r.status}: ${(await r.text()).slice(0, 200)}`);
+    console.log(`${tag} emailed to ${CONTACT_TO} from ${name} <${email}>${subject ? ` re: ${subject}` : ''}`);
+    return res.json({ ok: true, delivered: 'email' });
+  } catch (e) {
+    // Stored but not delivered: the sender is told it landed (true), and this
+    // log line is what tells Justin to go read messages.jsonl.
+    console.error(`${tag} RESEND FAILED (${e?.message}) - message is in ${MESSAGES_LOG}`);
+    return res.status(stored ? 200 : 502).json(stored
+      ? { ok: true, delivered: 'stored' }
+      : { ok: false, delivered: 'none', message: `Couldn't get that through. Email ${CONTACT_TO} directly?` });
   }
 });
 
