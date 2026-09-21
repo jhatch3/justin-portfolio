@@ -97,8 +97,8 @@ RATE_LIMIT_MAX_CONTACT=5
 
 ### The contact composer
 
-The chat panel can send you a message directly (`/contact`, or the **Hire me** and
-**Send a message** buttons). `POST /api/contact` appends every message to
+The chat panel can send you a message directly (`/contact`, the **Hire me** button,
+or the email icon in Contact). `POST /api/contact` appends every message to
 `CONTACT_LOG` **first**, then emails it through Resend:
 
 | State | What the visitor sees | Where the message is |
