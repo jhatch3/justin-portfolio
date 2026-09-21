@@ -105,7 +105,8 @@
     /* hero CTAs all stay on one line on mobile - tighten gap + button padding */
     .hero-ctas { gap: 8px !important; flex-wrap: nowrap !important; }
     .hero-ctas > a:first-child { padding-left: 18px !important; padding-right: 18px !important; }
-    .hero-ctas a[aria-label="Email"], .hero-ctas a[aria-label="Resume"], .hero-ctas a[aria-label="LinkedIn"] {
+    .hero-ctas a[aria-label="Email"], .hero-ctas a[aria-label="Resume"],
+    .hero-ctas a[aria-label="LinkedIn"], .hero-ctas a[aria-label="GitHub"] {
       width: 40px !important; height: 40px !important; flex-shrink: 0 !important;
     }
     /* "Interactive mode" is a secondary CTA - hide on mobile to make room for
@@ -145,6 +146,11 @@
 
   /* Slide-In Button (CSS re-creation of the Framer Slide-In Button design). */
   .slide-in-btn {
+    /* Rendered as a <button> - it opens the chat composer rather than
+       navigating - so the UA button styles have to be reset here. */
+    border: 0;
+    font-family: inherit;
+    cursor: pointer;
     position: relative;
     display: inline-flex;
     align-items: center;
@@ -238,9 +244,20 @@
   <script src="data/education.js"></script>
   <script src="data/writing.js"></script>
   <script src="data/now.js"></script>
+  <!-- The same bot Interactive mode runs; registers window.ChatApp. -->
+  <script type="text/babel" src="js/chat-app.jsx"></script>
 
   <script type="text/babel">
     const D = window.JH_DATA;
+
+    // ─── openChat() ───────────────────────────────────────────────────────────
+    // Outreach used to mean a mailto: link - which assumes a configured mail
+    // client, and silently does nothing for a recruiter on a work laptop that
+    // doesn't have one. Every "reach out" affordance now opens the chat panel's
+    // composer instead. An event rather than a prop drill: the launcher lives at
+    // the end of <App/>, the buttons are scattered through five sections.
+    const openChat = (intent) =>
+      window.dispatchEvent(new CustomEvent('jh-open-chat', { detail: { contact: true, intent } }));
 
     // ─── cn() ─────────────────────────────────────────────────────────────────
     // Tiny shadcn-style class joiner (no tailwind-merge - keep it light).
@@ -502,13 +519,6 @@
       <div className="container" style={{ maxWidth: 1040, margin: '0 auto', padding: '0 28px', ...style }}>{children}</div>
     );
 
-    const Eyebrow = ({ children }) => (
-      <div style={{
-        fontSize: 11, fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase',
-        color: 'var(--accent)', marginBottom: 14,
-      }}>{children}</div>
-    );
-
     // Sector, as mono uppercase text. No colored dot: five hues competing with
     // the single blue accent was the loudest thing left on the page.
     const SectorBadge = ({ sector }) => {
@@ -632,8 +642,8 @@
     // public CDN, so the import would never resolve in a vanilla page.
     // Same visual idea: pill with a colored fill that slides in on hover,
     // text inverts, arrow icon nudges right.
-    const FramerHireMe = ({ href }) => (
-      <a href={href} className="slide-in-btn">
+    const FramerHireMe = () => (
+      <button type="button" className="slide-in-btn" onClick={() => openChat('hire')}>
         <span className="slide-in-btn__fill" aria-hidden="true" />
         <span className="slide-in-btn__text">Hire me</span>
         <svg className="slide-in-btn__arrow" width="14" height="14" viewBox="0 0 24 24"
@@ -642,7 +652,7 @@
           <line x1="5" y1="12" x2="19" y2="12"/>
           <polyline points="13 6 19 12 13 18"/>
         </svg>
-      </a>
+      </button>
     );
 
     // ─── Hero ─────────────────────────────────────────────────────────────────
@@ -668,7 +678,6 @@
               boxShadow: 'var(--shadow)',
             }} />
             <div style={{ flex: 1, minWidth: 280 }}>
-              <Eyebrow>{D.role}</Eyebrow>
               <h1 style={{ fontSize: 'clamp(36px, 5.5vw, 54px)', lineHeight: 1.05, marginBottom: 12 }}>
                 Hi, I'm {D.name.split(' ')[0]}.
               </h1>
@@ -677,7 +686,7 @@
                 color: 'var(--ink-3)', marginBottom: 20, lineHeight: 1.3,
               }}>
                 I build{' '}
-                <span style={{ color: 'var(--accent)', fontWeight: 600 }}>
+                <span style={{ color: 'var(--ink)', fontWeight: 600 }}>
                   <FlipWords
                     words={['AI agents', 'machine learning pipelines', 'RAG systems', 'eval harnesses']}
                     duration={2500}
@@ -690,7 +699,7 @@
                 Previously <strong style={{ color: 'var(--ink)', fontWeight: 600 }}>Modern Amenities</strong>.
               </p>
               <div className="hero-ctas" style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
-                <FramerHireMe href={`${D.links.email.href}?subject=${encodeURIComponent('Hiring inquiry - ' + D.name)}`} />
+                <FramerHireMe />
                 <a href="desktop.html" className="hero-secondary-cta" style={{
                   display: 'inline-flex', alignItems: 'center', gap: 6,
                   padding: '10px 18px', borderRadius: 999, fontSize: 14, fontWeight: 600,
@@ -702,6 +711,11 @@
                   onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--border-strong)'; e.currentTarget.style.color = 'var(--ink-2)'; }}
                 >
                   Interactive mode ↗
+                </a>
+                <a href={D.links.github.href} target="_blank" rel="noopener noreferrer" title="GitHub" aria-label="GitHub" style={iconBtnLg}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                    <path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.1.79-.25.79-.55 0-.27-.01-1.16-.02-2.1-3.2.7-3.87-1.36-3.87-1.36-.52-1.32-1.27-1.67-1.27-1.67-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.02 1.76 2.69 1.25 3.34.95.1-.74.4-1.25.73-1.54-2.55-.29-5.24-1.28-5.24-5.7 0-1.26.45-2.29 1.18-3.1-.12-.29-.51-1.46.11-3.05 0 0 .96-.31 3.15 1.18.91-.25 1.89-.38 2.86-.38.97 0 1.95.13 2.86.38 2.18-1.49 3.14-1.18 3.14-1.18.62 1.59.23 2.76.11 3.05.74.81 1.18 1.84 1.18 3.1 0 4.43-2.69 5.41-5.26 5.69.41.36.78 1.06.78 2.13 0 1.54-.01 2.78-.01 3.16 0 .31.21.66.8.55C20.71 21.39 24 17.07 24 12 24 5.65 18.85.5 12.5.5H12z"/>
+                  </svg>
                 </a>
                 <a href={D.links.resume.href} download="Justin-Hatch-Resume.pdf" title="Resume" aria-label="Resume" style={iconBtnLg}>
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -850,12 +864,30 @@
         <section id="contact" style={{ padding: '64px 0 32px', animation: 'fadeUp 0.95s ease-out' }}>
           <Container>
             <SectionHeader eyebrow="Get in touch" title="Always up for talking applied AI." />
-            {/* Bare icons - no cards, no borders. The aria-label carries the
-                name that the visible text label used to. */}
+            {/* One primary action. The icon row stays for people who'd rather
+                use their own channel, but nobody has to hunt for a way in. */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap', marginBottom: 26 }}>
+              <button type="button" className="slide-in-btn" onClick={() => openChat('chat')}>
+                <span className="slide-in-btn__fill" aria-hidden="true" />
+                <span className="slide-in-btn__text">Send a message</span>
+                <svg className="slide-in-btn__arrow" width="14" height="14" viewBox="0 0 24 24"
+                     fill="none" stroke="currentColor" strokeWidth="2.2"
+                     strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <line x1="5" y1="12" x2="19" y2="12"/>
+                  <polyline points="13 6 19 12 13 18"/>
+                </svg>
+              </button>
+              <span style={{ fontSize: 13.5, color: 'var(--ink-3)' }}>
+                Goes straight to his inbox - no mail client needed.
+              </span>
+            </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 22, flexWrap: 'wrap' }}>
               {items.map(item => (
                 <a key={item.label} href={item.href} target={item.target} rel={item.target ? 'noopener noreferrer' : undefined}
                   aria-label={item.label} title={item.label}
+                  onClick={item.label === 'Email'
+                    ? (e) => { e.preventDefault(); openChat('chat'); }   // middle-click still mails
+                    : undefined}
                   style={{
                     display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
                     color: 'var(--ink-2)', transition: 'color 0.15s, transform 0.15s',
@@ -1028,6 +1060,258 @@
       );
     };
 
+    // ─── Chat launcher ────────────────────────────────────────────────────────
+    // Bottom-right bubble that opens the same bot Interactive mode runs
+    // (window.ChatApp, from js/chat-app.jsx). The panel is pinned to the
+    // bottom-right corner, so its top and left edges are the ones that resize:
+    // drag the left edge for width, the top edge for height, the corner for
+    // both. The size is clamped to the viewport and remembered across visits.
+    const CHAT_MIN = { w: 300, h: 320 };
+    const CHAT_DEFAULT = { w: 380, h: 560 };
+    const CHAT_SIZE_KEY = 'jh-chat-size';
+    const CHAT_SEEN_KEY = 'jh-chat-seen';
+
+    const clampChat = ({ w, h }) => ({
+      w: Math.min(Math.max(w, CHAT_MIN.w), Math.max(CHAT_MIN.w, window.innerWidth - 32)),
+      h: Math.min(Math.max(h, CHAT_MIN.h), Math.max(CHAT_MIN.h, window.innerHeight - 112)),
+    });
+
+    const ChatLauncher = () => {
+      const Bot = window.ChatApp;
+      const [open, setOpen] = React.useState(false);
+      // Mount on first open, then keep it mounted and just hide it, so closing
+      // the panel doesn't throw away the conversation.
+      const [mounted, setMounted] = React.useState(false);
+      // Bumped by every openChat() call; ChatApp opens its composer on change.
+      const [contactReq, setContactReq] = React.useState(0);
+      const [contactIntent, setContactIntent] = React.useState(undefined);
+      // Retired for the rest of this session once the chat has been opened, and
+      // sessionStorage rather than localStorage on purpose: a cue that never
+      // comes back is invisible to everyone who has clicked it once (including
+      // whoever is building the site), while one that reappears mid-session is
+      // nagging. New tab or new visit, the nudge is back.
+      const [seen, setSeen] = React.useState(() => {
+        try { return sessionStorage.getItem(CHAT_SEEN_KEY) === '1'; } catch (_) { return false; }
+      });
+      const [size, setSize] = React.useState(() => {
+        try {
+          const saved = JSON.parse(localStorage.getItem(CHAT_SIZE_KEY) || 'null');
+          if (saved && saved.w && saved.h) return clampChat(saved);
+        } catch (_) { /* private mode, or someone hand-edited it */ }
+        return clampChat(CHAT_DEFAULT);
+      });
+      const panelRef = React.useRef(null);
+      const dragRef = React.useRef(null);
+
+      React.useEffect(() => {
+        try { localStorage.setItem(CHAT_SIZE_KEY, JSON.stringify(size)); } catch (_) {}
+      }, [size]);
+
+      // A panel sized on a large window must not overflow a small one.
+      React.useEffect(() => {
+        const onResize = () => setSize(s => clampChat(s));
+        window.addEventListener('resize', onResize);
+        return () => window.removeEventListener('resize', onResize);
+      }, []);
+
+      React.useEffect(() => {
+        const onOpenChat = (e) => {
+          setMounted(true);
+          setOpen(true);
+          markSeen();
+          if (e.detail?.contact) {
+            setContactIntent(e.detail.intent);
+            setContactReq(n => n + 1);
+          }
+        };
+        window.addEventListener('jh-open-chat', onOpenChat);
+        return () => window.removeEventListener('jh-open-chat', onOpenChat);
+      }, []);
+
+      React.useEffect(() => {
+        if (!open) return;
+        const onKey = (e) => { if (e.key === 'Escape') setOpen(false); };
+        window.addEventListener('keydown', onKey);
+        return () => window.removeEventListener('keydown', onKey);
+      }, [open]);
+
+      // Reopening keeps the thread, so put the caret back in the composer.
+      React.useEffect(() => {
+        if (open) panelRef.current?.querySelector('textarea')?.focus();
+      }, [open]);
+
+      const markSeen = () => {
+        setSeen(true);
+        try { sessionStorage.setItem(CHAT_SEEN_KEY, '1'); } catch (_) {}
+      };
+
+      const toggle = () => { setMounted(true); setOpen(o => !o); markSeen(); };
+
+      const startResize = (axis) => (e) => {
+        e.preventDefault();
+        e.currentTarget.setPointerCapture?.(e.pointerId);
+        dragRef.current = { axis, x: e.clientX, y: e.clientY, ...size };
+      };
+      const onResizeMove = (e) => {
+        const d = dragRef.current;
+        if (!d) return;
+        setSize(clampChat({
+          w: d.axis === 'y' ? d.w : d.w + (d.x - e.clientX),
+          h: d.axis === 'x' ? d.h : d.h + (d.y - e.clientY),
+        }));
+      };
+      const endResize = (e) => {
+        dragRef.current = null;
+        e.currentTarget.releasePointerCapture?.(e.pointerId);
+      };
+
+      const grip = (axis, style, cursor, label) => (
+        <div
+          onPointerDown={startResize(axis)}
+          onPointerMove={onResizeMove}
+          onPointerUp={endResize}
+          onPointerCancel={endResize}
+          aria-label={label}
+          style={{ position: 'absolute', touchAction: 'none', cursor, zIndex: 2, ...style }}
+        />
+      );
+
+      // Keyboard equivalent of dragging a corner: full size, or back again.
+      const big = clampChat({ w: 860, h: 10000 });
+      const maximized = size.w >= big.w - 1 && size.h >= big.h - 1;
+      const toggleSize = () => setSize(maximized ? clampChat(CHAT_DEFAULT) : big);
+
+      const chromeBtn = {
+        width: 26, height: 26, borderRadius: 7, cursor: 'pointer',
+        background: 'var(--bg)', color: 'var(--ink-2)',
+        border: '1px solid var(--border)',
+        display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: 0,
+      };
+
+      // A first-visit nudge, in the same register as the hero's scroll cue: mono
+      // caps, gentle motion, gone once it has been acted on. "CHAT HERE" is set
+      // on the upper-left quarter of a circle centred on the button - the only
+      // quadrant with room, since the button is pinned to the corner - and a
+      // dash sweeps that same quarter. Radius 48 keeps the type clear of the
+      // 28px button; anything tighter tucks it under the blue. Decorative, so
+      // aria-hidden (the button has its own label) and pointer-events: none.
+      const cue = !open && !seen && (
+        <div aria-hidden="true" style={{
+          position: 'fixed', right: -32, bottom: -32, zIndex: 62,
+          width: 160, height: 160, pointerEvents: 'none',
+          animation: 'chatCueIn 0.5s ease-out 1.4s both',
+        }}>
+          <svg viewBox="0 0 160 160" width="160" height="160" fill="none">
+            <defs>
+              {/* Two concentric quarters: the line hugs the button at r=46, the
+                  type rides r=58. One shared path put the hairline straight
+                  through the letterforms. */}
+              <path id="chat-cue-arc" d="M 34 80 A 46 46 0 0 1 80 34" />
+              <path id="chat-cue-type" d="M 22 80 A 58 58 0 0 1 80 22" />
+            </defs>
+            {/* the quarter moon itself */}
+            <use href="#chat-cue-arc" stroke="var(--border-strong)" strokeWidth="1" />
+            {/* and a dash travelling along it */}
+            <use href="#chat-cue-arc" stroke="var(--accent)" strokeWidth="2.5"
+                 strokeLinecap="round" strokeDasharray="15 73"
+                 style={{ animation: 'chatCueSweep 2.6s ease-in-out infinite' }} />
+            <text style={{ animation: 'chatCueSwing 2.8s ease-in-out infinite', transformOrigin: '80px 80px' }}
+                  fill="var(--ink)" fontSize="10" fontWeight="600" letterSpacing="0.8"
+                  fontFamily="'JetBrains Mono', monospace">
+              <textPath href="#chat-cue-type" startOffset="50%" textAnchor="middle">CHAT HERE</textPath>
+            </text>
+          </svg>
+        </div>
+      );
+
+      return (
+        <>
+          <style>{`
+            @keyframes chatCueIn    { from { opacity: 0 } to { opacity: 1 } }
+            @keyframes chatCueSweep { from { stroke-dashoffset: 15 } to { stroke-dashoffset: -73 } }
+            @keyframes chatCueSwing { 0%, 100% { transform: rotate(-3.5deg) } 50% { transform: rotate(3.5deg) } }
+          `}</style>
+          {cue}
+          {mounted && (
+            <div
+              ref={panelRef}
+              role="dialog"
+              aria-label="Chat with Justin's bot"
+              style={{
+                position: 'fixed', right: 20, bottom: 92, zIndex: 60,
+                width: size.w, height: size.h,
+                display: open ? 'block' : 'none',
+                borderRadius: 16, overflow: 'hidden',
+                border: '1px solid var(--border-strong)',
+                boxShadow: '0 2px 6px rgba(10,37,64,0.06), 0 18px 48px rgba(10,37,64,0.18)',
+                background: 'var(--surface)',
+              }}
+            >
+              {grip('both', { left: 0, top: 0, width: 16, height: 16 }, 'nwse-resize', 'Resize chat width and height')}
+              {grip('x', { left: 0, top: 16, bottom: 0, width: 7 }, 'ew-resize', 'Resize chat width')}
+              {grip('y', { top: 0, left: 16, right: 0, height: 7 }, 'ns-resize', 'Resize chat height')}
+
+              <div style={{ position: 'absolute', top: 12, right: 12, zIndex: 3, display: 'flex', gap: 6 }}>
+                <button onClick={toggleSize} style={chromeBtn}
+                  title={maximized ? 'Shrink chat' : 'Expand chat'}
+                  aria-label={maximized ? 'Shrink chat' : 'Expand chat'}>
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    {maximized
+                      ? <><polyline points="9 4 9 9 4 9" /><polyline points="15 20 15 15 20 15" /></>
+                      : <><polyline points="15 4 20 4 20 9" /><polyline points="9 20 4 20 4 15" /></>}
+                  </svg>
+                </button>
+                <button onClick={() => setOpen(false)} style={chromeBtn} title="Close chat" aria-label="Close chat">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
+                    <path d="M6 6l12 12M18 6L6 18" />
+                  </svg>
+                </button>
+              </div>
+
+              <div style={{ width: '100%', height: '100%' }}>
+                {/* theme="light" so the panel reads as part of this page, not the desktop. */}
+                {Bot ? <Bot theme="light" contactRequest={contactReq} contactIntent={contactIntent} /> : (
+                  <div style={{ padding: 20, color: 'var(--ink-2)', fontSize: 13, lineHeight: 1.5 }}>
+                    The bot didn't load. Try <a href="desktop.html">Interactive mode</a>.
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          <button
+            onClick={toggle}
+            aria-expanded={open}
+            title={open ? 'Close chat' : "Chat with Justin's bot"}
+            aria-label={open ? 'Close chat' : "Chat with Justin's bot"}
+            style={{
+              position: 'fixed', right: 20, bottom: 20, zIndex: 61,
+              width: 56, height: 56, borderRadius: '50%', border: 0, cursor: 'pointer',
+              background: 'var(--accent)', color: '#fff',   // same blue as Hire me
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              boxShadow: '0 10px 26px rgba(29,78,216,0.32)',
+              transition: 'transform 0.15s, box-shadow 0.15s',
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.transform = 'none'; }}
+          >
+            {open ? (
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
+                <path d="M6 6l12 12M18 6L6 18" />
+              </svg>
+            ) : (
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+                <circle cx="8.8" cy="11.6" r="1.05" fill="currentColor" stroke="none" />
+                <circle cx="12.4" cy="11.6" r="1.05" fill="currentColor" stroke="none" />
+                <circle cx="16" cy="11.6" r="1.05" fill="currentColor" stroke="none" />
+              </svg>
+            )}
+          </button>
+        </>
+      );
+    };
+
     // ─── App ──────────────────────────────────────────────────────────────────
     const App = () => (
       <>
@@ -1038,6 +1322,7 @@
         <Writing />
         <EducationSection />
         <Contact />
+        <ChatLauncher />
       </>
     );
 
