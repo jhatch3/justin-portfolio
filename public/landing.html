@@ -87,6 +87,10 @@
     --border-strong: rgba(10,37,64,0.20);
     --shadow: 0 1px 2px rgba(10,37,64,0.04), 0 8px 24px rgba(10,37,64,0.06);
   }
+  /* js/smooth-scroll.js takes over anchor jumps and switches this to `auto`
+     when it is active; this is the fallback for reduced-motion, touch and
+     no-JS. scroll-padding-top keeps the sticky nav off the section heading -
+     the script reads the same value. */
   html { scroll-behavior: smooth; scroll-padding-top: 80px; }
 
   /* Mobile responsive overrides (≤768px). Inline-style padding wins over
@@ -234,6 +238,10 @@
       </ul>
     </div>
   </noscript>
+
+  <!-- Wheel/keyboard scrolling with a bit of coast to it. Plain JS, no Babel,
+       so it is running before the page finishes hydrating. -->
+  <script src="js/smooth-scroll.js"></script>
 
   <script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js" crossorigin="anonymous"></script>
   <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" crossorigin="anonymous"></script>
