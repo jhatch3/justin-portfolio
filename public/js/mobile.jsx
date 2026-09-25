@@ -113,14 +113,19 @@ const IOS_DOCK = ['chat', 'mail', 'projects', 'resume'];
 // ─── App icon ────────────────────────────────────────────────────────────────
 const AppIcon = ({ app, size = 60, label = true, onTap }) => {
   const isText = typeof app.icon === 'string';
+  // A flat 60px tile needs 320px to lay four columns out with their gutters and
+  // the grid's side padding, so on a 280px foldable the fourth column ran off
+  // the screen. `min()` keeps 60px wherever it fits and lets the tile shrink
+  // with the column below that - one expression, no breakpoint.
+  const box = `min(${size}px, 17vw)`;
   return (
     <button onClick={() => onTap(app)} aria-label={app.label} style={{
       background: 'transparent', border: 0, padding: 0, cursor: 'pointer',
       display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
-      WebkitTapHighlightColor: 'transparent', fontFamily: 'inherit',
+      WebkitTapHighlightColor: 'transparent', fontFamily: 'inherit', minWidth: 0,
     }}>
       <div style={{
-        width: size, height: size, borderRadius: size * 0.226,
+        width: box, height: box, borderRadius: `calc(${box} * 0.226)`, flexShrink: 0,
         background: app.bg, color: app.fg,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         fontSize: isText ? (app.size || 30) : undefined,
@@ -132,7 +137,7 @@ const AppIcon = ({ app, size = 60, label = true, onTap }) => {
       {label && (
         <div style={{
           fontSize: 12, color: 'white', textShadow: '0 2px 6px rgba(0,0,0,0.55)',
-          fontWeight: 500, letterSpacing: 0.1, maxWidth: size + 24,
+          fontWeight: 500, letterSpacing: 0.1, maxWidth: `calc(${box} + 24px)`,
           whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
           textAlign: 'center',
         }}>{app.label}</div>

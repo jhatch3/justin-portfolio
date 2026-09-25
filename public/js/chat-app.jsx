@@ -564,13 +564,20 @@
     const fitComposer = (el) => {
       if (!el) return;
       el.style.height = 'auto';
-      el.style.height = Math.min(el.scrollHeight, COMPOSER_MAX_H) + 'px';
+      // scrollHeight is the padding-box height, but `* { box-sizing: border-box }`
+      // means style.height sets the BORDER-box height. Without the border back
+      // the content area lands one border short top and bottom, so the box stays
+      // permanently scrollable and clips the last line by ~2px.
+      const border = el.offsetHeight - el.clientHeight;
+      el.style.height = Math.min(el.scrollHeight + border, COMPOSER_MAX_H) + 'px';
     };
     const onInput = (e) => { setInput(e.target.value); fitComposer(e.target); };
-    // Sending clears the value, so the box has to come back down with it - and
-    // `narrow` swaps the font size out from under an explicit pixel height, so
-    // re-measure on that too.
-    React.useEffect(() => { if (!input) fitComposer(inputRef.current); }, [input, narrow]);
+    // Re-measure whenever the value changes (sending clears it, so the box has
+    // to come back down) and whenever `narrow` flips, because that swaps the
+    // font size out from under an explicit pixel height. Unconditional: gating
+    // this on `!input` skipped the one case the `narrow` dependency is here for
+    // - text already in the box when the size changes under it.
+    React.useEffect(() => { fitComposer(inputRef.current); }, [input, narrow]);
 
     return (
       <div style={{

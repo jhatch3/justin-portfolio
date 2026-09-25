@@ -123,9 +123,15 @@
   /* The hero is sized by min-height, not padding: it only needs enough bottom
      room to keep the scroll cue off the fold. */
   #hero { padding-top: clamp(20px, 5vw, 40px) !important; padding-bottom: clamp(28px, 7vw, 40px) !important; }
-  #hero > .container > div { gap: var(--hero-gap) !important; }
-  /* Last section on the page - it doesn't need a full rhythm unit under it. */
-  #contact { padding-bottom: clamp(24px, 5vw, 40px) !important; }
+  /* `.container` is a grandchild of #hero (there is a flex wrapper between
+     them), so the `>` here has never matched and the hero row has been stuck
+     at its inline gap: 48 on every phone. Descendant combinator. */
+  #hero .container > div { gap: var(--hero-gap) !important; }
+  /* Last section on the page - it doesn't need a full rhythm unit under it.
+     Qualified with `section` on purpose: `:not(#hero)` above carries its
+     argument's specificity, so a bare `#contact` (1,0,0) loses to
+     `section:not(#hero)` (1,0,1) and this would silently do nothing. */
+  section#contact { padding-bottom: clamp(24px, 5vw, 40px) !important; }
   img[alt="Justin Hatch"] { width: var(--hero-photo) !important; height: var(--hero-photo) !important; }
   .hero-ctas a[aria-label] {
     width: var(--cta-icon) !important; height: var(--cta-icon) !important; flex-shrink: 0 !important;
@@ -150,6 +156,10 @@
      in Contact, and the hamburger is the affordance that isn't. */
   @media (max-width: 359px) {
     .nav-icons { display: none !important; }
+    /* The auto margin that pushes the right-hand group over lives on
+       .nav-icons; hiding it takes the margin with it and leaves the
+       hamburger stranded beside the name. Hand it to the hamburger. */
+    .nav-hamburger { margin-left: auto !important; }
   }
 
   /* Nothing should be able to push the page wider than the viewport. Note what
@@ -1469,11 +1479,20 @@
                   top: vv ? vv.top : 0,
                   height: vv ? vv.h : '100vh',
                   blockSize: vv ? vv.h : '100dvh',
+                  // All four insets, not just top/bottom: SHEET_QUERY's
+                  // (max-height: 520px) arm is landscape phones, where the
+                  // notch and the rounded corners are on the *sides* and the
+                  // transcript would run underneath them.
                   paddingTop: 'env(safe-area-inset-top, 0px)',
                   paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+                  paddingLeft: 'env(safe-area-inset-left, 0px)',
+                  paddingRight: 'env(safe-area-inset-right, 0px)',
                   borderRadius: 0, border: 0, overflow: 'hidden',
                 } : {
-                  right: 20, bottom: 92,
+                  // Same corner offsets as the launcher below, so the panel and
+                  // the button it hangs off stay flush. 72px clears the 56px
+                  // button plus a 16px gap.
+                  right: 'var(--fab-right)', bottom: 'calc(var(--fab-bottom) + 72px)',
                   width: size.w, height: size.h,
                   borderRadius: 16, overflow: 'hidden',
                   border: '1px solid var(--border-strong)',
@@ -1491,7 +1510,8 @@
                   instead of a 26px one. */}
               <div style={{
                 position: 'absolute', zIndex: 3, display: 'flex', gap: 6,
-                top: `calc(${sheet ? 14 : 12}px + env(safe-area-inset-top, 0px))`, right: 12,
+                top: `calc(${sheet ? 14 : 12}px + env(safe-area-inset-top, 0px))`,
+                right: sheet ? 'calc(12px + env(safe-area-inset-right, 0px))' : 12,
               }}>
                 {!sheet && (
                   <button onClick={toggleSize} style={chromeBtn}
