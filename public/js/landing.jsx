@@ -732,7 +732,7 @@ const D = window.JH_DATA;
                   </div>
                 </object>
               ) : (
-                <div>
+                <React.Fragment>
                   {/* The page itself, inline.
                       A native embed was tried and measured: <object data=*.pdf>
                       renders as a blank rectangle on iOS Safari and Chrome for
@@ -763,45 +763,7 @@ const D = window.JH_DATA;
                       }} />
                     )}
                   </a>
-                  {/* The caption names the file and offers the copy you keep.
-                      The preview above is the thing you read; this is the thing
-                      you act on. */}
-                  <div style={{
-                    display: 'flex', alignItems: 'center', gap: 6,
-                    padding: '6px clamp(10px, 3vw, 14px)',
-                    borderTop: '1px solid var(--border)',
-                  }}>
-                    <a href="Resume.pdf" target="_blank" rel="noopener noreferrer" style={{
-                      display: 'inline-flex', alignItems: 'center', minHeight: 44,
-                      gap: 8, minWidth: 0, flex: '0 1 auto', color: 'var(--accent)',
-                    }}>
-                      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                        strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"
-                        style={{ flexShrink: 0 }}>
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                        <polyline points="14 2 14 8 20 8"/>
-                        <line x1="16" y1="13" x2="8" y2="13"/>
-                        <line x1="16" y1="17" x2="8" y2="17"/>
-                      </svg>
-                      <span style={{
-                        fontSize: 'clamp(12.5px, 3.6vw, 14px)', fontWeight: 600,
-                        overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                      }}>Justin-Hatch-Resume.pdf</span>
-                    </a>
-                    <a href="Resume.pdf" download="Justin-Hatch-Resume.pdf"
-                      title="Download resume" aria-label="Download resume" style={{
-                      display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                      width: 44, height: 44, flexShrink: 0, color: 'var(--accent)',
-                    }}>
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                        strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                        <path d="M12 3v12"/>
-                        <polyline points="7.5 10.5 12 15 16.5 10.5"/>
-                        <path d="M4 17v2.5A1.5 1.5 0 0 0 5.5 21h13a1.5 1.5 0 0 0 1.5-1.5V17"/>
-                      </svg>
-                    </a>
-                  </div>
-                </div>
+                </React.Fragment>
               )}
             </div>
           </Container>
