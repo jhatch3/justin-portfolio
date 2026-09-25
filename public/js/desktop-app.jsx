@@ -1,0 +1,178 @@
+// Extracted from desktop.html so it can be compiled at build time instead of
+// shipping a 639KB Babel to every visitor to compile it in the browser.
+// Edit this file, not the HTML. `npm run build` regenerates the .js.
+
+// The hooks come from desktop.jsx, which loads first and destructures them
+// into the shared global scope. Re-declaring them here is a SyntaxError that
+// takes the whole page with it: every script on this page is a classic script,
+// so they share one global lexical environment. That is why mobile.jsx and
+// widgets.jsx alias theirs (mS, uS) rather than destructuring the same names.
+// server/build.mjs fails the build if this ever regresses.
+
+    // App registry
+    const APPS = [
+      { id: 'finder',   title: 'Finder',     icon: '◐', iconBg: 'linear-gradient(160deg, #7ec0ff, #0a84ff)', iconColor: 'white' },
+      { id: 'projects', title: 'Projects',   icon: '▦', iconBg: 'linear-gradient(160deg, #ffd479, #ff9500)', iconColor: 'white' },
+      { id: 'exp',      title: 'Experience', icon: '≡', iconBg: 'linear-gradient(160deg, #d4d4d9, #86868b)', iconColor: 'white' },
+      { id: 'skills',   title: 'Stack',      icon: '◇', iconBg: 'linear-gradient(160deg, #b78dff, #5e3fbe)', iconColor: 'white' },
+      { id: 'writing',  title: 'Writing',    icon: '✎', iconBg: 'linear-gradient(160deg, #fff2c8, #f8d764)', iconColor: '#5a4a00' },
+      { id: 'now',      title: 'Now',        icon: '▷', iconBg: 'linear-gradient(160deg, #2c2c2e, #1c1c1e)', iconColor: '#a8c896', iconFont: 'ui-monospace, monospace' },
+      { id: 'mail',     title: 'Mail',       icon: '✉', iconBg: 'linear-gradient(160deg, #7ec0ff, #007aff)', iconColor: 'white' },
+      { id: 'chat',     title: "Justin's Bot", icon: 'JH', iconBg: 'linear-gradient(160deg, #d4e3f5, #8eb4d8)', iconColor: '#1a1f2e', iconSize: 17, iconWeight: 700 },
+      { id: 'preview',  title: 'Resume.pdf', icon: '⎙', iconBg: 'linear-gradient(160deg, #ff8a8a, #ff3b30)', iconColor: 'white' },
+    ];
+
+    // Initial layout per window
+    const SEED = {
+      finder:   { x: 60,  y: 70,  w: 760, h: 480, content: 'finder',   sidebar: true, accent: 'rgba(255,255,255,0.78)' },
+      projects: { x: 200, y: 130, w: 760, h: 540, content: 'projects' },
+      exp:      { x: 320, y: 110, w: 620, h: 600, content: 'exp' },
+      skills:   { x: 380, y: 180, w: 540, h: 540, content: 'skills' },
+      writing:  { x: 460, y: 100, w: 580, h: 520, content: 'writing' },
+      now:      { x: 540, y: 250, w: 480, h: 360, content: 'now',      accent: 'rgba(28,28,30,0.85)' },
+      mail:     { x: 220, y: 200, w: 600, h: 480, content: 'mail' },
+      chat:     { x: 860, y: 70,  w: 380, h: 540, content: 'chat',     accent: 'rgba(20,20,22,0.95)' },
+      preview:  { x: 280, y: 80,  w: 760, h: 620, content: 'preview' },
+    };
+
+    const DesktopApp = () => {
+      const [openWins, setOpenWins] = useState(['finder', 'chat']); // ids in z-order, last = top
+      const [minimized, setMinimized] = useState([]);
+      const [zoomed, setZoomed] = useState(null);
+      const [layout, setLayout] = useState(SEED);
+      const [spotlightOpen, setSpotlightOpen] = useState(false);
+      const [time, setTime] = useState('');
+
+      useEffect(() => {
+        const tick = () => {
+          const d = new Date();
+          const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+          const h = d.getHours(); const m = d.getMinutes();
+          const ampm = h >= 12 ? 'PM' : 'AM';
+          const h12 = h % 12 || 12;
+          setTime(`${days[d.getDay()]} ${h12}:${m.toString().padStart(2,'0')} ${ampm}`);
+        };
+        tick(); const id = setInterval(tick, 30000); return () => clearInterval(id);
+      }, []);
+
+      useEffect(() => {
+        const onKey = (e) => {
+          if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+            e.preventDefault(); setSpotlightOpen(o => !o);
+          } else if (e.key === 'Escape') {
+            setSpotlightOpen(false);
+            if (zoomed) setZoomed(null);
+          }
+        };
+        window.addEventListener('keydown', onKey);
+        return () => window.removeEventListener('keydown', onKey);
+      }, [zoomed]);
+
+      const focusWin = (id) => {
+        setOpenWins(prev => {
+          if (!prev.includes(id)) return [...prev, id];
+          return [...prev.filter(x => x !== id), id];
+        });
+        setMinimized(m => m.filter(x => x !== id));
+      };
+      const openApp = (id) => {
+        focusWin(id);
+      };
+      const closeWin = (id) => {
+        setOpenWins(prev => prev.filter(x => x !== id));
+        if (zoomed === id) setZoomed(null);
+      };
+      const minimizeWin = (id) => {
+        setMinimized(m => m.includes(id) ? m : [...m, id]);
+      };
+      const moveWin = (id, x, y) => setLayout(l => ({ ...l, [id]: { ...l[id], x, y } }));
+      const resizeWin = (id, bounds) => setLayout(l => ({ ...l, [id]: { ...l[id], ...bounds } }));
+      const toggleZoom = (id) => setZoomed(z => z === id ? null : id);
+      const activeId = openWins[openWins.length - 1];
+      const activeApp = APPS.find(a => a.id === activeId);
+
+      // Spotlight items
+      const spotlightItems = [
+        ...window.JH_DATA.projects.map(p => ({ kind: 'Project', title: p.name, meta: p.subtitle, app: 'projects' })),
+        ...window.JH_DATA.experience.map(e => ({ kind: 'Experience', title: `${e.role} · ${e.company}`, meta: `${e.start}-${e.end}`, app: 'exp' })),
+        ...window.JH_DATA.writing.map(w => ({ kind: 'Writing', title: w.title, meta: `${w.date} · ${w.mins} min`, app: 'writing' })),
+        ...APPS.map(a => ({ kind: 'App', title: a.title, meta: '', app: a.id })),
+      ];
+
+      const renderContent = (id) => {
+        switch (id) {
+          case 'finder':   return <FinderAbout openApp={openApp} />;
+          case 'projects': return <ProjectsApp />;
+          case 'exp':      return <ExpApp />;
+          case 'skills':   return <SkillsApp />;
+          case 'writing':  return <WritingApp />;
+          case 'mail':     return <MailApp />;
+          case 'now':      return <NowApp />;
+          case 'chat':     return <ChatApp />;
+          case 'preview':  return <PreviewApp />;
+          default: return null;
+        }
+      };
+
+      const titleFor = (id) => APPS.find(a => a.id === id)?.title || id;
+
+      return (
+        <>
+          <Wallpaper />
+          <Menubar active={activeApp?.title} onSpotlight={() => setSpotlightOpen(true)} time={time} onAbout={() => focusWin('finder')} />
+
+          {/* desktop hero label - dark + pale accent */}
+          <div style={{
+            position: 'fixed', top: '46%', left: '50%', transform: 'translate(-50%, -50%)',
+            zIndex: 1, textAlign: 'center', pointerEvents: 'none',
+            textShadow: '0 4px 40px rgba(0,0,0,0.6)',
+            fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif',
+          }}>
+            <div style={{ fontSize: 13, fontWeight: 500, letterSpacing: '0.45em', textTransform: 'uppercase', marginBottom: 14, color: '#b8d4f0', opacity: 0.9 }}>{window.JH_DATA.role}</div>
+            <div style={{ fontSize: 92, fontWeight: 600, letterSpacing: '-0.025em', lineHeight: 1, color: '#fafafa' }}>
+              {window.JH_DATA.name}
+            </div>
+            <div style={{ fontSize: 13, fontWeight: 400, marginTop: 18, letterSpacing: '0.08em', color: 'rgba(255,255,255,0.55)', fontFamily: 'ui-monospace, "SF Mono", monospace' }}>
+              press <kbd style={{ background: 'rgba(184,212,240,0.10)', padding: '2px 8px', borderRadius: 4, fontFamily: 'inherit', border: '0.5px solid rgba(184,212,240,0.35)', color: '#b8d4f0' }}>⌘K</kbd> to search · click any dock app to explore
+            </div>
+          </div>
+
+          {openWins.filter(id => !minimized.includes(id)).map((id, i) => {
+            const cfg = layout[id]; if (!cfg) return null;
+            const z = openWins.indexOf(id);
+            return (
+              <Window key={id} id={id} title={titleFor(id)}
+                x={cfg.x} y={cfg.y} w={cfg.w} h={cfg.h} z={z}
+                accent={cfg.accent}
+                sidebar={id === 'finder' ? <FinderSidebar active={activeId} openApp={openApp} /> : null}
+                onFocus={() => focusWin(id)}
+                onClose={() => closeWin(id)}
+                onMinimize={() => minimizeWin(id)}
+                onMove={moveWin}
+                onResize={resizeWin}
+                onZoom={() => toggleZoom(id)}
+                zoomed={zoomed === id}>
+                {renderContent(id)}
+              </Window>
+            );
+          })}
+
+          <Dock apps={APPS} openIds={openWins} onOpen={openApp} />
+
+          <StockWidget top={56} right={18} />
+          <GitHubWidget top={230} right={18} />
+          <LinkedInWidget top={334} right={18} />
+          <OrderBookWidget top={442} right={18} />
+
+          <Spotlight open={spotlightOpen} onClose={() => setSpotlightOpen(false)}
+                     onSelect={(it) => openApp(it.app)} items={spotlightItems} />
+        </>
+      );
+    };
+
+    const App = () => {
+      const isPhone = useMediaQuery('(max-width: 600px), (max-height: 500px)');
+      return isPhone ? <IPhoneApp /> : <DesktopApp />;
+    };
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);

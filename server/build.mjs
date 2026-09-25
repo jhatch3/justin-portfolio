@@ -1,0 +1,93 @@
+// Compiles public/js/*.jsx to plain .js next to the source.
+//
+// This exists so Babel runs once here instead of 639KB of @babel/standalone
+// running in every visitor's browser on every page load. That download was 62%
+// of the landing page's weight, and compiling in the browser also blocked the
+// main thread for roughly 200ms before anything could render.
+//
+// The output stays classic scripts, not modules, because that is what these
+// files already are: several of them share one global lexical scope on purpose
+// (see the note at the top of chat-app.jsx), and ES modules would each get
+// their own, breaking the arrangement.
+import { transformAsync } from '@babel/core';
+import presetReact from '@babel/preset-react';
+import { readdir, readFile, writeFile } from 'node:fs/promises';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const JS_DIR = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', 'public', 'js');
+
+const files = (await readdir(JS_DIR)).filter(f => f.endsWith('.jsx')).sort();
+if (!files.length) {
+  console.error('[build] no .jsx found in', JS_DIR);
+  process.exit(1);
+}
+
+let total = 0;
+for (const file of files) {
+  const src = await readFile(path.join(JS_DIR, file), 'utf8');
+  const out = await transformAsync(src, {
+    filename: file,
+    babelrc: false,
+    configFile: false,
+    // classic runtime: React is a global from the UMD bundle, not an import
+    presets: [[presetReact, { runtime: 'classic' }]],
+    compact: false,
+    comments: true,
+    sourceMaps: false,
+  });
+  const dest = file.replace(/\.jsx$/, '.js');
+  await writeFile(path.join(JS_DIR, dest), out.code + '\n');
+  total += out.code.length;
+  console.log(`[build] ${file} -> ${dest}  ${(out.code.length / 1024).toFixed(1)}KB`);
+}
+console.log(`[build] ${files.length} files, ${(total / 1024).toFixed(1)}KB total`);
+
+// ─── Collision guard ────────────────────────────────────────────────────────
+// Every script on a page is a classic script, so they all share one global
+// lexical environment, and a `const` declared twice is a SyntaxError that takes
+// the whole page down. This used to be invisible: under type="text/babel" each
+// script was evaluated separately, so duplicates were harmless right up until
+// the moment the build step made them real. Fail here instead of in the browser.
+const PUBLIC = path.resolve(JS_DIR, '..');
+const pages = (await readdir(PUBLIC)).filter(f => f.endsWith('.html'));
+
+const topLevel = async (jsxFile) => {
+  const src = await readFile(path.join(JS_DIR, jsxFile), 'utf8');
+  const names = new Set();
+  for (const line of src.split('\n')) {
+    // Only column-zero declarations land in the shared scope.
+    let m = /^(?:const|let|class)\s+([A-Za-z_$][\w$]*)/.exec(line);
+    if (m) { names.add(m[1]); continue; }
+    m = /^function\s+([A-Za-z_$][\w$]*)/.exec(line);
+    if (m) { names.add(m[1]); continue; }
+    m = /^(?:const|let)\s*\{([^}]*)\}/.exec(line);   // const { a, b: c } = React
+    if (m) for (const part of m[1].split(',')) {
+      const bound = (part.includes(':') ? part.split(':')[1] : part).trim();
+      if (bound) names.add(bound);
+    }
+  }
+  return names;
+};
+
+let clashes = 0;
+for (const page of pages) {
+  const html = await readFile(path.join(PUBLIC, page), 'utf8');
+  const loaded = [...html.matchAll(/<script[^>]+src="js\/([\w.-]+)\.js"/g)]
+    .map(m => `${m[1]}.jsx`)
+    .filter(f => files.includes(f));
+  const seen = new Map();
+  for (const f of loaded) {
+    for (const name of await topLevel(f)) {
+      if (seen.has(name)) {
+        console.error(`[build] FATAL ${page}: "${name}" is declared in both ${seen.get(name)} and ${f}`);
+        clashes++;
+      } else seen.set(name, f);
+    }
+  }
+  console.log(`[build] ${page}: ${loaded.length} scripts sharing ${seen.size} top-level names`);
+}
+if (clashes) {
+  console.error(`[build] ${clashes} duplicate top-level declaration(s). That is a SyntaxError at runtime.`);
+  process.exit(1);
+}

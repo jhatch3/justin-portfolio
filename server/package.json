@@ -5,10 +5,11 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "start": "node index.mjs",
-    "dev": "node --watch index.mjs",
+    "start": "node build.mjs && node index.mjs",
+    "dev": "node build.mjs && node --watch index.mjs",
     "grill": "node grill.mjs",
-    "audit": "node prompt-audit.mjs"
+    "audit": "node prompt-audit.mjs",
+    "build": "node build.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.30.1",
@@ -19,5 +20,9 @@
   },
   "engines": {
     "node": ">=20"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.29.0",
+    "@babel/preset-react": "^7.27.1"
   }
 }

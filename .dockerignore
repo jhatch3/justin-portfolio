@@ -36,6 +36,11 @@ Dockerfile
 .dockerignore
 docker-compose.yml
 
+# Compiled JSX output. Generated inside the image by `npm run build`, so a
+# stale copy from a developer's machine must never be copied over the top.
+public/js/*.js
+!public/js/smooth-scroll.js
+
 # Logs / build artifacts / archives
 *.log
 logs/

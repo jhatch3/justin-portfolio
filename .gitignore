@@ -49,3 +49,7 @@ coverage/
 # Visitor messages from the chat composer - never commit these.
 server/messages.jsonl
 messages.jsonl
+
+# Built from public/js/*.jsx by server/build.mjs
+public/js/*.js
+!public/js/smooth-scroll.js

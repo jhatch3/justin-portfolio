@@ -405,7 +405,7 @@
         {/* The same face as the header, at card scale: this is the moment the
             visitor is actually addressing a person, so the person is on it. */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <Avatar c={c} size={38} />
+          <Avatar c={c} size={44} />
           <div style={{ minWidth: 0 }}>
             <div style={{ fontSize: 13, fontWeight: 650, color: c.titleText, letterSpacing: '-0.01em' }}>
               {form.intent === 'hire' ? 'Tell Justin about the role' : 'Message Justin'}
@@ -825,17 +825,17 @@
             The right padding keeps it clear of landing.html's window chrome,
             which floats over this corner. */}
         <div style={{
-          padding: '14px 56px 12px', display: 'flex', flexDirection: 'column',
-          alignItems: 'center', gap: 8, flexShrink: 0,
+          padding: '16px 56px 13px', display: 'flex', flexDirection: 'column',
+          alignItems: 'center', gap: 9, flexShrink: 0,
           background: c.bannerBg, borderBottom: c.bannerBorder,
           backdropFilter: 'blur(20px) saturate(180%)',
           WebkitBackdropFilter: 'blur(20px) saturate(180%)',
         }}>
-          <Avatar c={c} size={54} thinking={sending} />
+          <Avatar c={c} size={68} thinking={sending} />
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, minWidth: 0 }}>
             <div style={{
-              fontSize: 14.5, fontWeight: 650, color: c.titleText,
-              letterSpacing: '-0.015em', lineHeight: 1.2,
+              fontSize: 15.5, fontWeight: 650, color: c.titleText,
+              letterSpacing: '-0.02em', lineHeight: 1.2,
             }}>Justin's Bot</div>
             <div style={{
               fontSize: 10.5, color: c.subText, display: 'flex', alignItems: 'center', gap: 4.5,
