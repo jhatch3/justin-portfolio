@@ -294,30 +294,49 @@
     });
   };
 
-  // ─── Slash commands ────────────────────────────────────────────────────────
-  // /help is answered here rather than by the model: it describes the UI, so it
-  // should be instant, free, and identical every time. The rest expand into an
-  // ordinary question, so the bot answers them in its own voice - the visitor
-  // sees what they typed, the model sees the question.
+  // ─── Intent, not commands ──────────────────────────────────────────────────
+  // This used to be a command line bolted onto a chat: /projects, /experience,
+  // /skills, /now, /hire, /resume, /help, /examples, /contact. Most of them
+  // only ever expanded into a question the model could already answer if you
+  // just asked it, so they earned their keep by teaching syntax nobody asked
+  // to learn. Those are gone. Ask "what has he built" and it answers.
+  //
+  // Two things still can't be left to the model, because they aren't answers,
+  // they're actions the window has to take:
+  //
+  //   contact  opens the message form
+  //   help     describes what this thing is for
+  //
+  // Both are matched on intent. The patterns are deliberately narrow, because
+  // a false positive here is worse than a miss: someone asking "did he build
+  // an email system?" must not get a contact form. So "email him" matches and
+  // a bare "email" in a sentence does not.
+  const CONTACT_RE = new RegExp([
+    // "message him", "email Justin", "talk to him"
+    '\\b(?:contact|message|email|write to|writing to|talk to|speak to|speak with|reach)\\s+(?:him|justin)\\b',
+    '\\bget in touch\\b',
+    '\\breach out\\b',
+    // "send him a message", "pass along a note", "leave a line"
+    '\\b(?:send|pass|leave|drop)\\s+(?:him\\s+)?(?:a\\s+)?(?:message|note|line|email)\\b',
+    '\\b(?:hire|work with)\\s+(?:him|justin)\\b',
+    // the whole message is the request
+    '^\\s*(?:contact|message|email|hire)\\s*[.!?]*\\s*$',
+  ].join('|'), 'i');
+
+  // Anchored on purpose. "help" is a request; "help me understand his ML work"
+  // is a question, and should go to the model like any other.
+  const HELP_RE = /^\s*(?:help|\?+|what can (?:you|i) (?:do|ask|tell me)|what do you do|how does this work|what is this)\s*[.!?]*\s*$/i;
+
   const HELP_TEXT = [
-    'Shortcuts:',
+    "Ask me anything about Justin's work, his projects, or what he's after next.",
     '',
-    '- **/projects** what he built, and where to start',
-    '- **/experience** roles, companies, what shipped',
-    '- **/skills** languages, frameworks, the AI/ML stack',
-    '- **/now** what he\'s in the middle of',
-    '- **/hire** why he might fit, and how to reach him',
-    '- **/resume** the PDF',
-    '- **/contact** write to him right here',
-    '- **/examples** questions I answer well',
-    '',
-    'Or just ask. That works better anyway.',
+    'If you want to reach him, say so and a message form opens right here. The envelope next to the box does the same thing.',
   ].join('\n');
 
-  // Every one of these is answerable straight from the ground-truth block, which
-  // is the whole point: a suggestion the bot has to hedge on ("which project is
-  // he proudest of?" - it has no record of his opinion) makes it look worse than
-  // it is. Rendered as chips, so a visitor can pick one instead of typing.
+  // Every one of these is answerable straight from the ground-truth block,
+  // which is the point: a suggestion the bot has to hedge on makes it look
+  // worse than it is. Rendered as chips, so a visitor can pick one instead of
+  // typing.
   const EXAMPLES = [
     'What is he building at Horizon Intelligence Labs?',
     'Which project should I actually look at?',
@@ -327,20 +346,6 @@
     'Tell me something surprising about him.',
   ];
   const EXAMPLES_TEXT = 'Things I can answer well:';
-
-  // The expansions ask for brevity: a shortcut should land a skimmable answer,
-  // not the longest one the question could support.
-  const COMMANDS = {
-    '/projects': 'What has Justin built, and which project should I look at first? Keep it brief.',
-    '/experience': "Walk me through Justin's work experience, briefly.",
-    '/skills': "What are Justin's main skills, and what does he use them for? A short list is fine.",
-    '/now': 'What is Justin working on right now? One or two sentences.',
-    '/hire': "I'm hiring. Why might Justin fit, and how do I reach him? Keep it short.",
-    '/resume': "Where can I find Justin's resume?",
-  };
-  const HELP_ALIASES = ['/help', '/commands', '/?', 'help'];
-  const EXAMPLE_ALIASES = ['/examples', '/example', '/ask'];
-  const CONTACT_ALIASES = ['/contact', '/message', '/msg', '/email'];
 
   const CONTACT_FALLBACK = (window.JH_DATA?.links?.email?.href) || 'mailto:jjhatch03@gmail.com';
   const EMAIL_OK = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
@@ -400,7 +405,7 @@
         {/* The same face as the header, at card scale: this is the moment the
             visitor is actually addressing a person, so the person is on it. */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <Avatar c={c} size={32} />
+          <Avatar c={c} size={38} />
           <div style={{ minWidth: 0 }}>
             <div style={{ fontSize: 13, fontWeight: 650, color: c.titleText, letterSpacing: '-0.01em' }}>
               {form.intent === 'hire' ? 'Tell Justin about the role' : 'Message Justin'}
@@ -463,7 +468,7 @@
     // and the CSS never disagree about which size the chat is running at.
     const narrow = useMedia('(pointer: coarse), (max-width: 640px)');
     const [messages, setMessages] = React.useState([
-      { role: 'assistant', local: true, content: "I'm Justin's bot. Ask me about his work, his projects, or what he's looking for next.\n\nType **/help** for shortcuts." },
+      { role: 'assistant', local: true, content: "I'm Justin's bot. Ask me about his work, his projects, or what he's looking for next.\n\nWant to reach him? Just say so." },
     ]);
     const [input, setInput] = React.useState('');
     const [sending, setSending] = React.useState(false);
@@ -546,26 +551,28 @@
       if (override == null) setInput('');
       setError(null);
 
-      const cmd = text.toLowerCase().split(/\s+/)[0];
-
-      // UI commands answer locally - instant, free, and identical every time.
-      // Both turns are marked local, so neither ends up in what the model sees.
+      // Handled here rather than by the model: instant, free, and identical
+      // every time. Both turns are marked local, so neither reaches the model
+      // and neither skews the conversation it sees.
       const localReply = (content, card) => {
         setMessages(prev => [...prev,
           { role: 'user', local: true, content: text },
           { role: 'assistant', local: true, content, card },
         ]);
       };
-      if (HELP_ALIASES.includes(cmd)) { localReply(HELP_TEXT); return; }
-      if (EXAMPLE_ALIASES.includes(cmd)) { localReply(EXAMPLES_TEXT, 'examples'); return; }
-      if (CONTACT_ALIASES.includes(cmd)) {
-        localReply("Fill this in and it goes straight to him.");
-        openComposer('chat');
+      // Anyone who used this before, or who just expects a chat to have slash
+      // commands, gets the behaviour they reached for. The syntax is not
+      // documented anywhere any more, it simply still works.
+      const intent = text.replace(/^\/+/, '').trim();
+      if (HELP_RE.test(intent)) { localReply(HELP_TEXT, 'examples'); return; }
+      if (CONTACT_RE.test(intent)) {
+        localReply('Fill this in and it goes straight to him.');
+        openComposer(/\b(?:hire|work with)\b/i.test(intent) ? 'hire' : 'chat');
         return;
       }
 
       const next = [...messages,
-        { role: 'user', content: text, send: COMMANDS[cmd] || text },
+        { role: 'user', content: text },
         { role: 'assistant', content: '' }];
       setMessages(next);
       setSending(true);
@@ -818,17 +825,17 @@
             The right padding keeps it clear of landing.html's window chrome,
             which floats over this corner. */}
         <div style={{
-          padding: '12px 56px 10px', display: 'flex', flexDirection: 'column',
-          alignItems: 'center', gap: 6, flexShrink: 0,
+          padding: '14px 56px 12px', display: 'flex', flexDirection: 'column',
+          alignItems: 'center', gap: 8, flexShrink: 0,
           background: c.bannerBg, borderBottom: c.bannerBorder,
           backdropFilter: 'blur(20px) saturate(180%)',
           WebkitBackdropFilter: 'blur(20px) saturate(180%)',
         }}>
-          <Avatar c={c} size={40} thinking={sending} />
+          <Avatar c={c} size={54} thinking={sending} />
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, minWidth: 0 }}>
             <div style={{
-              fontSize: 13.5, fontWeight: 650, color: c.titleText,
-              letterSpacing: '-0.01em', lineHeight: 1.2,
+              fontSize: 14.5, fontWeight: 650, color: c.titleText,
+              letterSpacing: '-0.015em', lineHeight: 1.2,
             }}>Justin's Bot</div>
             <div style={{
               fontSize: 10.5, color: c.subText, display: 'flex', alignItems: 'center', gap: 4.5,
@@ -953,14 +960,32 @@
           backdropFilter: 'blur(20px) saturate(180%)',
           WebkitBackdropFilter: 'blur(20px) saturate(180%)',
         }}>
-          {/* A one-row textarea clips anything that wraps, and at 16px in a
-              320px-wide sheet the long placeholder wrapped to two lines and
-              lost its second half. So: a shorter prompt where the column is
-              narrow, and a box that grows with what is actually typed (up to
-              COMPOSER_MAX_H, after which it scrolls). */}
+          {/* The always-there way to the form. With the commands gone, typed
+              intent is one path in and this is the other, so reaching him
+              never depends on guessing the right phrase. */}
+          <button onClick={() => openComposer('chat')}
+            aria-label="Message Justin" title="Message Justin"
+            className={`jh-chat-send-${theme}`} style={{
+              width: 34, height: 34, borderRadius: '50%', border: 0, padding: 0,
+              background: c.sendOffBg, color: c.subText, cursor: 'pointer',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              flexShrink: 0, marginBottom: 1,
+            }}>
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <rect x="2.5" y="5" width="19" height="14" rx="2.5" />
+              <path d="m21 7.5-8.5 5.4a1.8 1.8 0 0 1-2 0L2 7.5" />
+            </svg>
+          </button>
+
+          {/* A one-row textarea clips anything that wraps. The placeholder is
+              short enough to fit on one line in the narrowest place this runs,
+              which is a 380px panel carrying two buttons, so it never needs a
+              width-dependent variant. The box itself grows with what is typed,
+              up to COMPOSER_MAX_H, after which it scrolls. */}
           <textarea ref={inputRef} className={`jh-chat-ta-${theme}`}
             value={input} onChange={onInput} onKeyDown={onKey}
-            placeholder={narrow ? 'Ask me anything…' : 'Ask about projects, experience, anything…'}
+            placeholder="Ask about his work…"
             rows={1} disabled={sending}
             style={{
               flex: 1, minWidth: 0, resize: 'none', border: c.inputBorder, outline: 0,

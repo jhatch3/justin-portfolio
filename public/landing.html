@@ -49,14 +49,14 @@
 }
 </script>
 
-<!-- Inter for the body, JetBrains Mono for the mono touches -->
+<!-- One family. Inter carries the body and the captions alike. -->
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <!-- React, Babel and Tailwind all come from these two hosts; warm the connections
      early so the render-blocking script fetches don't each pay a TLS handshake. -->
 <link rel="preconnect" href="https://unpkg.com" crossorigin />
 <link rel="preconnect" href="https://cdn.tailwindcss.com" />
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" />
 
 <!-- Tailwind Play CDN: lets us use utility classes in components copied from
      shadcn/Aceternity templates without a build step. Prototype-only. -->
@@ -67,7 +67,7 @@
       extend: {
         fontFamily: {
           sans: ['Inter', 'system-ui', 'sans-serif'],
-          mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+          mono: ['ui-monospace', 'SFMono-Regular', 'monospace'],
         },
       },
     },
@@ -498,8 +498,8 @@
                       </div>
                     )}
                     <div style={{
-                      fontSize: 11, fontFamily: "'JetBrains Mono', monospace",
-                      color: 'var(--ink-3)', letterSpacing: '0.04em', lineHeight: 1.7,
+                      fontSize: 11.5, color: 'var(--ink-3)',
+                      fontWeight: 500, letterSpacing: '0.02em', lineHeight: 1.7,
                     }}>
                       {active.tags.join(' · ')}
                     </div>
@@ -629,6 +629,31 @@
     };
     // ─── /FlipWords ──────────────────────────────────────────────────────────
 
+    // ─── Captions ─────────────────────────────────────────────────────────────
+    // Every small grey caption on this page used to be JetBrains Mono: the
+    // scroll cue, the sector tags, the writing dates, the graduation line. A
+    // second typeface earning its keep on six captions, and each of them read
+    // as code rather than as a label.
+    //
+    // They are Inter now, same as everything else. Uppercase and letterspacing
+    // do the work the monospace was doing, and the page is down to one family.
+    // Inter sets tighter than a mono at the same size, so the tracking is
+    // opened up to compensate; at these sizes that is what keeps capitals
+    // legible.
+    // Two tiers, and only two. `label` starts a block and is meant to be read;
+    // `caption` is metadata and is meant to be skimmed past. They had drifted
+    // to three weights (600/700/800) and three tracking values for what are
+    // all the same kind of small uppercase type, which is the sort of thing
+    // nobody can name and everybody feels.
+    const label = (color = 'var(--accent)') => ({
+      fontSize: 11, fontWeight: 700, letterSpacing: '0.14em',
+      textTransform: 'uppercase', color,
+    });
+    const caption = (size = 11, color = 'var(--ink-3)') => ({
+      fontSize: size, fontWeight: 600, letterSpacing: '0.1em',
+      textTransform: 'uppercase', color,
+    });
+
     // ─── Reusable ─────────────────────────────────────────────────────────────
     const Container = ({ children, style }) => (
       <div className="container" style={{ maxWidth: 1040, margin: '0 auto', padding: '0 28px', ...style }}>{children}</div>
@@ -639,10 +664,7 @@
     const SectorBadge = ({ sector }) => {
       if (!sector) return null;
       return (
-        <span style={{
-          fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase',
-          color: 'var(--ink-3)', fontFamily: "'JetBrains Mono', monospace", whiteSpace: 'nowrap',
-        }}>{sector}</span>
+        <span style={{ ...caption(10), whiteSpace: 'nowrap' }}>{sector}</span>
       );
     };
 
@@ -867,8 +889,7 @@
         <a href="#resume" aria-label="Scroll to resume" style={{
           alignSelf: 'center', marginTop: 16,
           display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: 4,
-          fontSize: 11, fontFamily: "'JetBrains Mono', monospace", color: 'var(--ink-3)',
-          letterSpacing: '0.12em', textTransform: 'uppercase',
+          ...caption(11), letterSpacing: '0.14em',
           animation: 'bounceY 2s infinite', textDecoration: 'none',
         }}>
           <span>scroll</span>
@@ -895,10 +916,7 @@
     // at the call sites) but no longer rendered.
     const SectionHeader = ({ eyebrow, title, sub }) => (
       <div style={{ marginBottom: 32 }}>
-        <h2 style={{
-          fontSize: 11, fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase',
-          color: 'var(--accent)', margin: 0, marginBottom: sub ? 12 : 0,
-        }}>{eyebrow}</h2>
+        <h2 style={{ ...label(), margin: 0, marginBottom: sub ? 12 : 0 }}>{eyebrow}</h2>
         {sub && <p style={{ fontSize: 15, color: 'var(--ink-3)', margin: 0 }}>{sub}</p>}
       </div>
     );
@@ -923,8 +941,7 @@
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
                   <div style={{ minWidth: 0 }}>
                     <div style={{
-                      fontSize: 11, fontFamily: "'JetBrains Mono', monospace", color: 'var(--ink-3)',
-                      marginBottom: 6, letterSpacing: '0.06em', textTransform: 'uppercase',
+                      ...caption(11), marginBottom: 6,
                     }}>
                       {w.date}{w.mins ? ` · ${w.mins} min read` : ''}
                     </div>
@@ -1082,7 +1099,7 @@
                   {D.degree}
                 </div>
               </div>
-              <div style={{ fontSize: 13, color: 'var(--ink-3)', fontFamily: "'JetBrains Mono', monospace" }}>
+              <div style={{ fontSize: 13.5, fontWeight: 500, color: 'var(--ink-3)' }}>
                 graduated {D.graduating}
               </div>
             </div>
@@ -1099,8 +1116,7 @@
                   display: 'flex', gap: '10px 28px', alignItems: 'baseline', flexWrap: 'wrap',
                 }}>
                   <div style={{
-                    fontSize: 11, fontWeight: 800, color: 'var(--ink)', letterSpacing: '0.1em',
-                    textTransform: 'uppercase', flex: '0 0 auto', minWidth: 150,
+                    ...label('var(--ink)'), flex: '0 0 auto', minWidth: 150,
                   }}>{row.label}</div>
                   <div style={{ fontSize: 13.5, lineHeight: 1.6, color: 'var(--ink-2)', flex: '1 1 320px' }}>
                     {row.items.join('  ·  ')}
@@ -1472,7 +1488,7 @@
                  style={{ animation: 'chatCueSweep 2.6s ease-in-out infinite' }} />
             <text style={{ animation: 'chatCueSwing 2.8s ease-in-out infinite', transformOrigin: '80px 80px' }}
                   fill="var(--ink)" fontSize="10" fontWeight="600" letterSpacing="0.8"
-                  fontFamily="'JetBrains Mono', monospace">
+                  fontFamily="Inter, system-ui, sans-serif">
               <textPath href="#chat-cue-type" startOffset="50%" textAnchor="middle">CHAT HERE</textPath>
             </text>
           </svg>
