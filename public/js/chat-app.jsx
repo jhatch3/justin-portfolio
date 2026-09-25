@@ -268,6 +268,30 @@
   const CONTACT_FALLBACK = (window.JH_DATA?.links?.email?.href) || 'mailto:jjhatch03@gmail.com';
   const EMAIL_OK = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
+  // True only where there is a real pointer. Used to decide whether stealing
+  // focus is cheap (a caret) or expensive (half the screen turning into a
+  // keyboard, and iOS scrolling the page to chase the focused element).
+  const finePointer = () =>
+    typeof window !== 'undefined' &&
+    window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+
+  // Live media-query match. Re-renders on change, so rotating a phone or
+  // dragging a window narrow re-picks rather than keeping whatever was true
+  // when the component first mounted.
+  const useMedia = (query) => {
+    const [matches, setMatches] = React.useState(() => window.matchMedia(query).matches);
+    React.useEffect(() => {
+      const mq = window.matchMedia(query);
+      const onChange = (e) => setMatches(e.matches);
+      setMatches(mq.matches);
+      mq.addEventListener('change', onChange);
+      return () => mq.removeEventListener('change', onChange);
+    }, [query]);
+    return matches;
+  };
+
+  const COMPOSER_MAX_H = 96;
+
   // ─── Contact composer ──────────────────────────────────────────────────────
   // Three fields, in the thread, no page change and no mail client. Posts to
   // /api/contact, which stores the message before it tries to email it.
@@ -320,18 +344,21 @@
         )}
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-          <button onClick={onSubmit} disabled={busy} style={{
+          <button onClick={onSubmit} disabled={busy} className={`jh-chat-tap-${theme}`} style={{
             font: 'inherit', fontSize: 13, fontWeight: 600, padding: '8px 16px',
             borderRadius: 999, border: 0, cursor: busy ? 'default' : 'pointer',
             background: busy ? c.sendOffBg : c.sendOnBg,
             color: busy ? c.sendOffText : c.sendOnText,
           }}>{busy ? 'Sending…' : 'Send to Justin'}</button>
-          <button onClick={onCancel} disabled={busy} style={{
-            font: 'inherit', fontSize: 12.5, padding: '8px 10px', borderRadius: 999,
+          <button onClick={onCancel} disabled={busy} className={`jh-chat-tap-${theme}`} style={{
+            font: 'inherit', fontSize: 12.5, padding: '8px 12px', borderRadius: 999,
             border: 0, background: 'transparent', color: c.subText,
             cursor: busy ? 'default' : 'pointer',
           }}>Cancel</button>
-          <a href={CONTACT_FALLBACK} style={{ marginLeft: 'auto', fontSize: 11.5, color: c.link }}>
+          <a href={CONTACT_FALLBACK} className={`jh-chat-tap-${theme}`} style={{
+            marginLeft: 'auto', fontSize: 11.5, color: c.link,
+            display: 'inline-flex', alignItems: 'center',
+          }}>
             or email directly
           </a>
         </div>
@@ -344,6 +371,9 @@
   // composer even if they closed it.
   const ChatApp = ({ theme = 'dark', contactRequest = 0, contactIntent }) => {
     const c = PALETTES[theme] || PALETTES.dark;
+    // Same condition the touch-sizing rules in <style> below use, so the JS
+    // and the CSS never disagree about which size the chat is running at.
+    const narrow = useMedia('(pointer: coarse), (max-width: 640px)');
     const [messages, setMessages] = React.useState([
       { role: 'assistant', local: true, content: "Hey - I'm Justin's bot. Ask me anything about his work, projects, or what he's after next.\n\nNew here? Type **/help** for the shortcut list." },
     ]);
@@ -360,7 +390,7 @@
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }, [messages, sending, form?.open]);
 
-    React.useEffect(() => { inputRef.current?.focus(); }, []);
+    React.useEffect(() => { if (finePointer()) inputRef.current?.focus(); }, []);
 
     const openComposer = (intent) => {
       setForm(f => ({
@@ -370,7 +400,10 @@
         subject: f?.subject || (intent === 'hire' ? 'Hiring inquiry' : ''),
         company: '', status: 'idle', error: null, bad: [],
       }));
-      setTimeout(() => nameRef.current?.focus(), 0);
+      // On touch the composer is scrolled into view by the effect above
+      // instead: popping the keyboard the instant "Hire me" is tapped hides
+      // the form the visitor just asked to see.
+      if (finePointer()) setTimeout(() => nameRef.current?.focus(), 0);
     };
 
     // The page asks for the composer by bumping contactRequest (0 = never asked).
@@ -525,6 +558,20 @@
 
     const onKey = (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); } };
 
+    // Grow the composer to fit what's in it. Reset to `auto` first so it can
+    // shrink again when text is deleted - scrollHeight never reports smaller
+    // than the current height.
+    const fitComposer = (el) => {
+      if (!el) return;
+      el.style.height = 'auto';
+      el.style.height = Math.min(el.scrollHeight, COMPOSER_MAX_H) + 'px';
+    };
+    const onInput = (e) => { setInput(e.target.value); fitComposer(e.target); };
+    // Sending clears the value, so the box has to come back down with it - and
+    // `narrow` swaps the font size out from under an explicit pixel height, so
+    // re-measure on that too.
+    React.useEffect(() => { if (!input) fitComposer(inputRef.current); }, [input, narrow]);
+
     return (
       <div style={{
         height: '100%', display: 'flex', flexDirection: 'column',
@@ -533,6 +580,26 @@
         <style>{`
           @keyframes chatDots { 0% { opacity: 0.3 } 30% { opacity: 1 } 60%, 100% { opacity: 0.3 } }
           .jh-chat-ta-${theme}::placeholder { color: ${c.placeholder}; }
+
+          /* Touch sizing.
+             The font-size rule is not cosmetic: iOS Safari zooms the whole
+             page in whenever a focused field's text is under 16px, and it
+             does not zoom back out afterwards. Every field here was 13px, so
+             tapping the composer left the visitor stranded on a page scaled
+             up past its own width - which is what "the chat button is buggy
+             on my phone" looks like from the outside. !important because the
+             fields set their size inline, and inline beats a stylesheet.
+             The rest is just honest touch targets: 13px chat text and a 36px
+             send button are fine under a mouse and small under a thumb. */
+          @media (pointer: coarse), (max-width: 640px) {
+            .jh-chat-ta-${theme} { font-size: 16px !important; }
+            .jh-chat-msg-${theme} { font-size: 15px !important; line-height: 1.5 !important; }
+            .jh-chat-send-${theme} { width: 44px !important; height: 44px !important; }
+            .jh-chat-tap-${theme} { min-height: 44px !important; }
+            /* Chips wrap into a row, so they grow by padding rather than by a
+               min-height that would leave a stack of tall slabs. */
+            .jh-chat-chip-${theme} { font-size: 14px !important; padding: 9px 14px !important; }
+          }
         `}</style>
 
         {/* In-window contact banner */}
@@ -557,8 +624,12 @@
         </div>
 
         {/* Messages */}
+        {/* overscrollBehavior: once this transcript hits its end, the gesture
+            stops here rather than carrying on into the page behind the
+            panel. */}
         <div ref={scrollRef} style={{
-          flex: 1, minHeight: 0, overflowY: 'auto', padding: '14px 14px 8px',
+          flex: 1, minHeight: 0, overflowY: 'auto', overscrollBehavior: 'contain',
+          WebkitOverflowScrolling: 'touch', padding: '14px 14px 8px',
           background: c.msgsBg,
           display: 'flex', flexDirection: 'column', gap: 6,
         }}>
@@ -566,9 +637,11 @@
             const mine = m.role === 'user';
             const isLastEmptyAssistant = !mine && !m.content && sending && i === messages.length - 1;
             return (
-              <div key={i} style={{
+              <div key={i} className={`jh-chat-msg-${theme}`} style={{
                 alignSelf: mine ? 'flex-end' : 'flex-start',
-                maxWidth: '78%',
+                // A bubble may not be wider than its column; long URLs and
+                // repo paths wrap instead of stretching the panel.
+                maxWidth: '78%', minWidth: 0,
                 background: mine ? c.mineBg : c.theirsBg,
                 color: mine ? c.mineText : c.theirsText,
                 border: mine ? c.mineBorder : c.theirsBorder,
@@ -589,7 +662,8 @@
                 {m.card === 'examples' && (
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 8 }}>
                     {EXAMPLES.map(q => (
-                      <button key={q} onClick={() => send(q)} disabled={sending} style={{
+                      <button key={q} onClick={() => send(q)} disabled={sending}
+                        className={`jh-chat-chip-${theme}`} style={{
                         font: 'inherit', fontSize: 12, lineHeight: 1.3, textAlign: 'left',
                         padding: '5px 10px', borderRadius: 999, cursor: sending ? 'default' : 'pointer',
                         background: c.chipBg, color: c.chipText, border: c.chipBorder,
@@ -619,16 +693,23 @@
           padding: 10, display: 'flex', gap: 8, alignItems: 'center',
           background: c.barBg, borderTop: c.barBorder, flexShrink: 0,
         }}>
+          {/* A one-row textarea clips anything that wraps, and at 16px in a
+              320px-wide sheet the long placeholder wrapped to two lines and
+              lost its second half. So: a shorter prompt where the column is
+              narrow, and a box that grows with what is actually typed (up to
+              COMPOSER_MAX_H, after which it scrolls). */}
           <textarea ref={inputRef} className={`jh-chat-ta-${theme}`}
-            value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={onKey}
-            placeholder="Ask about projects, experience, anything…" rows={1} disabled={sending}
+            value={input} onChange={onInput} onKeyDown={onKey}
+            placeholder={narrow ? 'Ask me anything…' : 'Ask about projects, experience, anything…'}
+            rows={1} disabled={sending}
             style={{
-              flex: 1, resize: 'none', border: c.inputBorder, outline: 0,
+              flex: 1, minWidth: 0, resize: 'none', border: c.inputBorder, outline: 0,
               background: c.inputBg, color: c.inputText,
               padding: '8px 12px', borderRadius: 18, fontSize: 13, lineHeight: 1.4,
-              fontFamily: 'inherit', maxHeight: 80,
+              fontFamily: 'inherit', maxHeight: COMPOSER_MAX_H, overflowY: 'auto',
             }} />
-          <button onClick={() => send()} disabled={!input.trim() || sending} aria-label="Send" style={{
+          <button onClick={() => send()} disabled={!input.trim() || sending} aria-label="Send"
+            className={`jh-chat-send-${theme}`} style={{
             width: 36, height: 36, borderRadius: '50%', border: 0,
             background: input.trim() && !sending ? c.sendOnBg : c.sendOffBg,
             color: input.trim() && !sending ? c.sendOnText : c.sendOffText,

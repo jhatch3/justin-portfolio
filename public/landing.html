@@ -93,42 +93,76 @@
      the script reads the same value. */
   html { scroll-behavior: smooth; scroll-padding-top: 80px; }
 
-  /* Mobile responsive overrides (≤768px). Inline-style padding wins over
-     normal CSS, so we use !important here to tighten things on phones. */
-  @media (max-width: 768px) {
-    section { padding-top: 40px !important; padding-bottom: 40px !important; }
-    #hero  { padding-top: 60px !important; padding-bottom: 90px !important; }
-    /* nav: hide section-anchor row, keep name + social icons */
-    .nav-sections { display: none !important; }
-    /* container side padding */
-    .container { padding-left: 16px !important; padding-right: 16px !important; }
-    /* push social icons right when section anchors are hidden */
-    .nav-icons { margin-left: auto !important; }
-    /* show hamburger on mobile */
-    .nav-hamburger { display: inline-flex !important; }
-    /* hero CTAs all stay on one line on mobile - tighten gap + button padding */
-    .hero-ctas { gap: 8px !important; flex-wrap: nowrap !important; }
-    .hero-ctas > a:first-child { padding-left: 18px !important; padding-right: 18px !important; }
-    .hero-ctas a[aria-label="Email"], .hero-ctas a[aria-label="Resume"],
-    .hero-ctas a[aria-label="LinkedIn"], .hero-ctas a[aria-label="GitHub"] {
-      width: 40px !important; height: 40px !important; flex-shrink: 0 !important;
-    }
-    /* "Interactive mode" is a secondary CTA - hide on mobile to make room for
-       the primary "Hire me" button + icon links. */
-    .hero-secondary-cta { display: none !important; }
-    /* hero photo smaller */
-    img[alt="Justin Hatch"] { width: 110px !important; height: 110px !important; }
-    /* Inter hero gap tightening */
-    #hero > .container > div { gap: 24px !important; }
+  /* ── Fluid layout ─────────────────────────────────────────────────────────
+     This used to be two breakpoints (768 and 480) doing all the work, which
+     meant a 320px phone and a 760px tablet were handed byte-identical padding,
+     and the 360-430px band where most phones actually live got one frozen
+     layout. Every dimension that should *scale* is now a single clamp() that
+     interpolates continuously from a 280px foldable to the 1040px container -
+     so there is no width at which the page is caught between two layouts.
+
+     Media queries are kept only for the handful of genuinely binary decisions
+     (is there a hamburger? is there room for the secondary CTA?), where there
+     is nothing to interpolate.
+
+     Still !important: the components below style themselves inline, and an
+     inline declaration outranks any normal rule in a stylesheet. */
+  :root {
+    --gutter:     clamp(14px, 4vw, 28px);   /* container side padding      */
+    --section-y:  clamp(34px, 8.5vw, 96px); /* vertical rhythm per section */
+    --hero-photo: clamp(104px, 26vw, 200px);
+    --hero-gap:   clamp(20px, 5vw, 48px);
+    --cta-icon:   clamp(36px, 10.5vw, 44px);
+    /* Corner offset shared by the chat launcher and its cue, so the pair stays
+       glued together and both clear the iOS home indicator. */
+    --fab-right:  calc(16px + env(safe-area-inset-right, 0px));
+    --fab-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
   }
+  .container { padding-left: var(--gutter) !important; padding-right: var(--gutter) !important; }
+  section:not(#hero) { padding-top: var(--section-y) !important; padding-bottom: var(--section-y) !important; }
+  /* The hero is sized by min-height, not padding: it only needs enough bottom
+     room to keep the scroll cue off the fold. */
+  #hero { padding-top: clamp(20px, 5vw, 40px) !important; padding-bottom: clamp(28px, 7vw, 40px) !important; }
+  #hero > .container > div { gap: var(--hero-gap) !important; }
+  /* Last section on the page - it doesn't need a full rhythm unit under it. */
+  #contact { padding-bottom: clamp(24px, 5vw, 40px) !important; }
+  img[alt="Justin Hatch"] { width: var(--hero-photo) !important; height: var(--hero-photo) !important; }
+  .hero-ctas a[aria-label] {
+    width: var(--cta-icon) !important; height: var(--cta-icon) !important; flex-shrink: 0 !important;
+  }
+
   /* Hamburger is hidden on desktop */
   .nav-hamburger { display: none; }
-  @media (max-width: 480px) {
-    section { padding-top: 32px !important; padding-bottom: 32px !important; }
-    .container { padding-left: 14px !important; padding-right: 14px !important; }
+  @media (max-width: 768px) {
+    /* nav: hide section-anchor row, keep name + social icons */
+    .nav-sections { display: none !important; }
+    /* push social icons right when section anchors are hidden */
+    .nav-icons { margin-left: auto !important; }
+    .nav-hamburger { display: inline-flex !important; }
+    /* "Interactive mode" is a secondary CTA, and the desktop sim it links to
+       is a poor fit for a phone - hide it and give the row to the primary
+       "Hire me" button plus the icon links. */
+    .hero-secondary-cta { display: none !important; }
+    .hero-ctas { gap: 8px !important; }
   }
-  /* Nothing should be able to push the page wider than the viewport. */
-  img, object, iframe, video, canvas, table { max-width: 100%; }
+  /* Below ~360px the name plus four nav targets stop fitting on one 60px row,
+     so the social icons step aside - they are repeated in the hero and again
+     in Contact, and the hamburger is the affordance that isn't. */
+  @media (max-width: 359px) {
+    .nav-icons { display: none !important; }
+  }
+
+  /* Nothing should be able to push the page wider than the viewport. Note what
+     is NOT here: an `overflow-x: clip/hidden` on html or body. Both were tried;
+     either one stops the nav from sticking (measured: header top went to
+     -1500px at scrollY 1500), because a clipped root is no longer the sticky
+     element's scrollport. Horizontal overflow is fixed at the cause instead -
+     fluid gutters, a hero column that can shrink, a CTA row that wraps - and
+     the responsive audit asserts scrollWidth === innerWidth at every size. */
+  img, object, iframe, video, canvas, table, pre { max-width: 100%; }
+  /* A long unbroken token (a URL in a bubble, a repo name) must wrap rather
+     than widen its container. */
+  body { overflow-wrap: break-word; }
 
   html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink-2);
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
@@ -271,6 +305,34 @@
     // Tiny shadcn-style class joiner (no tailwind-merge - keep it light).
     const cn = (...args) => args.flat().filter(Boolean).join(' ');
 
+    // ─── useMedia ─────────────────────────────────────────────────────────────
+    // Subscribes to a media query and re-renders on change. Layout decisions
+    // that CSS can't express - "render a different component", "don't attach
+    // this drag handler" - need the match in JS, and they need to survive a
+    // rotation or a resized window, not just the width the page happened to
+    // load at.
+    const useMedia = (query) => {
+      const [matches, setMatches] = React.useState(() => window.matchMedia(query).matches);
+      React.useEffect(() => {
+        const mq = window.matchMedia(query);
+        const onChange = (e) => setMatches(e.matches);
+        setMatches(mq.matches);
+        mq.addEventListener('change', onChange);
+        return () => mq.removeEventListener('change', onChange);
+      }, [query]);
+      return matches;
+    };
+
+    // A mouse, and a window big enough to park a floating panel beside the
+    // page. Everything else - phone, tablet, a laptop window dragged narrow -
+    // gets the touch-shaped treatment.
+    const POINTER_FINE = '(hover: hover) and (pointer: fine)';
+    // A panel on a phone, or on any window too short to hold one, is a
+    // full-screen sheet. 640px is where a 380px panel stops leaving usable
+    // page beside it; 520px tall is where a panel plus its launcher stops
+    // fitting above the fold at all (measured: landscape phones).
+    const SHEET_QUERY = '(max-width: 640px), (max-height: 520px)';
+
     // ─── useOutsideClick ─────────────────────────────────────────────────────
     const useOutsideClick = (ref, callback) => {
       React.useEffect(() => {
@@ -334,9 +396,15 @@
                   both visually covered AND non-clickable while a project is
                   open. */}
               <div className="fixed inset-0 bg-black/30 z-[60] animate-[fadeIn_0.18s_ease-out]" />
-              <div className="fixed inset-0 grid place-items-center z-[100] p-4">
+              <div className="fixed inset-0 grid place-items-center z-[100]" style={{
+                padding: 'max(12px, env(safe-area-inset-top, 0px)) max(12px, env(safe-area-inset-right, 0px)) max(12px, env(safe-area-inset-bottom, 0px)) max(12px, env(safe-area-inset-left, 0px))',
+              }}>
                 <div ref={ref} style={{
-                  width: '100%', maxWidth: 560, maxHeight: '90vh',
+                  width: '100%', maxWidth: 560,
+                  // vh on a phone means "viewport with the URL bar retracted",
+                  // so a 90vh card is taller than the screen the moment the bar
+                  // is showing. dvh is the height actually on screen right now.
+                  maxHeight: '90vh', maxBlockSize: '90dvh',
                   display: 'flex', flexDirection: 'column',
                   background: 'var(--surface)', borderRadius: 14, overflow: 'hidden',
                   border: '1px solid var(--border)', boxShadow: 'var(--shadow)',
@@ -346,7 +414,9 @@
                     <img src={active.image} alt={active.title} loading="lazy" decoding="async"
                       width="1200" height="800"
                       style={{
-                        display: 'block', width: '100%', height: 240,
+                        // A fixed 240px screenshot eats half a phone screen
+                        // before the text starts; scale it with the viewport.
+                        display: 'block', width: '100%', height: 'clamp(132px, 26vh, 240px)',
                         objectFit: 'cover', objectPosition: 'top',
                         borderBottom: '0.5px solid var(--border)', background: '#f0f3f8',
                       }} />
@@ -685,7 +755,12 @@
               width: 200, height: 200, borderRadius: 24, objectFit: 'cover',
               boxShadow: 'var(--shadow)',
             }} />
-            <div style={{ flex: 1, minWidth: 280 }}>
+            {/* minWidth is what makes the photo and the copy sit side by side
+                on a wide screen and stack on a narrow one - but a flat 280px
+                floor is wider than the content box on a 280px phone, and the
+                column then overflows the container and loses its side gutter
+                entirely. `min()` keeps the intent and lets it give way. */}
+            <div style={{ flex: 1, minWidth: 'min(280px, 100%)' }}>
               <h1 style={{ fontSize: 'clamp(36px, 5.5vw, 54px)', lineHeight: 1.05, marginBottom: 12 }}>
                 Hi, I'm {D.name.split(' ')[0]}.
               </h1>
@@ -788,7 +863,7 @@
 
     // ─── Writing ──────────────────────────────────────────────────────────────
     const Writing = () => (
-      <section id="writing" style={{ padding: '96px 0', animation: 'fadeUp 0.85s ease-out' }}>
+      <section id="writing" style={{ animation: 'fadeUp 0.85s ease-out' }}>
         <Container>
           <SectionHeader eyebrow="Writing" title="Notes & reports" />
           {/* Bare link rows - no card, no border, no background. Hover tints
@@ -832,29 +907,81 @@
     // Stands in for the old hand-built Experience timeline, so it sits first
     // (right under the hero) and keeps #experience as an alias anchor for any
     // existing inbound links to that section.
-    const ResumeEmbed = () => (
-      <section id="resume" style={{ padding: '96px 0', animation: 'fadeUp 0.8s ease-out' }}>
-        <span id="experience" aria-hidden="true" />
-        <Container>
-          <SectionHeader eyebrow="Resume" title="The full document" />
-          <div style={{
-            borderRadius: 14, overflow: 'hidden',
-            border: '1px solid var(--border)', boxShadow: 'var(--shadow)',
-            background: 'var(--surface)',
-          }}>
-            <object data="Resume.pdf" type="application/pdf" style={{ width: '100%', height: '85vh', display: 'block' }}>
-              <iframe src="Resume.pdf" style={{ width: '100%', height: '85vh', border: 0 }} title="Resume" />
-              <div style={{ padding: 32, textAlign: 'center' }}>
-                Your browser can't preview the PDF inline.{' '}
-                <a href="Resume.pdf" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent)' }}>Open it in a new tab</a>{' '}
-                or{' '}
-                <a href="Resume.pdf" download="Justin-Hatch-Resume.pdf" style={{ color: 'var(--accent)' }}>download the file</a>.
-              </div>
-            </object>
-          </div>
-        </Container>
-      </section>
-    );
+    // An <object data="*.pdf"> is a blank rectangle on every mobile browser -
+    // iOS Safari and Chrome for Android both decline to render PDFs inline, and
+    // the <object> fallback chain never fires because the element itself loads
+    // fine. The measured result was 85vh of empty white where the resume should
+    // be. So the embed is only offered where it actually works: a real pointer
+    // and enough width to read a Letter page. Everywhere else the section is a
+    // card that hands the file to the platform viewer, which on a phone is the
+    // better reading experience anyway.
+    const ResumeEmbed = () => {
+      const canEmbed = useMedia(`${POINTER_FINE} and (min-width: 860px)`);
+      return (
+        <section id="resume" style={{ animation: 'fadeUp 0.8s ease-out' }}>
+          <span id="experience" aria-hidden="true" />
+          <Container>
+            <SectionHeader eyebrow="Resume" title="The full document" />
+            <div style={{
+              borderRadius: 14, overflow: 'hidden',
+              border: '1px solid var(--border)', boxShadow: 'var(--shadow)',
+              background: 'var(--surface)',
+            }}>
+              {canEmbed ? (
+                <object data="Resume.pdf" type="application/pdf"
+                  style={{ width: '100%', height: '85vh', blockSize: 'min(85dvh, 1100px)', display: 'block' }}>
+                  <iframe src="Resume.pdf" style={{ width: '100%', height: '85vh', border: 0 }} title="Resume" />
+                  <div style={{ padding: 32, textAlign: 'center' }}>
+                    Your browser can't preview the PDF inline.{' '}
+                    <a href="Resume.pdf" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent)' }}>Open it in a new tab</a>{' '}
+                    or{' '}
+                    <a href="Resume.pdf" download="Justin-Hatch-Resume.pdf" style={{ color: 'var(--accent)' }}>download the file</a>.
+                  </div>
+                </object>
+              ) : (
+                <div style={{
+                  display: 'flex', alignItems: 'center', gap: 'clamp(12px, 4vw, 20px)',
+                  padding: 'clamp(16px, 5vw, 24px)', flexWrap: 'wrap',
+                }}>
+                  <div style={{
+                    width: 46, height: 56, borderRadius: 8, flexShrink: 0,
+                    display: 'grid', placeItems: 'center',
+                    background: 'rgba(29,78,216,0.08)', color: 'var(--accent)',
+                    border: '1px solid rgba(29,78,216,0.18)',
+                  }}>
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                      <polyline points="14 2 14 8 20 8"/>
+                      <line x1="16" y1="13" x2="8" y2="13"/>
+                      <line x1="16" y1="17" x2="8" y2="17"/>
+                    </svg>
+                  </div>
+                  <div style={{ flex: '1 1 180px', minWidth: 0 }}>
+                    <div style={{ fontSize: 15, fontWeight: 650, color: 'var(--ink)' }}>Justin-Hatch-Resume.pdf</div>
+                    <div style={{ fontSize: 13, color: 'var(--ink-3)', marginTop: 3, lineHeight: 1.45 }}>
+                      One page. Opens in your PDF viewer.
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', flex: '0 0 auto' }}>
+                    <a href="Resume.pdf" target="_blank" rel="noopener noreferrer" style={{
+                      display: 'inline-flex', alignItems: 'center', gap: 6, minHeight: 44,
+                      padding: '11px 18px', borderRadius: 999, fontSize: 14, fontWeight: 600,
+                      background: 'var(--accent)', color: '#fff', border: '1px solid var(--accent)',
+                    }}>Open resume</a>
+                    <a href="Resume.pdf" download="Justin-Hatch-Resume.pdf" style={{
+                      display: 'inline-flex', alignItems: 'center', gap: 6, minHeight: 44,
+                      padding: '11px 16px', borderRadius: 999, fontSize: 14, fontWeight: 600,
+                      background: 'var(--surface)', color: 'var(--ink-2)',
+                      border: '1px solid var(--border-strong)',
+                    }}>Download</a>
+                  </div>
+                </div>
+              )}
+            </div>
+          </Container>
+        </section>
+      );
+    };
 
     // ─── Contact ──────────────────────────────────────────────────────────────
     const Contact = () => {
@@ -869,7 +996,7 @@
           icon: <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg> },
       ];
       return (
-        <section id="contact" style={{ padding: '64px 0 32px', animation: 'fadeUp 0.95s ease-out' }}>
+        <section id="contact" style={{ animation: 'fadeUp 0.95s ease-out' }}>
           <Container>
             <SectionHeader eyebrow="Get in touch" title="Always up for talking applied AI." />
             {/* The icon row is the whole way in. Email still opens the chat
@@ -899,7 +1026,7 @@
 
     // ─── Education (flat card, no year-by-year) ─────────────────────────────
     const EducationSection = () => (
-      <section id="education" style={{ padding: '96px 0', animation: 'fadeUp 0.7s ease-out' }}>
+      <section id="education" style={{ animation: 'fadeUp 0.7s ease-out' }}>
         <Container>
           <SectionHeader eyebrow="Education" title="Education" />
           {/* Bare block - no card, no border, no background. */}
@@ -946,7 +1073,7 @@
 
     // ─── Projects (expandable card grid - the prior 'old way' format) ──────
     const ProjectsCardSection = () => (
-      <section id="projects" style={{ padding: '96px 0', animation: 'fadeUp 0.75s ease-out' }}>
+      <section id="projects" style={{ animation: 'fadeUp 0.75s ease-out' }}>
         <Container>
           <SectionHeader eyebrow="Selected Work" title="Projects" />
           <ProjectsList />
@@ -968,7 +1095,6 @@
       'rgba(20,52,140,1)',     // 4 - busiest days, deep navy-blue
     ];
     const ContributionGraph = () => {
-      const GAP = 3;
       const handle = ((D.links.github && D.links.github.label) || 'github.com/jhatch3')
         .replace(/^github\.com\//, '').replace(/\/$/, '');
       const githubHref = (D.links.github && D.links.github.href) || ('https://github.com/' + handle);
@@ -1016,8 +1142,30 @@
         return out;
       }, [data]);
 
+      // Fifty-three columns is a year, and a year does not fit on a phone: at
+      // 343px of usable width the gaps alone eat 156px and each square lands
+      // at 3.5px - a grey smear, not a calendar. So measure the box we were
+      // actually given and keep only as many of the most recent weeks as can
+      // render at a legible size. A phone gets a crisp six months; a desktop
+      // still gets the full year.
+      const boxRef = React.useRef(null);
+      const [boxW, setBoxW] = React.useState(0);
+      React.useEffect(() => {
+        const el = boxRef.current;
+        if (!el || typeof ResizeObserver === 'undefined') return;
+        const ro = new ResizeObserver(([e]) => setBoxW(e.contentRect.width));
+        ro.observe(el);
+        return () => ro.disconnect();
+      }, []);
+
+      const MIN_SQ = 7;   // below this the squares stop reading as squares
+      const GAP = boxW && boxW < 420 ? 2 : 3;
+      const fits = boxW ? Math.max(8, Math.floor((boxW + GAP) / (MIN_SQ + GAP))) : 53;
+
       const skeleton = !data && !failed;
-      const cols = skeleton ? Array.from({ length: 53 }) : weeks;
+      const allCols = skeleton ? Array.from({ length: 53 }) : weeks;
+      const cols = allCols.slice(Math.max(0, allCols.length - Math.min(fits, 53)));
+      const months = Math.round((cols.length / 53) * 12);
 
       // Fetch failed and nothing cached: render nothing rather than an empty frame.
       if (failed && !data) return null;
@@ -1025,11 +1173,14 @@
       // Just the squares. The whole grid is a subtle link to the GitHub profile.
       return (
         <a href={githubHref} target="_blank" rel="noopener noreferrer"
+           ref={boxRef}
            className="contrib-grid"
-           aria-label={data ? (data.total.toLocaleString() + ' GitHub contributions in the last year') : 'GitHub contributions'}
-           title="GitHub contributions · last 12 months"
+           aria-label={data
+             ? `GitHub contributions, last ${months} months (${data.total.toLocaleString()} in the last year)`
+             : 'GitHub contributions'}
+           title={`GitHub contributions · last ${months} months`}
            style={{
-             display: 'block', marginTop: 28, width: '100%',
+             display: 'block', marginTop: 'clamp(18px, 4vw, 28px)', width: '100%',
              opacity: skeleton ? 0.5 : 1, transition: 'opacity 0.3s',
              animation: 'fadeUp 0.6s ease-out',
            }}>
@@ -1055,22 +1206,43 @@
 
     // ─── Chat launcher ────────────────────────────────────────────────────────
     // Bottom-right bubble that opens the same bot Interactive mode runs
-    // (window.ChatApp, from js/chat-app.jsx). The panel is pinned to the
-    // bottom-right corner, so its top and left edges are the ones that resize:
-    // drag the left edge for width, the top edge for height, the corner for
-    // both. The size is clamped to the viewport and remembered across visits.
+    // (window.ChatApp, from js/chat-app.jsx).
+    //
+    // Two shapes, chosen by SHEET_QUERY rather than by a one-time width read,
+    // so rotating the phone re-picks:
+    //
+    //   Desktop - a floating panel pinned to the bottom-right corner. Its top
+    //     and left edges are the ones that move, so you drag the left edge for
+    //     width, the top edge for height, the corner for both. Size is
+    //     remembered across visits.
+    //   Phone / short window - a full-screen sheet. There is no room for a card
+    //     plus a launcher plus readable page behind it, the drag grips need a
+    //     mouse, and the software keyboard needs the whole height anyway.
     const CHAT_MIN = { w: 300, h: 320 };
     const CHAT_DEFAULT = { w: 380, h: 560 };
     const CHAT_SIZE_KEY = 'jh-chat-size';
     const CHAT_SEEN_KEY = 'jh-chat-seen';
+    const CHAT_MARGIN = 24;   // breathing room left of the panel
+    const CHAT_RESERVE = 100; // room above it for the launcher + page edge
 
-    const clampChat = ({ w, h }) => ({
-      w: Math.min(Math.max(w, CHAT_MIN.w), Math.max(CHAT_MIN.w, window.innerWidth - 32)),
-      h: Math.min(Math.max(h, CHAT_MIN.h), Math.max(CHAT_MIN.h, window.innerHeight - 112)),
-    });
+    // The viewport wins, always. The old version applied CHAT_MIN *after* the
+    // viewport cap - `Math.min(Math.max(w, MIN), Math.max(MIN, avail))` - which
+    // let the minimum beat the space available and pushed the panel off-screen:
+    // measured at x = -40 on a 280px-wide phone and y = -22 on a landscape
+    // phone, where the panel's own header and close button were cut off.
+    const clampChat = ({ w, h }) => {
+      const availW = Math.max(200, window.innerWidth - CHAT_MARGIN);
+      const availH = Math.max(240, window.innerHeight - CHAT_RESERVE);
+      return {
+        w: Math.min(Math.max(w, Math.min(CHAT_MIN.w, availW)), availW),
+        h: Math.min(Math.max(h, Math.min(CHAT_MIN.h, availH)), availH),
+      };
+    };
 
     const ChatLauncher = () => {
       const Bot = window.ChatApp;
+      const sheet = useMedia(SHEET_QUERY);
+      const finePointer = useMedia(POINTER_FINE);
       const [open, setOpen] = React.useState(false);
       // Mount on first open, then keep it mounted and just hide it, so closing
       // the panel doesn't throw away the conversation.
@@ -1100,12 +1272,45 @@
         try { localStorage.setItem(CHAT_SIZE_KEY, JSON.stringify(size)); } catch (_) {}
       }, [size]);
 
-      // A panel sized on a large window must not overflow a small one.
+      // A panel sized on a large window must not overflow a small one. Also
+      // fires on rotation, which is the case that used to leave the panel
+      // hanging off the top of a landscape phone.
       React.useEffect(() => {
         const onResize = () => setSize(s => clampChat(s));
         window.addEventListener('resize', onResize);
-        return () => window.removeEventListener('resize', onResize);
+        window.addEventListener('orientationchange', onResize);
+        return () => {
+          window.removeEventListener('resize', onResize);
+          window.removeEventListener('orientationchange', onResize);
+        };
       }, []);
+
+      // ── Software keyboard ──────────────────────────────────────────────────
+      // A `position: fixed` element is laid out against the *layout* viewport,
+      // which iOS does not shrink when the keyboard comes up - so a sheet
+      // pinned to inset:0 keeps its full height and the composer ends up
+      // underneath the keys. visualViewport reports the part actually on
+      // screen; the sheet follows it.
+      const [vv, setVv] = React.useState(null);
+      React.useEffect(() => {
+        const v = window.visualViewport;
+        if (!v) return;
+        const sync = () => setVv({ h: v.height, top: v.offsetTop });
+        sync();
+        v.addEventListener('resize', sync);
+        v.addEventListener('scroll', sync);
+        return () => { v.removeEventListener('resize', sync); v.removeEventListener('scroll', sync); };
+      }, []);
+
+      // The page must not scroll under an open sheet - on touch the sheet
+      // covers everything, so any movement behind it is just the page getting
+      // lost while you type.
+      React.useEffect(() => {
+        if (!(open && sheet)) return;
+        const prev = document.body.style.overflow;
+        document.body.style.overflow = 'hidden';
+        return () => { document.body.style.overflow = prev; };
+      }, [open, sheet]);
 
       React.useEffect(() => {
         const onOpenChat = (e) => {
@@ -1128,10 +1333,14 @@
         return () => window.removeEventListener('keydown', onKey);
       }, [open]);
 
-      // Reopening keeps the thread, so put the caret back in the composer.
+      // Reopening keeps the thread, so put the caret back in the composer -
+      // but only where a caret is cheap. On a phone, focusing the composer
+      // throws the software keyboard up over half the screen before the
+      // visitor has decided they want to type, and iOS scrolls the page to
+      // chase the focused element on the way.
       React.useEffect(() => {
-        if (open) panelRef.current?.querySelector('textarea')?.focus();
-      }, [open]);
+        if (open && finePointer) panelRef.current?.querySelector('textarea')?.focus();
+      }, [open, finePointer]);
 
       const markSeen = () => {
         setSeen(true);
@@ -1158,7 +1367,11 @@
         e.currentTarget.releasePointerCapture?.(e.pointerId);
       };
 
-      const grip = (axis, style, cursor, label) => (
+      // Drag grips are mouse-only furniture, and on a phone they were actively
+      // harmful: three `touch-action: none` strips down the left and top edges
+      // of a panel that spans almost the whole screen, swallowing taps and
+      // turning an attempted scroll into a resize.
+      const grip = (axis, style, cursor, label) => finePointer && !sheet ? (
         <div
           onPointerDown={startResize(axis)}
           onPointerMove={onResizeMove}
@@ -1167,7 +1380,7 @@
           aria-label={label}
           style={{ position: 'absolute', touchAction: 'none', cursor, zIndex: 2, ...style }}
         />
-      );
+      ) : null;
 
       // Keyboard equivalent of dragging a corner: full size, or back again.
       const big = clampChat({ w: 860, h: 10000 });
@@ -1190,7 +1403,12 @@
       // aria-hidden (the button has its own label) and pointer-events: none.
       const cue = !open && !seen && (
         <div aria-hidden="true" style={{
-          position: 'fixed', right: -32, bottom: -32, zIndex: 62,
+          // Centred on the launcher, which itself sits inside the safe area -
+          // so the pair stays glued together on a notched phone instead of the
+          // type drifting off the button.
+          position: 'fixed', zIndex: 62,
+          // 160/2 - 56/2 = 52: line the cue's centre up with the button's.
+          right: 'calc(var(--fab-right) - 52px)', bottom: 'calc(var(--fab-bottom) - 52px)',
           width: 160, height: 160, pointerEvents: 'none',
           animation: 'chatCueIn 0.5s ease-out 1.4s both',
         }}>
@@ -1223,39 +1441,72 @@
             @keyframes chatCueIn    { from { opacity: 0 } to { opacity: 1 } }
             @keyframes chatCueSweep { from { stroke-dashoffset: 15 } to { stroke-dashoffset: -73 } }
             @keyframes chatCueSwing { 0%, 100% { transform: rotate(-3.5deg) } 50% { transform: rotate(3.5deg) } }
+            /* Lift on hover - but only where hovering is a thing. On touch,
+               :hover latches after a tap and the button stays shoved up 2px
+               until you tap something else. */
+            .chat-fab { transition: transform 0.15s, box-shadow 0.15s; }
+            @media (hover: hover) and (pointer: fine) {
+              .chat-fab:hover { transform: translateY(-2px); }
+            }
           `}</style>
           {cue}
           {mounted && (
             <div
               ref={panelRef}
               role="dialog"
+              aria-modal={sheet ? 'true' : undefined}
               aria-label="Chat with Justin's bot"
               style={{
-                position: 'fixed', right: 20, bottom: 92, zIndex: 60,
-                width: size.w, height: size.h,
+                position: 'fixed', zIndex: 60,
                 display: open ? 'block' : 'none',
-                borderRadius: 16, overflow: 'hidden',
-                border: '1px solid var(--border-strong)',
-                boxShadow: '0 2px 6px rgba(10,37,64,0.06), 0 18px 48px rgba(10,37,64,0.18)',
                 background: 'var(--surface)',
+                ...(sheet ? {
+                  // Full-screen sheet. Height follows the visual viewport so
+                  // the composer stays above the software keyboard; `top`
+                  // follows its offset so it stays put while iOS scrolls the
+                  // visual viewport around underneath.
+                  left: 0, right: 0,
+                  top: vv ? vv.top : 0,
+                  height: vv ? vv.h : '100vh',
+                  blockSize: vv ? vv.h : '100dvh',
+                  paddingTop: 'env(safe-area-inset-top, 0px)',
+                  paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+                  borderRadius: 0, border: 0, overflow: 'hidden',
+                } : {
+                  right: 20, bottom: 92,
+                  width: size.w, height: size.h,
+                  borderRadius: 16, overflow: 'hidden',
+                  border: '1px solid var(--border-strong)',
+                  boxShadow: '0 2px 6px rgba(10,37,64,0.06), 0 18px 48px rgba(10,37,64,0.18)',
+                }),
               }}
             >
               {grip('both', { left: 0, top: 0, width: 16, height: 16 }, 'nwse-resize', 'Resize chat width and height')}
               {grip('x', { left: 0, top: 16, bottom: 0, width: 7 }, 'ew-resize', 'Resize chat width')}
               {grip('y', { top: 0, left: 16, right: 0, height: 7 }, 'ns-resize', 'Resize chat height')}
 
-              <div style={{ position: 'absolute', top: 12, right: 12, zIndex: 3, display: 'flex', gap: 6 }}>
-                <button onClick={toggleSize} style={chromeBtn}
-                  title={maximized ? 'Shrink chat' : 'Expand chat'}
-                  aria-label={maximized ? 'Shrink chat' : 'Expand chat'}>
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                    {maximized
-                      ? <><polyline points="9 4 9 9 4 9" /><polyline points="15 20 15 15 20 15" /></>
-                      : <><polyline points="15 4 20 4 20 9" /><polyline points="9 20 4 20 4 15" /></>}
-                  </svg>
-                </button>
-                <button onClick={() => setOpen(false)} style={chromeBtn} title="Close chat" aria-label="Close chat">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
+              {/* Window chrome, floating over the bot's own header. On a sheet
+                  there is no size to toggle (it is already the screen) and the
+                  close button is the only way out, so it gets a 40px target
+                  instead of a 26px one. */}
+              <div style={{
+                position: 'absolute', zIndex: 3, display: 'flex', gap: 6,
+                top: `calc(${sheet ? 14 : 12}px + env(safe-area-inset-top, 0px))`, right: 12,
+              }}>
+                {!sheet && (
+                  <button onClick={toggleSize} style={chromeBtn}
+                    title={maximized ? 'Shrink chat' : 'Expand chat'}
+                    aria-label={maximized ? 'Shrink chat' : 'Expand chat'}>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      {maximized
+                        ? <><polyline points="9 4 9 9 4 9" /><polyline points="15 20 15 15 20 15" /></>
+                        : <><polyline points="15 4 20 4 20 9" /><polyline points="9 20 4 20 4 15" /></>}
+                    </svg>
+                  </button>
+                )}
+                <button onClick={() => setOpen(false)} title="Close chat" aria-label="Close chat"
+                  style={sheet ? { ...chromeBtn, width: 40, height: 40, borderRadius: 12 } : chromeBtn}>
+                  <svg width={sheet ? 18 : 13} height={sheet ? 18 : 13} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
                     <path d="M6 6l12 12M18 6L6 18" />
                   </svg>
                 </button>
@@ -1272,21 +1523,27 @@
             </div>
           )}
 
+          {/* While the sheet is open it covers the whole screen, so a launcher
+              floating on top of it is just a second close button sitting over
+              the composer - and a second element labelled "Close chat". Drop it
+              from the tree entirely rather than hiding it; the sheet's own close
+              button is the way out. */}
+          {!(sheet && open) && (
           <button
+            className="chat-fab"
             onClick={toggle}
             aria-expanded={open}
             title={open ? 'Close chat' : "Chat with Justin's bot"}
             aria-label={open ? 'Close chat' : "Chat with Justin's bot"}
             style={{
-              position: 'fixed', right: 20, bottom: 20, zIndex: 61,
+              position: 'fixed', zIndex: 61,
+              right: 'var(--fab-right)', bottom: 'var(--fab-bottom)',
+              display: 'flex',
               width: 56, height: 56, borderRadius: '50%', border: 0, cursor: 'pointer',
               background: 'var(--accent)', color: '#fff',   // same blue as Hire me
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              alignItems: 'center', justifyContent: 'center',
               boxShadow: '0 10px 26px rgba(29,78,216,0.32)',
-              transition: 'transform 0.15s, box-shadow 0.15s',
             }}
-            onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
-            onMouseLeave={(e) => { e.currentTarget.style.transform = 'none'; }}
           >
             {open ? (
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
@@ -1301,6 +1558,7 @@
               </svg>
             )}
           </button>
+          )}
         </>
       );
     };
