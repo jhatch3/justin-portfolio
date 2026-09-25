@@ -711,51 +711,49 @@ const D = window.JH_DATA;
                 </object>
               ) : (
                 <div style={{
-                  display: 'flex', alignItems: 'center', gap: 'clamp(12px, 4vw, 20px)',
-                  padding: 'clamp(16px, 5vw, 24px)', flexWrap: 'wrap',
+                  display: 'flex', alignItems: 'center', gap: 6,
+                  padding: 'clamp(14px, 4vw, 20px) clamp(14px, 4vw, 22px)',
                 }}>
-                  {/* The glyph stands on its own. It used to sit in a tinted
-                      chip, which put a box inside a card for no reason the
-                      reader could act on. Bigger to hold the same weight
-                      without the chip behind it. Decorative: the filename
-                      beside it is what carries the meaning. */}
-                  <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                    strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"
-                    style={{ color: 'var(--accent)', flexShrink: 0 }}>
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                    <polyline points="14 2 14 8 20 8"/>
-                    <line x1="16" y1="13" x2="8" y2="13"/>
-                    <line x1="16" y1="17" x2="8" y2="17"/>
-                  </svg>
-                  <div style={{ flex: '1 1 140px', minWidth: 0 }}>
-                    <div style={{ fontSize: 15, fontWeight: 650, color: 'var(--ink)' }}>Justin-Hatch-Resume.pdf</div>
-                  </div>
-                  {/* Bare accent links, the same treatment the project modal
-                      already uses for GitHub and Write-up. The pills were the
-                      only two on the page and read as heavier than the thing
-                      they open. */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 4, flex: '0 0 auto' }}>
-                    <a href="Resume.pdf" target="_blank" rel="noopener noreferrer" style={{
-                      display: 'inline-flex', alignItems: 'center', gap: 6,
-                      minHeight: 44, padding: '0 8px',
-                      fontSize: 14.5, fontWeight: 600, color: 'var(--accent)',
-                    }}>Open resume</a>
-                    {/* Icon only, so it keeps an explicit name for anyone who
-                        can't see it, and a full 44px target for anyone using a
-                        thumb. */}
-                    <a href="Resume.pdf" download="Justin-Hatch-Resume.pdf"
-                      title="Download resume" aria-label="Download resume" style={{
-                      display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                      width: 44, height: 44, color: 'var(--accent)',
-                    }}>
-                      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                        strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                        <path d="M12 3v12"/>
-                        <polyline points="7.5 10.5 12 15 16.5 10.5"/>
-                        <path d="M4 17v2.5A1.5 1.5 0 0 0 5.5 21h13a1.5 1.5 0 0 0 1.5-1.5V17"/>
-                      </svg>
-                    </a>
-                  </div>
+                  {/* The filename is the link. A separate "Open resume"
+                      button next to a filename was two things naming the same
+                      document, and the filename is the one a reader was
+                      already looking at. The glyph is inside the link so the
+                      whole thing is one target rather than a decoration with
+                      a hotspot beside it. */}
+                  <a href="Resume.pdf" target="_blank" rel="noopener noreferrer" style={{
+                    display: 'inline-flex', alignItems: 'center', minHeight: 44,
+                    gap: 'clamp(9px, 3vw, 13px)', minWidth: 0, flex: '0 1 auto',
+                    color: 'var(--accent)',
+                  }}>
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                      strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"
+                      style={{ flexShrink: 0 }}>
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                      <polyline points="14 2 14 8 20 8"/>
+                      <line x1="16" y1="13" x2="8" y2="13"/>
+                      <line x1="16" y1="17" x2="8" y2="17"/>
+                    </svg>
+                    {/* Ellipsis rather than a wrap: a filename broken across
+                        two lines stops looking like a filename. */}
+                    <span style={{
+                      fontSize: 'clamp(13px, 3.9vw, 15.5px)', fontWeight: 650, letterSpacing: '-0.01em',
+                      overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                    }}>Justin-Hatch-Resume.pdf</span>
+                  </a>
+                  {/* Icon only, so it carries an explicit name for anyone who
+                      can't see it, and a full 44px box for a thumb. */}
+                  <a href="Resume.pdf" download="Justin-Hatch-Resume.pdf"
+                    title="Download resume" aria-label="Download resume" style={{
+                    display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                    width: 44, height: 44, flexShrink: 0, color: 'var(--accent)',
+                  }}>
+                    <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                      strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <path d="M12 3v12"/>
+                      <polyline points="7.5 10.5 12 15 16.5 10.5"/>
+                      <path d="M4 17v2.5A1.5 1.5 0 0 0 5.5 21h13a1.5 1.5 0 0 0 1.5-1.5V17"/>
+                    </svg>
+                  </a>
                 </div>
               )}
             </div>
