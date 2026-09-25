@@ -134,32 +134,48 @@
   // from primitives rather than an image so it stays crisp at any size, takes
   // the palette with it, and costs nothing to load.
   //
-  // The proportions are the boring ones on purpose - eyes on the horizontal
-  // midline, mouth one eye-width below - because that IS the average; anything
-  // more characterful would read as somebody instead of anybody.
-  const Avatar = ({ c, size = 44, ring = true }) => (
-    <div style={{
-      width: size, height: size, borderRadius: '50%', flexShrink: 0,
-      background: c.avatarBg, color: c.avatarInk,
-      boxShadow: ring ? `0 0 0 0.5px ${c.avatarRing}, 0 1px 3px rgba(10,37,64,0.14)` : 'none',
-      display: 'grid', placeItems: 'center', overflow: 'hidden',
-    }}>
-      <svg viewBox="0 0 48 48" width={size} height={size} aria-hidden="true"
-        style={{ display: 'block' }}>
-        {/* head */}
-        <circle cx="24" cy="21.5" r="9.4" fill="currentColor" opacity="0.95" />
-        {/* shoulders - a capsule cropped by the avatar's own circle */}
-        <path d="M6.5 48c0-9.9 7.8-14.6 17.5-14.6S41.5 38.1 41.5 48z"
-          fill="currentColor" opacity="0.95" />
-        {/* Eyes on the midline, one eye-width apart, and a gentle arc for a
-            mouth. Drawn at full strength rather than a whisper: this is only
-            ever rendered at 32-40px, and at that size anything subtler stops
-            resolving as a face and goes back to being a silhouette. */}
-        <circle cx="20.6" cy="20.3" r="1.6" fill="#16203a" opacity="0.92" />
-        <circle cx="27.4" cy="20.3" r="1.6" fill="#16203a" opacity="0.92" />
-        <path d="M20.8 25.1c1.5 1.5 4.9 1.5 6.4 0" fill="none"
-          stroke="#16203a" strokeOpacity="0.8" strokeWidth="1.5" strokeLinecap="round" />
-      </svg>
+  // The proportions are the boring ones on purpose: eyes on the horizontal
+  // midline, mouth one eye-width below. That IS the average. Anything more
+  // characterful would read as somebody instead of anybody.
+  //
+  // It also breathes and blinks. A face that holds perfectly still reads as a
+  // logo; a slow scale and an occasional blink are the two cheapest signals
+  // that there is someone home. Both are tiny on purpose. The point is to be
+  // felt rather than watched, and all of it stops under prefers-reduced-motion.
+  const Avatar = ({ c, size = 44, ring = true, thinking = false }) => (
+    <div style={{ position: 'relative', width: size, height: size, flexShrink: 0 }}>
+      {/* A halo that only exists while the bot is composing. It reads as
+          "something is happening in there" without a spinner, which would
+          look like the page was loading rather than the person was thinking. */}
+      {thinking && (
+        <span className="jh-halo" aria-hidden="true" style={{
+          position: 'absolute', inset: -3, borderRadius: '50%',
+          border: `2px solid ${c.dot}`, pointerEvents: 'none',
+        }} />
+      )}
+      <div className={`jh-avatar${thinking ? ' jh-avatar-live' : ''}`} style={{
+        width: size, height: size, borderRadius: '50%',
+        background: c.avatarBg, color: c.avatarInk,
+        boxShadow: ring ? `0 0 0 0.5px ${c.avatarRing}, 0 1px 3px rgba(10,37,64,0.14)` : 'none',
+        display: 'grid', placeItems: 'center', overflow: 'hidden',
+      }}>
+        <svg viewBox="0 0 48 48" width={size} height={size} aria-hidden="true"
+          style={{ display: 'block' }}>
+          {/* head */}
+          <circle cx="24" cy="21.5" r="9.4" fill="currentColor" opacity="0.95" />
+          {/* shoulders, a capsule cropped by the avatar's own circle */}
+          <path d="M6.5 48c0-9.9 7.8-14.6 17.5-14.6S41.5 38.1 41.5 48z"
+            fill="currentColor" opacity="0.95" />
+          {/* Eyes on the midline, one eye-width apart, and a gentle arc for a
+              mouth. Drawn at full strength rather than a whisper: this is only
+              ever rendered at 32-40px, and at that size anything subtler stops
+              resolving as a face and goes back to being a silhouette. */}
+          <circle className="jh-eye" cx="20.6" cy="20.3" r="1.6" fill="#16203a" opacity="0.92" />
+          <circle className="jh-eye" cx="27.4" cy="20.3" r="1.6" fill="#16203a" opacity="0.92" />
+          <path d="M20.8 25.1c1.5 1.5 4.9 1.5 6.4 0" fill="none"
+            stroke="#16203a" strokeOpacity="0.8" strokeWidth="1.5" strokeLinecap="round" />
+        </svg>
+      </div>
     </div>
   );
 
@@ -277,18 +293,18 @@
   // ordinary question, so the bot answers them in its own voice - the visitor
   // sees what they typed, the model sees the question.
   const HELP_TEXT = [
-    'Shortcuts, if you would rather point than type:',
+    'Shortcuts, if you\'d rather point than type:',
     '',
-    '- **/projects** - what he built, and which repo to open first',
-    '- **/experience** - roles, companies, what actually shipped',
-    '- **/skills** - languages, frameworks, the AI/ML stack',
-    '- **/now** - what he is in the middle of this month',
-    '- **/hire** - why he might fit your role, and how to reach him',
-    '- **/resume** - the PDF',
-    '- **/contact** - write to him right here, no mail client required',
-    '- **/examples** - questions I answer well',
+    '- **/projects** what he built, and where to start',
+    '- **/experience** roles, companies, what shipped',
+    '- **/skills** languages, frameworks, the AI/ML stack',
+    '- **/now** what he\'s in the middle of',
+    '- **/hire** why he might fit, and how to reach him',
+    '- **/resume** the PDF',
+    '- **/contact** write to him right here',
+    '- **/examples** questions I answer well',
     '',
-    'Or just ask in your own words. That works better anyway.',
+    'Or just ask. That works better anyway.',
   ].join('\n');
 
   // Every one of these is answerable straight from the ground-truth block, which
@@ -303,16 +319,16 @@
     'Is he open to new roles?',
     'Tell me something surprising about him.',
   ];
-  const EXAMPLES_TEXT = 'These I can answer properly, chapter and verse:';
+  const EXAMPLES_TEXT = 'These I can answer properly:';
 
   // The expansions ask for brevity: a shortcut should land a skimmable answer,
   // not the longest one the question could support.
   const COMMANDS = {
-    '/projects': 'What has Justin built? Which project should I look at first? Keep it brief.',
+    '/projects': 'What has Justin built, and which project should I look at first? Keep it brief.',
     '/experience': "Walk me through Justin's work experience, briefly.",
     '/skills': "What are Justin's main skills, and what does he use them for? A short list is fine.",
     '/now': 'What is Justin working on right now? One or two sentences.',
-    '/hire': "I'm hiring. Why might Justin fit the role, and how do I reach him? Keep it short.",
+    '/hire': "I'm hiring. Why might Justin fit, and how do I reach him? Keep it short.",
     '/resume': "Where can I find Justin's resume?",
   };
   const HELP_ALIASES = ['/help', '/commands', '/?', 'help'];
@@ -440,7 +456,7 @@
     // and the CSS never disagree about which size the chat is running at.
     const narrow = useMedia('(pointer: coarse), (max-width: 640px)');
     const [messages, setMessages] = React.useState([
-      { role: 'assistant', local: true, content: "Hey - I'm Justin's bot. He built me to answer for him, which tells you something about him already.\n\nAsk me about his work, his projects, or what he's after next. Type **/help** if you'd rather browse." },
+      { role: 'assistant', local: true, content: "Hey. I'm Justin's bot. He built me to answer for him, which probably tells you something.\n\nAsk me anything about his work. Or type **/help** if you'd rather browse." },
     ]);
     const [input, setInput] = React.useState('');
     const [sending, setSending] = React.useState(false);
@@ -507,7 +523,7 @@
         setForm(null);
         setMessages(prev => [...prev, {
           role: 'assistant', local: true,
-          content: `Off it goes. He has it, and he'll reply to **${payload.email}**.\n\nAnything else while you're here?`,
+          content: `Off it goes. He'll reply to **${payload.email}**.\n\nAnything else while you're here?`,
         }]);
       } catch (e) {
         const why = /Failed to fetch|timed out|aborted/i.test(e?.message || '')
@@ -536,7 +552,7 @@
       if (HELP_ALIASES.includes(cmd)) { localReply(HELP_TEXT); return; }
       if (EXAMPLE_ALIASES.includes(cmd)) { localReply(EXAMPLES_TEXT, 'examples'); return; }
       if (CONTACT_ALIASES.includes(cmd)) {
-        localReply("Happily - fill this in and it goes straight to him.");
+        localReply("Happily. Fill this in and it goes straight to him.");
         openComposer('chat');
         return;
       }
@@ -669,6 +685,32 @@
           }
           @keyframes chatDots  { 0%, 60%, 100% { transform: translateY(0); opacity: 0.45 }
                                  30% { transform: translateY(-3px); opacity: 1 } }
+
+          /* ── The face is alive ──────────────────────────────────────────
+             Three signals, all deliberately small. A slow breath so it is
+             never perfectly still, a blink on a slightly off interval so it
+             never looks metronomic, and a halo that only appears while the
+             bot is actually composing a reply. */
+          @keyframes jhBreathe { 0%, 100% { transform: scale(1) }
+                                 50%      { transform: scale(1.03) } }
+          /* 96% of the cycle open, then shut and back. Fast, because a slow
+             blink looks like the thing is falling asleep. */
+          @keyframes jhBlink   { 0%, 93%, 100% { transform: scaleY(1) }
+                                 96%           { transform: scaleY(0.08) } }
+          @keyframes jhHalo    { 0%   { transform: scale(1);    opacity: 0.5 }
+                                 100% { transform: scale(1.55); opacity: 0 } }
+
+          .jh-avatar { animation: jhBreathe 4.6s ease-in-out infinite; will-change: transform; }
+          /* Thinking quickens the breath. Nobody will name it; everybody
+             registers it. */
+          .jh-avatar-live { animation-duration: 2.1s; }
+          .jh-halo { animation: jhHalo 1.7s ease-out infinite; }
+          /* transform-box makes the eye's own bounding box the origin, so the
+             lid closes over the pupil instead of the SVG rotating about 0,0. */
+          .jh-eye {
+            transform-box: fill-box; transform-origin: center;
+            animation: jhBlink 5.4s ease-in-out infinite;
+          }
           @keyframes chatIn    { from { opacity: 0; transform: translateY(6px) scale(0.97) }
                                  to   { opacity: 1; transform: none } }
           .jh-chat-ta-${theme}::placeholder { color: ${c.placeholder}; }
@@ -717,6 +759,11 @@
             .jh-chat-bub-${theme}, .jh-chat-chip-${theme}, .jh-chat-send-${theme} {
               animation-duration: 0.01ms !important; transition-duration: 0.01ms !important;
             }
+            /* The face holds still. Breathing and blinking are charm, and
+               charm is exactly what someone asking for reduced motion has
+               said they do not want. */
+            .jh-avatar, .jh-eye { animation: none !important; }
+            .jh-halo { animation: none !important; opacity: 0.4; }
           }
 
           /* Touch sizing.
@@ -754,7 +801,7 @@
           backdropFilter: 'blur(20px) saturate(180%)',
           WebkitBackdropFilter: 'blur(20px) saturate(180%)',
         }}>
-          <Avatar c={c} size={40} />
+          <Avatar c={c} size={40} thinking={sending} />
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, minWidth: 0 }}>
             <div style={{
               fontSize: 13.5, fontWeight: 650, color: c.titleText,
