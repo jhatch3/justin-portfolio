@@ -1,0 +1,7 @@
+{
+  "source": "Resume.pdf",
+  "sha256": "40fa1a73516f72fbd66ffd9ff19e97bfa6be131503f1b3d9fd62b435f680b8b9",
+  "width": 1100,
+  "height": 1423,
+  "note": "Rendered from page 1. Regenerate whenever Resume.pdf changes; server/build.mjs warns if this hash drifts."
+}

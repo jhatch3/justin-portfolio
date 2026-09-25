@@ -309,6 +309,26 @@ const D = window.JH_DATA;
     };
     // ─── /FlipWords ──────────────────────────────────────────────────────────
 
+    // ─── useNear ──────────────────────────────────────────────────────────────
+    // True once the element is within `margin` of the viewport, then stays
+    // true. loading="lazy" hands the threshold to the browser, and Chrome's is
+    // wide enough that anything this close to the fold loads immediately, so
+    // the deferral has to be explicit to actually happen.
+    const useNear = (ref, margin = '500px') => {
+      const [near, setNear] = React.useState(false);
+      React.useEffect(() => {
+        const el = ref.current;
+        if (!el || near) return;
+        if (typeof IntersectionObserver === 'undefined') { setNear(true); return; }
+        const io = new IntersectionObserver(([e]) => {
+          if (e.isIntersecting) { setNear(true); io.disconnect(); }
+        }, { rootMargin: margin });
+        io.observe(el);
+        return () => io.disconnect();
+      }, [ref, margin, near]);
+      return near;
+    };
+
     // ─── Captions ─────────────────────────────────────────────────────────────
     // Every small grey caption on this page used to be JetBrains Mono: the
     // scroll cue, the sector tags, the writing dates, the graduation line. A
@@ -688,6 +708,8 @@ const D = window.JH_DATA;
     // better reading experience anyway.
     const ResumeEmbed = () => {
       const canEmbed = useMedia(`${POINTER_FINE} and (min-width: 860px)`);
+      const pageRef = React.useRef(null);
+      const pageNear = useNear(pageRef);
       return (
         <section id="resume" style={{ animation: 'fadeUp 0.8s ease-out' }}>
           <span id="experience" aria-hidden="true" />
@@ -710,50 +732,75 @@ const D = window.JH_DATA;
                   </div>
                 </object>
               ) : (
-                <div style={{
-                  display: 'flex', alignItems: 'center', gap: 6,
-                  padding: 'clamp(14px, 4vw, 20px) clamp(14px, 4vw, 22px)',
-                }}>
-                  {/* The filename is the link. A separate "Open resume"
-                      button next to a filename was two things naming the same
-                      document, and the filename is the one a reader was
-                      already looking at. The glyph is inside the link so the
-                      whole thing is one target rather than a decoration with
-                      a hotspot beside it. */}
-                  <a href="Resume.pdf" target="_blank" rel="noopener noreferrer" style={{
-                    display: 'inline-flex', alignItems: 'center', minHeight: 44,
-                    gap: 'clamp(9px, 3vw, 13px)', minWidth: 0, flex: '0 1 auto',
-                    color: 'var(--accent)',
-                  }}>
-                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                      strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"
-                      style={{ flexShrink: 0 }}>
-                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                      <polyline points="14 2 14 8 20 8"/>
-                      <line x1="16" y1="13" x2="8" y2="13"/>
-                      <line x1="16" y1="17" x2="8" y2="17"/>
-                    </svg>
-                    {/* Ellipsis rather than a wrap: a filename broken across
-                        two lines stops looking like a filename. */}
-                    <span style={{
-                      fontSize: 'clamp(13px, 3.9vw, 15.5px)', fontWeight: 650, letterSpacing: '-0.01em',
-                      overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                    }}>Justin-Hatch-Resume.pdf</span>
+                <div>
+                  {/* The page itself, inline.
+                      A native embed was tried and measured: <object data=*.pdf>
+                      renders as a blank rectangle on iOS Safari and Chrome for
+                      Android, and its fallback chain never fires because the
+                      element loads fine. The other option was PDF.js, which is
+                      ~350KB of renderer to draw one page.
+                      So the page is rendered to an image once, at build time
+                      rather than on every visit. It is one page, so one image.
+                      Lazy, because this sits well below the fold: the initial
+                      load does not pay for it, and nothing above it shifts
+                      because the intrinsic size is declared. */}
+                  <a href="Resume.pdf" target="_blank" rel="noopener noreferrer" ref={pageRef}
+                    aria-label="Open Justin-Hatch-Resume.pdf" style={{ display: 'block' }}>
+                    {pageNear ? (
+                      // fetchPriority low: the top edge of this section is on
+                      // screen at scroll 0, so the observer fires right away and
+                      // deferring cannot help. What it must not do is compete
+                      // with the hero image and the font for early bandwidth.
+                      <img src="resume-page.webp" width="1100" height="1423"
+                        decoding="async" fetchPriority="low"
+                        alt="Preview of Justin Hatch's one-page resume"
+                        style={{ display: 'block', width: '100%', height: 'auto', background: '#fff' }} />
+                    ) : (
+                      // Holds the exact space the page will take, so arriving
+                      // at it shifts nothing.
+                      <div aria-hidden="true" style={{
+                        width: '100%', aspectRatio: '1100 / 1423', background: '#fff',
+                      }} />
+                    )}
                   </a>
-                  {/* Icon only, so it carries an explicit name for anyone who
-                      can't see it, and a full 44px box for a thumb. */}
-                  <a href="Resume.pdf" download="Justin-Hatch-Resume.pdf"
-                    title="Download resume" aria-label="Download resume" style={{
-                    display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                    width: 44, height: 44, flexShrink: 0, color: 'var(--accent)',
+                  {/* The caption names the file and offers the copy you keep.
+                      The preview above is the thing you read; this is the thing
+                      you act on. */}
+                  <div style={{
+                    display: 'flex', alignItems: 'center', gap: 6,
+                    padding: '6px clamp(10px, 3vw, 14px)',
+                    borderTop: '1px solid var(--border)',
                   }}>
-                    <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                      strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                      <path d="M12 3v12"/>
-                      <polyline points="7.5 10.5 12 15 16.5 10.5"/>
-                      <path d="M4 17v2.5A1.5 1.5 0 0 0 5.5 21h13a1.5 1.5 0 0 0 1.5-1.5V17"/>
-                    </svg>
-                  </a>
+                    <a href="Resume.pdf" target="_blank" rel="noopener noreferrer" style={{
+                      display: 'inline-flex', alignItems: 'center', minHeight: 44,
+                      gap: 8, minWidth: 0, flex: '0 1 auto', color: 'var(--accent)',
+                    }}>
+                      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"
+                        style={{ flexShrink: 0 }}>
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                        <line x1="16" y1="13" x2="8" y2="13"/>
+                        <line x1="16" y1="17" x2="8" y2="17"/>
+                      </svg>
+                      <span style={{
+                        fontSize: 'clamp(12.5px, 3.6vw, 14px)', fontWeight: 600,
+                        overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                      }}>Justin-Hatch-Resume.pdf</span>
+                    </a>
+                    <a href="Resume.pdf" download="Justin-Hatch-Resume.pdf"
+                      title="Download resume" aria-label="Download resume" style={{
+                      display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                      width: 44, height: 44, flexShrink: 0, color: 'var(--accent)',
+                    }}>
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                        <path d="M12 3v12"/>
+                        <polyline points="7.5 10.5 12 15 16.5 10.5"/>
+                        <path d="M4 17v2.5A1.5 1.5 0 0 0 5.5 21h13a1.5 1.5 0 0 0 1.5-1.5V17"/>
+                      </svg>
+                    </a>
+                  </div>
                 </div>
               )}
             </div>
