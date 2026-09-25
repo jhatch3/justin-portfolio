@@ -15,99 +15,153 @@
 // apps.jsx and landing.html already declare a top-level `const D`. A bare
 // top-level declaration in this file would collide with one of them.
 (() => {
+  // ─── Palettes ────────────────────────────────────────────────────────────
+  // Two worlds, one component. `dark` is the macOS window on desktop.html;
+  // `light` is the panel on landing.html and takes its values from that page's
+  // tokens (var(--token, #fallback)) so the chat tracks the site rather than
+  // approximating it.
+  //
+  // The reference is Messages: a solid canvas, two bubble fills, hairlines
+  // instead of borders, and nothing else competing. What this replaced drew a
+  // 2px outline around every bubble, which turned each turn into a form field
+  // and made the transcript read as a stack of slabs.
+  //
+  // `canvas` is deliberately a flat colour, not a gradient: the bubble tails
+  // are drawn with a pseudo-element that masks itself against the canvas, and a
+  // gradient behind it would show the seam.
   const PALETTES = {
     dark: {
       font: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif',
-      shellBg: 'rgba(20,20,22,0.96)',
+      shellBg: '#0b0b0e',
       shellText: '#f5f5f7',
-      bannerBg: '#0c1018',
-      bannerBorder: '0.5px solid rgba(184,212,240,0.18)',
-      avatarBg: 'linear-gradient(160deg, #d4e3f5, #8eb4d8)',
-      avatarText: '#1a1f2e',
+      // Translucent chrome over the transcript, the way a Messages title bar
+      // sits over the conversation rather than beside it.
+      bannerBg: 'rgba(22,22,26,0.72)',
+      bannerBorder: '0.5px solid rgba(255,255,255,0.10)',
+      avatarInk: '#dfe7f2',
+      avatarBg: 'linear-gradient(165deg, #3a4354, #232834)',
+      avatarRing: 'rgba(255,255,255,0.14)',
       titleText: '#f5f5f7',
-      subText: 'rgba(245,245,247,0.85)',
+      subText: 'rgba(235,235,245,0.58)',
       dot: '#30d158',
-      dotGlow: '0 0 6px #30d158',
-      msgsBg: 'linear-gradient(180deg, rgba(28,28,30,0.5), rgba(20,20,22,0.5))',
-      mineBg: '#b8d4f0',
-      mineText: '#0a1020',
-      mineBorder: 'none',
-      theirsBg: 'rgba(40,44,54,0.95)',
+      dotGlow: '0 0 6px rgba(48,209,88,0.8)',
+      canvas: '#0b0b0e',
+      mineBg: '#0a84ff',
+      mineText: '#ffffff',
+      theirsBg: '#2a2a2e',
       theirsText: '#f5f5f7',
-      theirsBorder: 'none',
-      bubbleShadow: '0 1px 1px rgba(0,0,0,0.18)',
-      errText: '#ff8a85',
-      errBg: 'rgba(255,69,58,0.12)',
-      errBorder: '0.5px solid rgba(255,69,58,0.3)',
-      barBg: 'rgba(28,28,30,0.7)',
-      barBorder: '0.5px solid rgba(255,255,255,0.06)',
-      inputBg: 'rgba(255,255,255,0.06)',
+      meta: 'rgba(235,235,245,0.45)',
+      errText: '#ff9a95',
+      errBg: 'rgba(255,69,58,0.14)',
+      errBorder: '0.5px solid rgba(255,69,58,0.32)',
+      barBg: 'rgba(22,22,26,0.82)',
+      barBorder: '0.5px solid rgba(255,255,255,0.08)',
+      inputBg: 'rgba(255,255,255,0.07)',
       inputText: '#f5f5f7',
-      inputBorder: '0',
-      placeholder: 'rgba(245,245,247,0.45)',
-      sendOnBg: '#b8d4f0',
-      sendOnText: '#0a1020',
-      sendOffBg: 'rgba(255,255,255,0.1)',
-      sendOffText: 'rgba(255,255,255,0.4)',
+      inputBorder: '0.5px solid rgba(255,255,255,0.12)',
+      placeholder: 'rgba(235,235,245,0.4)',
+      sendOnBg: '#0a84ff',
+      sendOnText: '#ffffff',
+      sendOffBg: 'rgba(255,255,255,0.09)',
+      sendOffText: 'rgba(235,235,245,0.35)',
       codeBg: 'rgba(255,255,255,0.12)',
       link: '#7ec0ff',
-      chipBg: 'rgba(255,255,255,0.10)',
+      chipBg: 'rgba(255,255,255,0.07)',
       chipText: '#f5f5f7',
-      chipBorder: '1px solid rgba(255,255,255,0.18)',
-      cardBg: 'rgba(28,28,30,0.96)',
-      cardBorder: '1px solid rgba(255,255,255,0.14)',
+      chipBorder: '0.5px solid rgba(255,255,255,0.14)',
+      chipHover: 'rgba(255,255,255,0.13)',
+      cardBg: '#1c1c20',
+      cardBorder: '0.5px solid rgba(255,255,255,0.12)',
+      cardShadow: '0 8px 28px rgba(0,0,0,0.45)',
       fieldBg: 'rgba(255,255,255,0.06)',
-      fieldBorder: '1px solid rgba(255,255,255,0.14)',
-      fieldBad: '1px solid #ff8a85',
+      fieldBorder: '0.5px solid rgba(255,255,255,0.14)',
+      fieldFocus: '#0a84ff',
+      fieldBad: '1px solid #ff9a95',
     },
     light: {
       font: 'inherit',
       shellBg: 'var(--surface, #ffffff)',
       shellText: 'var(--ink-2, #2a4365)',
-      bannerBg: 'var(--surface, #ffffff)',
-      bannerBorder: '1px solid var(--border, rgba(10,37,64,0.10))',
-      avatarBg: 'var(--accent, #1d4ed8)',
-      avatarText: '#ffffff',
+      bannerBg: 'rgba(255,255,255,0.82)',
+      bannerBorder: '0.5px solid rgba(10,37,64,0.09)',
+      avatarInk: '#ffffff',
+      avatarBg: 'linear-gradient(165deg, #3b73e8, #1d4ed8)',
+      avatarRing: 'rgba(10,37,64,0.08)',
       titleText: 'var(--ink, #0a2540)',
       subText: 'var(--ink-3, #5a7090)',
-      dot: '#16a34a',
+      dot: '#22a15b',
       dotGlow: 'none',
-      msgsBg: 'var(--surface, #ffffff)',
+      canvas: '#ffffff',
       mineBg: 'var(--accent, #1d4ed8)',
       mineText: '#ffffff',
-      mineBorder: '2px solid #163fae',
-      // On a white panel a near-white bubble disappears. Darker fill + a 2px
-      // edge, so each turn reads as its own block. (1.5px got rounded down to a
-      // hairline by Chrome, which defeated the point.)
-      theirsBg: '#eaeff6',
+      // A neutral carrying a little of the page's navy rather than a flat grey,
+      // so the two bubble fills read as one family.
+      theirsBg: '#eceef4',
       theirsText: 'var(--ink, #0a2540)',
-      theirsBorder: '2px solid rgba(10,37,64,0.22)',
-      bubbleShadow: 'none',
+      meta: 'var(--ink-3, #5a7090)',
       errText: '#b42318',
       errBg: 'rgba(180,35,24,0.07)',
-      errBorder: '1px solid rgba(180,35,24,0.22)',
-      barBg: 'var(--surface, #ffffff)',
-      barBorder: '1px solid var(--border, rgba(10,37,64,0.10))',
-      inputBg: 'var(--bg, #fafaf7)',
+      errBorder: '0.5px solid rgba(180,35,24,0.22)',
+      barBg: 'rgba(255,255,255,0.88)',
+      barBorder: '0.5px solid rgba(10,37,64,0.09)',
+      inputBg: '#f2f3f7',
       inputText: 'var(--ink, #0a2540)',
-      inputBorder: '1px solid var(--border, rgba(10,37,64,0.10))',
+      inputBorder: '0.5px solid rgba(10,37,64,0.10)',
       placeholder: 'var(--ink-3, #5a7090)',
       sendOnBg: 'var(--accent, #1d4ed8)',
       sendOnText: '#ffffff',
-      sendOffBg: 'rgba(10,37,64,0.06)',
-      sendOffText: 'rgba(10,37,64,0.35)',
-      codeBg: 'rgba(10,37,64,0.08)',
+      sendOffBg: 'rgba(10,37,64,0.07)',
+      sendOffText: 'rgba(10,37,64,0.32)',
+      codeBg: 'rgba(10,37,64,0.07)',
       link: 'var(--accent, #1d4ed8)',
-      chipBg: 'var(--surface, #ffffff)',
+      chipBg: '#ffffff',
       chipText: 'var(--ink-2, #2a4365)',
-      chipBorder: '1px solid rgba(10,37,64,0.22)',
-      cardBg: 'var(--surface, #ffffff)',
-      cardBorder: '2px solid rgba(10,37,64,0.22)',
-      fieldBg: 'var(--bg, #fafaf7)',
-      fieldBorder: '1px solid rgba(10,37,64,0.20)',
+      chipBorder: '0.5px solid rgba(10,37,64,0.14)',
+      chipHover: '#f2f5fb',
+      cardBg: '#ffffff',
+      cardBorder: '0.5px solid rgba(10,37,64,0.12)',
+      cardShadow: '0 6px 22px rgba(10,37,64,0.10)',
+      fieldBg: '#f6f7fa',
+      fieldBorder: '0.5px solid rgba(10,37,64,0.13)',
+      fieldFocus: 'var(--accent, #1d4ed8)',
       fieldBad: '1px solid #b42318',
     },
   };
+
+  // ─── Avatar ──────────────────────────────────────────────────────────────
+  // An average face: symmetric, featureless in the way a composite is -
+  // no hair, no jaw, nothing that resolves into a particular person. Built
+  // from primitives rather than an image so it stays crisp at any size, takes
+  // the palette with it, and costs nothing to load.
+  //
+  // The proportions are the boring ones on purpose - eyes on the horizontal
+  // midline, mouth one eye-width below - because that IS the average; anything
+  // more characterful would read as somebody instead of anybody.
+  const Avatar = ({ c, size = 44, ring = true }) => (
+    <div style={{
+      width: size, height: size, borderRadius: '50%', flexShrink: 0,
+      background: c.avatarBg, color: c.avatarInk,
+      boxShadow: ring ? `0 0 0 0.5px ${c.avatarRing}, 0 1px 3px rgba(10,37,64,0.14)` : 'none',
+      display: 'grid', placeItems: 'center', overflow: 'hidden',
+    }}>
+      <svg viewBox="0 0 48 48" width={size} height={size} aria-hidden="true"
+        style={{ display: 'block' }}>
+        {/* head */}
+        <circle cx="24" cy="21.5" r="9.4" fill="currentColor" opacity="0.95" />
+        {/* shoulders - a capsule cropped by the avatar's own circle */}
+        <path d="M6.5 48c0-9.9 7.8-14.6 17.5-14.6S41.5 38.1 41.5 48z"
+          fill="currentColor" opacity="0.95" />
+        {/* Eyes on the midline, one eye-width apart, and a gentle arc for a
+            mouth. Drawn at full strength rather than a whisper: this is only
+            ever rendered at 32-40px, and at that size anything subtler stops
+            resolving as a face and goes back to being a silhouette. */}
+        <circle cx="20.6" cy="20.3" r="1.6" fill="#16203a" opacity="0.92" />
+        <circle cx="27.4" cy="20.3" r="1.6" fill="#16203a" opacity="0.92" />
+        <path d="M20.8 25.1c1.5 1.5 4.9 1.5 6.4 0" fill="none"
+          stroke="#16203a" strokeOpacity="0.8" strokeWidth="1.5" strokeLinecap="round" />
+      </svg>
+    </div>
+  );
 
   // ─── Markdown ──────────────────────────────────────────────────────────────
   // The bot is told to keep formatting light (rule 7a in server/system-prompt.mjs),
@@ -223,18 +277,18 @@
   // ordinary question, so the bot answers them in its own voice - the visitor
   // sees what they typed, the model sees the question.
   const HELP_TEXT = [
-    "Here's what I can help with - type a command or just ask:",
+    'Shortcuts, if you would rather point than type:',
     '',
-    '- **/projects** - what he has built, and which repo to open first',
-    '- **/experience** - roles, companies, what he actually shipped',
+    '- **/projects** - what he built, and which repo to open first',
+    '- **/experience** - roles, companies, what actually shipped',
     '- **/skills** - languages, frameworks, the AI/ML stack',
-    '- **/now** - what he is working on this month',
+    '- **/now** - what he is in the middle of this month',
     '- **/hire** - why he might fit your role, and how to reach him',
     '- **/resume** - the PDF',
-    '- **/contact** - leave him a message right here',
-    '- **/examples** - questions I can answer well',
+    '- **/contact** - write to him right here, no mail client required',
+    '- **/examples** - questions I answer well',
     '',
-    'Plain questions work best - ask in your own words.',
+    'Or just ask in your own words. That works better anyway.',
   ].join('\n');
 
   // Every one of these is answerable straight from the ground-truth block, which
@@ -243,13 +297,13 @@
   // it is. Rendered as chips, so a visitor can pick one instead of typing.
   const EXAMPLES = [
     'What is he building at Horizon Intelligence Labs?',
-    'Which project best shows his ML work?',
+    'Which project should I actually look at?',
     'Has he shipped agents or RAG in production?',
     'What did he do at Modern Amenities?',
     'Is he open to new roles?',
-    'What is in his AI/ML stack?',
+    'Tell me something surprising about him.',
   ];
-  const EXAMPLES_TEXT = 'Any of these I can answer from what I know about him:';
+  const EXAMPLES_TEXT = 'These I can answer properly, chapter and verse:';
 
   // The expansions ask for brevity: a shortcut should land a skimmable answer,
   // not the longest one the question could support.
@@ -306,21 +360,32 @@
       'aria-invalid': form.bad.includes(k) || undefined,
       style: {
         width: '100%', font: 'inherit', fontSize: 13, lineHeight: 1.4,
-        padding: '8px 10px', borderRadius: 8, outline: 0,
+        padding: '10px 12px', borderRadius: 11, outline: 0,
         background: c.fieldBg, color: c.inputText,
         border: form.bad.includes(k) ? c.fieldBad : c.fieldBorder,
+        transition: 'border-color 0.16s',
         ...extra,
       },
     });
 
     return (
       <div style={{
-        alignSelf: 'stretch', marginTop: 6, padding: 12, borderRadius: 14,
-        background: c.cardBg, border: c.cardBorder, color: c.shellText,
-        display: 'flex', flexDirection: 'column', gap: 8,
+        alignSelf: 'stretch', marginTop: 12, padding: 14, borderRadius: 16,
+        background: c.cardBg, border: c.cardBorder, boxShadow: c.cardShadow,
+        color: c.shellText, display: 'flex', flexDirection: 'column', gap: 9,
       }}>
-        <div style={{ fontSize: 13, fontWeight: 600, color: c.titleText }}>
-          {form.intent === 'hire' ? 'Tell Justin about the role' : 'Message Justin'}
+        {/* The same face as the header, at card scale: this is the moment the
+            visitor is actually addressing a person, so the person is on it. */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <Avatar c={c} size={32} />
+          <div style={{ minWidth: 0 }}>
+            <div style={{ fontSize: 13, fontWeight: 650, color: c.titleText, letterSpacing: '-0.01em' }}>
+              {form.intent === 'hire' ? 'Tell Justin about the role' : 'Message Justin'}
+            </div>
+            <div style={{ fontSize: 11, color: c.subText, marginTop: 1 }}>
+              Goes straight to his inbox.
+            </div>
+          </div>
         </div>
 
         {/* Honeypot: off-screen and out of the tab order, so only a bot fills it. */}
@@ -375,7 +440,7 @@
     // and the CSS never disagree about which size the chat is running at.
     const narrow = useMedia('(pointer: coarse), (max-width: 640px)');
     const [messages, setMessages] = React.useState([
-      { role: 'assistant', local: true, content: "Hey - I'm Justin's bot. Ask me anything about his work, projects, or what he's after next.\n\nNew here? Type **/help** for the shortcut list." },
+      { role: 'assistant', local: true, content: "Hey - I'm Justin's bot. He built me to answer for him, which tells you something about him already.\n\nAsk me about his work, his projects, or what he's after next. Type **/help** if you'd rather browse." },
     ]);
     const [input, setInput] = React.useState('');
     const [sending, setSending] = React.useState(false);
@@ -423,7 +488,7 @@
       if (!EMAIL_OK.test(payload.email)) bad.push('email');
       if (payload.message.length < 4) bad.push('message');
       if (bad.length) {
-        setForm(f => ({ ...f, bad, error: 'A name, an email he can reply to, and a line or two.' }));
+        setForm(f => ({ ...f, bad, error: 'Needs a name, an email he can reply to, and a line or two.' }));
         return;
       }
       setForm(f => ({ ...f, status: 'sending', error: null, bad: [] }));
@@ -442,7 +507,7 @@
         setForm(null);
         setMessages(prev => [...prev, {
           role: 'assistant', local: true,
-          content: `Sent - Justin has it, and he'll reply to **${payload.email}**.\n\nAnything else you want to know while you're here?`,
+          content: `Off it goes. He has it, and he'll reply to **${payload.email}**.\n\nAnything else while you're here?`,
         }]);
       } catch (e) {
         const why = /Failed to fetch|timed out|aborted/i.test(e?.message || '')
@@ -471,7 +536,7 @@
       if (HELP_ALIASES.includes(cmd)) { localReply(HELP_TEXT); return; }
       if (EXAMPLE_ALIASES.includes(cmd)) { localReply(EXAMPLES_TEXT, 'examples'); return; }
       if (CONTACT_ALIASES.includes(cmd)) {
-        localReply("Sure - fill this in and I'll pass it straight to him.");
+        localReply("Happily - fill this in and it goes straight to him.");
         openComposer('chat');
         return;
       }
@@ -558,6 +623,18 @@
 
     const onKey = (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); } };
 
+    // Stamped once, when the thread opens, and never recomputed - the label
+    // dates the conversation, so it should not tick over while you read it.
+    const [openedAt] = React.useState(() =>
+      new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }));
+
+    // Index of the most recent thing the visitor sent, or -1. The receipt
+    // hangs off that and nothing else.
+    const deliveredIdx = React.useMemo(() => {
+      for (let i = messages.length - 1; i >= 0; i--) if (messages[i].role === 'user') return i;
+      return -1;
+    }, [messages]);
+
     // Grow the composer to fit what's in it. Reset to `auto` first so it can
     // shrink again when text is deleted - scrollHeight never reports smaller
     // than the current height.
@@ -580,13 +657,67 @@
     React.useEffect(() => { fitComposer(inputRef.current); }, [input, narrow]);
 
     return (
-      <div style={{
+      <div className={`jh-chat-${theme}`} style={{
         height: '100%', display: 'flex', flexDirection: 'column',
         background: c.shellBg, color: c.shellText, fontFamily: c.font,
       }}>
         <style>{`
-          @keyframes chatDots { 0% { opacity: 0.3 } 30% { opacity: 1 } 60%, 100% { opacity: 0.3 } }
+          .jh-chat-${theme} {
+            --jhc-canvas: ${c.canvas};
+            --jhc-mine: ${c.mineBg};
+            --jhc-theirs: ${c.theirsBg};
+          }
+          @keyframes chatDots  { 0%, 60%, 100% { transform: translateY(0); opacity: 0.45 }
+                                 30% { transform: translateY(-3px); opacity: 1 } }
+          @keyframes chatIn    { from { opacity: 0; transform: translateY(6px) scale(0.97) }
+                                 to   { opacity: 1; transform: none } }
           .jh-chat-ta-${theme}::placeholder { color: ${c.placeholder}; }
+          .jh-chat-ta-${theme}:focus { border-color: ${c.fieldFocus}; }
+
+          /* Every turn arrives rather than appearing. Short and once - the
+             transcript should feel alive, not animated. */
+          .jh-chat-bub-${theme} { animation: chatIn 0.22s cubic-bezier(.22,.9,.3,1) both; }
+
+          /* ── Bubble tails ──────────────────────────────────────────────
+             The single detail that makes a transcript read as Messages
+             rather than as a list of cards. Two pseudo-elements: the first
+             extends the bubble's fill out past its corner, the second masks
+             that extension back with the canvas colour, leaving the curl.
+             This is why 'canvas' has to be a flat colour - a gradient behind
+             the mask would show the seam. Only the last bubble of a run gets
+             one, which is what makes a run read as one utterance. */
+          .jh-chat-bub-${theme}::before,
+          .jh-chat-bub-${theme}::after { content: none; }
+          .jh-chat-bub-${theme}.jh-tail::before,
+          .jh-chat-bub-${theme}.jh-tail::after {
+            content: ''; position: absolute; bottom: 0; width: 18px; height: 18px;
+          }
+          .jh-chat-bub-${theme}.jh-tail.jh-mine::before {
+            right: -7px; background: var(--jhc-mine); border-bottom-left-radius: 15px;
+          }
+          .jh-chat-bub-${theme}.jh-tail.jh-mine::after {
+            right: -7px; width: 9px; background: var(--jhc-canvas); border-bottom-left-radius: 9px;
+          }
+          .jh-chat-bub-${theme}.jh-tail.jh-theirs::before {
+            left: -7px; background: var(--jhc-theirs); border-bottom-right-radius: 15px;
+          }
+          .jh-chat-bub-${theme}.jh-tail.jh-theirs::after {
+            left: -7px; width: 9px; background: var(--jhc-canvas); border-bottom-right-radius: 9px;
+          }
+
+          .jh-chat-chip-${theme} { transition: background 0.14s, transform 0.14s; }
+          @media (hover: hover) and (pointer: fine) {
+            .jh-chat-chip-${theme}:hover:not(:disabled) { background: ${c.chipHover}; transform: translateY(-1px); }
+            .jh-chat-send-${theme}:not(:disabled):hover { filter: brightness(1.08); }
+          }
+          .jh-chat-send-${theme} { transition: background 0.16s, color 0.16s, transform 0.16s, filter 0.16s; }
+          .jh-chat-send-${theme}:not(:disabled):active { transform: scale(0.92); }
+
+          @media (prefers-reduced-motion: reduce) {
+            .jh-chat-bub-${theme}, .jh-chat-chip-${theme}, .jh-chat-send-${theme} {
+              animation-duration: 0.01ms !important; transition-duration: 0.01ms !important;
+            }
+          }
 
           /* Touch sizing.
              The font-size rule is not cosmetic: iOS Safari zooms the whole
@@ -609,76 +740,122 @@
           }
         `}</style>
 
-        {/* In-window contact banner */}
+        {/* ── Conversation header ────────────────────────────────────────
+            Messages stacks the contact above the thread rather than putting
+            it in a left-aligned row - the avatar centred, the name under it,
+            the status under that. It reads as "who you are talking to",
+            which is what a header is for, instead of as a support widget.
+            The right padding keeps it clear of landing.html's window chrome,
+            which floats over this corner. */}
         <div style={{
-          padding: '10px 14px', display: 'flex', alignItems: 'center', gap: 10,
-          background: c.bannerBg, borderBottom: c.bannerBorder, flexShrink: 0,
+          padding: '12px 56px 10px', display: 'flex', flexDirection: 'column',
+          alignItems: 'center', gap: 6, flexShrink: 0,
+          background: c.bannerBg, borderBottom: c.bannerBorder,
+          backdropFilter: 'blur(20px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(20px) saturate(180%)',
         }}>
-          <div style={{
-            width: 36, height: 36, borderRadius: '50%',
-            background: c.avatarBg,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            color: c.avatarText, fontWeight: 700, fontSize: 14, flexShrink: 0,
-            boxShadow: 'inset 0 0.5px 0 rgba(255,255,255,0.4)',
-          }}>JH</div>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: 13, fontWeight: 600, color: c.titleText }}>Justin's Bot</div>
-            <div style={{ fontSize: 10.5, color: c.subText, display: 'flex', alignItems: 'center', gap: 5 }}>
-              <span style={{ width: 6, height: 6, borderRadius: '50%', background: c.dot, boxShadow: c.dotGlow }} />
+          <Avatar c={c} size={40} />
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, minWidth: 0 }}>
+            <div style={{
+              fontSize: 13.5, fontWeight: 650, color: c.titleText,
+              letterSpacing: '-0.01em', lineHeight: 1.2,
+            }}>Justin's Bot</div>
+            <div style={{
+              fontSize: 10.5, color: c.subText, display: 'flex', alignItems: 'center', gap: 4.5,
+            }}>
+              <span style={{
+                width: 5.5, height: 5.5, borderRadius: '50%',
+                background: c.dot, boxShadow: c.dotGlow,
+              }} />
               online
             </div>
           </div>
         </div>
 
-        {/* Messages */}
-        {/* overscrollBehavior: once this transcript hits its end, the gesture
-            stops here rather than carrying on into the page behind the
-            panel. */}
+        {/* ── Transcript ─────────────────────────────────────────────────
+            overscrollBehavior: once this hits its end the gesture stops here
+            rather than carrying on into the page behind the panel. */}
         <div ref={scrollRef} style={{
           flex: 1, minHeight: 0, overflowY: 'auto', overscrollBehavior: 'contain',
-          WebkitOverflowScrolling: 'touch', padding: '14px 14px 8px',
-          background: c.msgsBg,
-          display: 'flex', flexDirection: 'column', gap: 6,
+          WebkitOverflowScrolling: 'touch', padding: '10px 14px 10px',
+          background: c.canvas,
+          display: 'flex', flexDirection: 'column',
         }}>
+          {/* One time stamp at the top of the thread, the way Messages dates a
+              conversation once instead of labelling every line. */}
+          <div style={{
+            alignSelf: 'center', margin: '2px 0 12px',
+            fontSize: 10.5, fontWeight: 600, color: c.meta,
+            letterSpacing: '0.02em', fontVariantNumeric: 'tabular-nums',
+          }}>{openedAt}</div>
+
           {messages.map((m, i) => {
             const mine = m.role === 'user';
-            const isLastEmptyAssistant = !mine && !m.content && sending && i === messages.length - 1;
+            const prev = messages[i - 1], next = messages[i + 1];
+            // A run is consecutive turns from the same speaker. Within a run
+            // the bubbles sit 2px apart with squared inner corners so they
+            // read as one utterance; only the last one gets a tail.
+            const runStart = !prev || (prev.role === 'user') !== mine;
+            const runEnd = !next || (next.role === 'user') !== mine;
+            const typing = !mine && !m.content && sending && i === messages.length - 1;
+            const R = 17, TUCK = 6;
             return (
-              <div key={i} className={`jh-chat-msg-${theme}`} style={{
-                alignSelf: mine ? 'flex-end' : 'flex-start',
-                // A bubble may not be wider than its column; long URLs and
-                // repo paths wrap instead of stretching the panel.
-                maxWidth: '78%', minWidth: 0,
-                background: mine ? c.mineBg : c.theirsBg,
-                color: mine ? c.mineText : c.theirsText,
-                border: mine ? c.mineBorder : c.theirsBorder,
-                padding: '7px 12px', borderRadius: 14,
-                borderBottomRightRadius: mine ? 4 : 14,
-                borderBottomLeftRadius: mine ? 14 : 4,
-                fontSize: 13, lineHeight: 1.45, whiteSpace: mine ? 'pre-wrap' : 'normal', wordBreak: 'break-word',
-                boxShadow: c.bubbleShadow,
-              }}>
-                {isLastEmptyAssistant ? (
-                  <span style={{ display: 'inline-flex', gap: 3, opacity: 0.8 }}>
-                    <span style={{ animation: 'chatDots 1.2s infinite' }}>•</span>
-                    <span style={{ animation: 'chatDots 1.2s infinite', animationDelay: '0.15s' }}>•</span>
-                    <span style={{ animation: 'chatDots 1.2s infinite', animationDelay: '0.3s' }}>•</span>
+              <React.Fragment key={i}>
+              <div
+                className={`jh-chat-msg-${theme} jh-chat-bub-${theme} ${runEnd ? 'jh-tail' : ''} ${mine ? 'jh-mine' : 'jh-theirs'}`}
+                style={{
+                  position: 'relative',
+                  alignSelf: mine ? 'flex-end' : 'flex-start',
+                  // A bubble may not be wider than its column; long URLs and
+                  // repo paths wrap instead of stretching the panel.
+                  maxWidth: '78%', minWidth: 0,
+                  marginTop: runStart ? (i === 0 ? 0 : 10) : 2,
+                  background: mine ? c.mineBg : c.theirsBg,
+                  color: mine ? c.mineText : c.theirsText,
+                  padding: typing ? '11px 14px' : '8px 13px',
+                  borderRadius: R,
+                  borderTopRightRadius:    mine && !runStart ? TUCK : R,
+                  borderBottomRightRadius: mine && !runEnd   ? TUCK : R,
+                  borderTopLeftRadius:    !mine && !runStart ? TUCK : R,
+                  borderBottomLeftRadius: !mine && !runEnd   ? TUCK : R,
+                  fontSize: 14, lineHeight: 1.45,
+                  whiteSpace: mine ? 'pre-wrap' : 'normal', wordBreak: 'break-word',
+                }}>
+                {typing ? (
+                  <span style={{ display: 'flex', gap: 4, alignItems: 'center' }} aria-label="Typing">
+                    {[0, 0.16, 0.32].map(d => (
+                      <span key={d} style={{
+                        width: 6.5, height: 6.5, borderRadius: '50%', background: 'currentColor',
+                        animation: `chatDots 1.3s ${d}s infinite ease-in-out`,
+                      }} />
+                    ))}
                   </span>
                 ) : (mine ? m.content : renderMarkdown(m.content, c))}
 
                 {m.card === 'examples' && (
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 8 }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 10 }}>
                     {EXAMPLES.map(q => (
                       <button key={q} onClick={() => send(q)} disabled={sending}
                         className={`jh-chat-chip-${theme}`} style={{
-                        font: 'inherit', fontSize: 12, lineHeight: 1.3, textAlign: 'left',
-                        padding: '5px 10px', borderRadius: 999, cursor: sending ? 'default' : 'pointer',
+                        font: 'inherit', fontSize: 12.5, lineHeight: 1.35, textAlign: 'left',
+                        padding: '8px 12px', borderRadius: 13, cursor: sending ? 'default' : 'pointer',
                         background: c.chipBg, color: c.chipText, border: c.chipBorder,
                       }}>{q}</button>
                     ))}
                   </div>
                 )}
               </div>
+              {/* Messages hangs a delivery receipt under the last thing you
+                  sent, and only there - under that message, not at the foot
+                  of the thread. It is the smallest possible "that went
+                  through". */}
+              {i === deliveredIdx && !sending && (
+                <div style={{
+                  alignSelf: 'flex-end', marginTop: 3, paddingRight: 4,
+                  fontSize: 10, fontWeight: 600, color: c.meta, letterSpacing: '0.02em',
+                }}>Delivered</div>
+              )}
+              </React.Fragment>
             );
           })}
 
@@ -688,17 +865,23 @@
           )}
           {error && (
             <div style={{
-              alignSelf: 'center', fontSize: 11, color: c.errText,
-              background: c.errBg, padding: '6px 10px', borderRadius: 8,
-              border: c.errBorder, marginTop: 4,
+              alignSelf: 'center', fontSize: 11.5, color: c.errText,
+              background: c.errBg, padding: '7px 11px', borderRadius: 10,
+              border: c.errBorder, marginTop: 8,
             }}>{error}</div>
           )}
         </div>
 
-        {/* Input */}
+        {/* ── Composer ───────────────────────────────────────────────────
+            A pill on a translucent bar, and a send button that is only there
+            when there is something to send - Messages fades its arrow in on
+            the first keystroke rather than parking a dead control beside an
+            empty field. */}
         <div style={{
-          padding: 10, display: 'flex', gap: 8, alignItems: 'center',
+          padding: '9px 10px', display: 'flex', gap: 8, alignItems: 'flex-end',
           background: c.barBg, borderTop: c.barBorder, flexShrink: 0,
+          backdropFilter: 'blur(20px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(20px) saturate(180%)',
         }}>
           {/* A one-row textarea clips anything that wraps, and at 16px in a
               320px-wide sheet the long placeholder wrapped to two lines and
@@ -712,18 +895,28 @@
             style={{
               flex: 1, minWidth: 0, resize: 'none', border: c.inputBorder, outline: 0,
               background: c.inputBg, color: c.inputText,
-              padding: '8px 12px', borderRadius: 18, fontSize: 13, lineHeight: 1.4,
+              padding: '9px 14px', borderRadius: 19, fontSize: 13.5, lineHeight: 1.4,
               fontFamily: 'inherit', maxHeight: COMPOSER_MAX_H, overflowY: 'auto',
+              transition: 'border-color 0.16s',
             }} />
           <button onClick={() => send()} disabled={!input.trim() || sending} aria-label="Send"
             className={`jh-chat-send-${theme}`} style={{
-            width: 36, height: 36, borderRadius: '50%', border: 0,
+            width: 34, height: 34, borderRadius: '50%', border: 0, padding: 0,
             background: input.trim() && !sending ? c.sendOnBg : c.sendOffBg,
             color: input.trim() && !sending ? c.sendOnText : c.sendOffText,
             cursor: input.trim() && !sending ? 'pointer' : 'default',
             display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+            transform: input.trim() && !sending ? 'scale(1)' : 'scale(0.86)',
+            opacity: input.trim() && !sending ? 1 : 0.55,
+            marginBottom: 1,
           }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>
+            {/* An arrow, not a paper plane - the plane reads as "email", and
+                this sends a message. */}
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <line x1="12" y1="19" x2="12" y2="6" />
+              <polyline points="6 12 12 5.6 18 12" />
+            </svg>
           </button>
         </div>
       </div>
