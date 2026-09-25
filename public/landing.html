@@ -181,6 +181,13 @@
 
   @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
+  /* The nav menu grows out of the corner it was opened from, rather than
+     fading in from nowhere. */
+  @keyframes navMenuIn {
+    from { opacity: 0; transform: scale(0.94) translateY(-4px); }
+    to   { opacity: 1; transform: none; }
+  }
+
   /* Slide-In Button (CSS re-creation of the Framer Slide-In Button design). */
   .slide-in-btn {
     /* Rendered as a <button> - it opens the chat composer rather than

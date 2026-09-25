@@ -364,6 +364,12 @@ const D = window.JH_DATA;
         window.addEventListener('resize', onResize);
         return () => window.removeEventListener('resize', onResize);
       }, []);
+      React.useEffect(() => {
+        if (!open) return;
+        const onKey = (e) => { if (e.key === 'Escape') setOpen(false); };
+        window.addEventListener('keydown', onKey);
+        return () => window.removeEventListener('keydown', onKey);
+      }, [open]);
       const close = () => setOpen(false);
 
       const sectionLinks = [
@@ -374,6 +380,14 @@ const D = window.JH_DATA;
       ];
 
       return (
+        <>
+        {/* One tap anywhere else dismisses, and that tap does not also
+            activate whatever it landed on. Sits under the header's z-index so
+            the bar and its menu stay above it. */}
+        {open && (
+          <div onClick={close} aria-hidden="true"
+            style={{ position: 'fixed', inset: 0, zIndex: 49 }} />
+        )}
         <header style={{
           position: 'sticky', top: 0, zIndex: 50,
           background: scrolled || open ? 'rgba(250,250,247,0.92)' : 'transparent',
@@ -425,25 +439,39 @@ const D = window.JH_DATA;
             </button>
           </Container>
 
-          {/* Mobile drawer */}
+          {/* Mobile menu.
+              This used to be an in-flow block inside the sticky header, so
+              opening it grew the header and shoved the whole page down, and
+              its links sat left-aligned under a button on the right. It is a
+              card anchored to the button now: the page underneath does not
+              move, and it opens where you tapped.
+
+              Absolute rather than fixed because the header is sticky, which
+              makes it the containing block. Fixed would have been measured
+              against the header anyway, since the header carries a
+              backdrop-filter while open and that makes it a containing block
+              for fixed descendants too. */}
           {open && (
-            <div className="nav-drawer" style={{
-              borderTop: '0.5px solid var(--border)',
-              animation: 'fadeUp 0.18s ease-out',
+            <div className="nav-drawer" role="menu" style={{
+              position: 'absolute', top: 'calc(100% + 6px)', right: 'var(--gutter)', zIndex: 2,
+              minWidth: 176, maxWidth: 'calc(100vw - var(--gutter) * 2)',
+              padding: 6, borderRadius: 14,
+              background: 'var(--surface)', border: '1px solid var(--border)',
+              boxShadow: '0 4px 10px rgba(10,37,64,0.05), 0 16px 40px rgba(10,37,64,0.16)',
+              transformOrigin: 'top right',
+              animation: 'navMenuIn 0.16s cubic-bezier(.2,.9,.3,1) both',
             }}>
-              <Container style={{ padding: '12px 28px 18px' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                  {sectionLinks.map(l => (
-                    <a key={l.href} href={l.href} onClick={close} style={{
-                      display: 'block', padding: '12px 4px', color: 'var(--ink)',
-                      fontSize: 16, fontWeight: 500, borderBottom: '0.5px solid rgba(10,37,64,0.06)',
-                    }}>{l.label}</a>
-                  ))}
-                </div>
-              </Container>
+              {sectionLinks.map(l => (
+                <a key={l.href} href={l.href} onClick={close} role="menuitem" style={{
+                  display: 'flex', alignItems: 'center', minHeight: 44,
+                  padding: '0 14px', borderRadius: 9, whiteSpace: 'nowrap',
+                  color: 'var(--ink)', fontSize: 15.5, fontWeight: 500,
+                }}>{l.label}</a>
+              ))}
             </div>
           )}
         </header>
+        </>
       );
     };
     const iconBtn = {
@@ -686,37 +714,47 @@ const D = window.JH_DATA;
                   display: 'flex', alignItems: 'center', gap: 'clamp(12px, 4vw, 20px)',
                   padding: 'clamp(16px, 5vw, 24px)', flexWrap: 'wrap',
                 }}>
-                  <div style={{
-                    width: 46, height: 56, borderRadius: 8, flexShrink: 0,
-                    display: 'grid', placeItems: 'center',
-                    background: 'rgba(29,78,216,0.08)', color: 'var(--accent)',
-                    border: '1px solid rgba(29,78,216,0.18)',
-                  }}>
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                      <polyline points="14 2 14 8 20 8"/>
-                      <line x1="16" y1="13" x2="8" y2="13"/>
-                      <line x1="16" y1="17" x2="8" y2="17"/>
-                    </svg>
-                  </div>
-                  <div style={{ flex: '1 1 180px', minWidth: 0 }}>
+                  {/* The glyph stands on its own. It used to sit in a tinted
+                      chip, which put a box inside a card for no reason the
+                      reader could act on. Bigger to hold the same weight
+                      without the chip behind it. Decorative: the filename
+                      beside it is what carries the meaning. */}
+                  <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"
+                    style={{ color: 'var(--accent)', flexShrink: 0 }}>
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                    <line x1="16" y1="13" x2="8" y2="13"/>
+                    <line x1="16" y1="17" x2="8" y2="17"/>
+                  </svg>
+                  <div style={{ flex: '1 1 140px', minWidth: 0 }}>
                     <div style={{ fontSize: 15, fontWeight: 650, color: 'var(--ink)' }}>Justin-Hatch-Resume.pdf</div>
-                    <div style={{ fontSize: 13, color: 'var(--ink-3)', marginTop: 3, lineHeight: 1.45 }}>
-                      One page. Opens in your PDF viewer.
-                    </div>
                   </div>
-                  <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', flex: '0 0 auto' }}>
+                  {/* Bare accent links, the same treatment the project modal
+                      already uses for GitHub and Write-up. The pills were the
+                      only two on the page and read as heavier than the thing
+                      they open. */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4, flex: '0 0 auto' }}>
                     <a href="Resume.pdf" target="_blank" rel="noopener noreferrer" style={{
-                      display: 'inline-flex', alignItems: 'center', gap: 6, minHeight: 44,
-                      padding: '11px 18px', borderRadius: 999, fontSize: 14, fontWeight: 600,
-                      background: 'var(--accent)', color: '#fff', border: '1px solid var(--accent)',
+                      display: 'inline-flex', alignItems: 'center', gap: 6,
+                      minHeight: 44, padding: '0 8px',
+                      fontSize: 14.5, fontWeight: 600, color: 'var(--accent)',
                     }}>Open resume</a>
-                    <a href="Resume.pdf" download="Justin-Hatch-Resume.pdf" style={{
-                      display: 'inline-flex', alignItems: 'center', gap: 6, minHeight: 44,
-                      padding: '11px 16px', borderRadius: 999, fontSize: 14, fontWeight: 600,
-                      background: 'var(--surface)', color: 'var(--ink-2)',
-                      border: '1px solid var(--border-strong)',
-                    }}>Download</a>
+                    {/* Icon only, so it keeps an explicit name for anyone who
+                        can't see it, and a full 44px target for anyone using a
+                        thumb. */}
+                    <a href="Resume.pdf" download="Justin-Hatch-Resume.pdf"
+                      title="Download resume" aria-label="Download resume" style={{
+                      display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                      width: 44, height: 44, color: 'var(--accent)',
+                    }}>
+                      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                        <path d="M12 3v12"/>
+                        <polyline points="7.5 10.5 12 15 16.5 10.5"/>
+                        <path d="M4 17v2.5A1.5 1.5 0 0 0 5.5 21h13a1.5 1.5 0 0 0 1.5-1.5V17"/>
+                      </svg>
+                    </a>
                   </div>
                 </div>
               )}
