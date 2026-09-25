@@ -154,11 +154,16 @@
         }} />
       )}
       <div className={`jh-avatar${thinking ? ' jh-avatar-live' : ''}`} style={{
+        position: 'relative',
         width: size, height: size, borderRadius: '50%',
         background: c.avatarBg, color: c.avatarInk,
         boxShadow: ring ? `0 0 0 0.5px ${c.avatarRing}, 0 1px 3px rgba(10,37,64,0.14)` : 'none',
         display: 'grid', placeItems: 'center', overflow: 'hidden',
       }}>
+        <span className="jh-sheen" aria-hidden="true" style={{
+          position: 'absolute', inset: '-25%', borderRadius: '50%', pointerEvents: 'none',
+          background: 'radial-gradient(circle at 32% 24%, rgba(255,255,255,0.5), rgba(255,255,255,0.12) 34%, transparent 58%)',
+        }} />
         <svg viewBox="0 0 48 48" width={size} height={size} aria-hidden="true"
           style={{ display: 'block' }}>
           {/* head */}
@@ -170,8 +175,10 @@
               mouth. Drawn at full strength rather than a whisper: this is only
               ever rendered at 32-40px, and at that size anything subtler stops
               resolving as a face and goes back to being a silhouette. */}
-          <circle className="jh-eye" cx="20.6" cy="20.3" r="1.6" fill="#16203a" opacity="0.92" />
-          <circle className="jh-eye" cx="27.4" cy="20.3" r="1.6" fill="#16203a" opacity="0.92" />
+          <g className="jh-eyes">
+            <circle className="jh-eye" cx="20.6" cy="20.3" r="1.6" fill="#16203a" opacity="0.92" />
+            <circle className="jh-eye" cx="27.4" cy="20.3" r="1.6" fill="#16203a" opacity="0.92" />
+          </g>
           <path d="M20.8 25.1c1.5 1.5 4.9 1.5 6.4 0" fill="none"
             stroke="#16203a" strokeOpacity="0.8" strokeWidth="1.5" strokeLinecap="round" />
         </svg>
@@ -293,7 +300,7 @@
   // ordinary question, so the bot answers them in its own voice - the visitor
   // sees what they typed, the model sees the question.
   const HELP_TEXT = [
-    'Shortcuts, if you\'d rather point than type:',
+    'Shortcuts:',
     '',
     '- **/projects** what he built, and where to start',
     '- **/experience** roles, companies, what shipped',
@@ -319,7 +326,7 @@
     'Is he open to new roles?',
     'Tell me something surprising about him.',
   ];
-  const EXAMPLES_TEXT = 'These I can answer properly:';
+  const EXAMPLES_TEXT = 'Things I can answer well:';
 
   // The expansions ask for brevity: a shortcut should land a skimmable answer,
   // not the longest one the question could support.
@@ -456,7 +463,7 @@
     // and the CSS never disagree about which size the chat is running at.
     const narrow = useMedia('(pointer: coarse), (max-width: 640px)');
     const [messages, setMessages] = React.useState([
-      { role: 'assistant', local: true, content: "Hey. I'm Justin's bot. He built me to answer for him, which probably tells you something.\n\nAsk me anything about his work. Or type **/help** if you'd rather browse." },
+      { role: 'assistant', local: true, content: "I'm Justin's bot. Ask me about his work, his projects, or what he's looking for next.\n\nType **/help** for shortcuts." },
     ]);
     const [input, setInput] = React.useState('');
     const [sending, setSending] = React.useState(false);
@@ -552,7 +559,7 @@
       if (HELP_ALIASES.includes(cmd)) { localReply(HELP_TEXT); return; }
       if (EXAMPLE_ALIASES.includes(cmd)) { localReply(EXAMPLES_TEXT, 'examples'); return; }
       if (CONTACT_ALIASES.includes(cmd)) {
-        localReply("Happily. Fill this in and it goes straight to him.");
+        localReply("Fill this in and it goes straight to him.");
         openComposer('chat');
         return;
       }
@@ -692,7 +699,7 @@
              never looks metronomic, and a halo that only appears while the
              bot is actually composing a reply. */
           @keyframes jhBreathe { 0%, 100% { transform: scale(1) }
-                                 50%      { transform: scale(1.03) } }
+                                 50%      { transform: scale(1.055) } }
           /* 96% of the cycle open, then shut and back. Fast, because a slow
              blink looks like the thing is falling asleep. */
           @keyframes jhBlink   { 0%, 93%, 100% { transform: scaleY(1) }
@@ -700,16 +707,32 @@
           @keyframes jhHalo    { 0%   { transform: scale(1);    opacity: 0.5 }
                                  100% { transform: scale(1.55); opacity: 0 } }
 
-          .jh-avatar { animation: jhBreathe 4.6s ease-in-out infinite; will-change: transform; }
-          /* Thinking quickens the breath. Nobody will name it; everybody
+          /* A light travelling round the head. This is the one that makes the
+             face read as live at a glance instead of on inspection. */
+          @keyframes jhSheen   { to { transform: rotate(360deg) } }
+          /* Eyes wander, settle, wander back. Never to the same beat as the
+             blink, so the two never line up into a tic. */
+          @keyframes jhGlance  { 0%, 26%, 100% { transform: translateX(0) }
+                                 34%, 48%      { transform: translateX(1px) }
+                                 56%, 72%      { transform: translateX(-1px) }
+                                 80%           { transform: translateX(0) } }
+
+          .jh-avatar { animation: jhBreathe 3.8s ease-in-out infinite; will-change: transform; }
+          /* Thinking quickens the breath. Nobody will name it. Everybody
              registers it. */
-          .jh-avatar-live { animation-duration: 2.1s; }
-          .jh-halo { animation: jhHalo 1.7s ease-out infinite; }
-          /* transform-box makes the eye's own bounding box the origin, so the
-             lid closes over the pupil instead of the SVG rotating about 0,0. */
+          .jh-avatar-live { animation-duration: 1.9s; }
+          .jh-avatar-live .jh-sheen { animation-duration: 2.4s; }
+          .jh-halo  { animation: jhHalo 1.7s ease-out infinite; }
+          .jh-sheen { animation: jhSheen 7s linear infinite; }
+          /* transform-box makes each shape its own origin, so the lid closes
+             over the pupil instead of the SVG rotating about 0,0. */
+          .jh-eyes {
+            transform-box: fill-box; transform-origin: center;
+            animation: jhGlance 7.5s ease-in-out infinite;
+          }
           .jh-eye {
             transform-box: fill-box; transform-origin: center;
-            animation: jhBlink 5.4s ease-in-out infinite;
+            animation: jhBlink 3.9s ease-in-out infinite;
           }
           @keyframes chatIn    { from { opacity: 0; transform: translateY(6px) scale(0.97) }
                                  to   { opacity: 1; transform: none } }
@@ -762,7 +785,7 @@
             /* The face holds still. Breathing and blinking are charm, and
                charm is exactly what someone asking for reduced motion has
                said they do not want. */
-            .jh-avatar, .jh-eye { animation: none !important; }
+            .jh-avatar, .jh-eye, .jh-eyes, .jh-sheen { animation: none !important; }
             .jh-halo { animation: none !important; opacity: 0.4; }
           }
 
