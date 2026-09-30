@@ -44,7 +44,8 @@
   "sameAs": [
     "https://github.com/jhatch3",
     "https://www.linkedin.com/in/justinhatch/",
-    "https://x.com/jjhatch11"
+    "https://x.com/jjhatch11",
+    "https://buymeacoffee.com/hatch"
   ]
 }
 </script>
@@ -131,10 +132,12 @@
     .nav-hamburger { display: inline-flex !important; }
     .hero-ctas { gap: 8px !important; }
   }
-  /* Below ~360px the name plus four nav targets stop fitting on one 60px row,
+  /* Below ~400px the name plus five nav targets stop fitting on one 60px row,
      so the social icons step aside - they are repeated in the hero and again
-     in Contact, and the hamburger is the affordance that isn't. */
-  @media (max-width: 359px) {
+     in Contact, and the hamburger is the affordance that isn't. The cutoff was
+     359px when the row held four; adding the coffee link moved it up, and the
+     drawer picks that link back up so nothing becomes unreachable. */
+  @media (max-width: 399px) {
     .nav-icons { display: none !important; }
     /* The auto margin that pushes the right-hand group over lives on
        .nav-icons; hiding it takes the margin with it and leaves the
@@ -306,6 +309,7 @@
         <li><a href="mailto:jjhatch03@gmail.com" style="color:#1d4ed8">jjhatch03@gmail.com</a></li>
         <li><a href="https://github.com/jhatch3" style="color:#1d4ed8">github.com/jhatch3</a></li>
         <li><a href="https://www.linkedin.com/in/justinhatch/" style="color:#1d4ed8">linkedin.com/in/justinhatch</a></li>
+        <li><a href="https://buymeacoffee.com/hatch" style="color:#1d4ed8">Buy me a coffee</a></li>
       </ul>
     </div>
   </noscript>

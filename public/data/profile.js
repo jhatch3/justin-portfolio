@@ -32,6 +32,7 @@ window.JH_DATA = {
     instagram: { label: '@justinhatch',                 href: '#' },
     email:     { label: 'jjhatch03@gmail.com',          href: 'mailto:jjhatch03@gmail.com' },
     resume:    { label: 'resume.pdf',                   href: 'Resume.pdf' },
+    coffee:    { label: 'buymeacoffee.com/hatch',       href: 'https://buymeacoffee.com/hatch' },
   },
 
   about: [

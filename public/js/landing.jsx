@@ -359,6 +359,24 @@ const D = window.JH_DATA;
       <div className="container" style={{ maxWidth: 1040, margin: '0 auto', padding: '0 28px', ...style }}>{children}</div>
     );
 
+    // The one icon on this page that is shared rather than re-pasted. The
+    // GitHub and LinkedIn paths are duplicated across nav, hero and Contact,
+    // which is how you end up with three of them at three different stroke
+    // weights; this one renders at 18 in the nav, 17 in the drawer and 26 in
+    // Contact from a single definition. Stroke geometry matches the email and
+    // resume icons already sitting beside it, so it lands in the same optical
+    // weight class rather than looking bolder than its neighbors.
+    const CoffeeIcon = ({ size = 18 }) => (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d="M17 8h1a4 4 0 1 1 0 8h-1"/>
+        <path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/>
+        <line x1="6"  y1="2" x2="6"  y2="5"/>
+        <line x1="10" y1="2" x2="10" y2="5"/>
+        <line x1="14" y1="2" x2="14" y2="5"/>
+      </svg>
+    );
+
     // Sector, as mono uppercase text. No colored dot: five hues competing with
     // the single blue accent was the loudest thing left on the page.
     const SectorBadge = ({ sector }) => {
@@ -435,6 +453,9 @@ const D = window.JH_DATA;
               <a href={D.links.email.href} aria-label="Email" title="Email" style={iconBtn}>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="4" width="20" height="16" rx="2.5"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
               </a>
+              <a href={D.links.coffee.href} target="_blank" rel="noopener noreferrer" aria-label="Buy me a coffee" title="Buy me a coffee" style={iconBtn}>
+                <CoffeeIcon size={18} />
+              </a>
             </div>
             {/* Hamburger button - only visible ≤768px via CSS */}
             <button
@@ -488,6 +509,21 @@ const D = window.JH_DATA;
                   color: 'var(--ink)', fontSize: 15.5, fontWeight: 500,
                 }}>{l.label}</a>
               ))}
+              {/* On the narrowest screens .nav-icons is hidden, so the drawer
+                  is the only route left to anything that isn't a section
+                  anchor. Hairline above it because this one leaves the site
+                  and the four above it don't; same 44px row either way, so the
+                  tap target doesn't change. */}
+              <a href={D.links.coffee.href} target="_blank" rel="noopener noreferrer"
+                onClick={close} role="menuitem" style={{
+                  display: 'flex', alignItems: 'center', gap: 10, minHeight: 44,
+                  padding: '0 14px', borderRadius: 9, whiteSpace: 'nowrap',
+                  marginTop: 5, borderTop: '1px solid var(--border)',
+                  color: 'var(--ink)', fontSize: 15.5, fontWeight: 500,
+                }}>
+                <CoffeeIcon size={17} />
+                Buy me a coffee
+              </a>
             </div>
           )}
         </header>
@@ -782,6 +818,8 @@ const D = window.JH_DATA;
           icon: <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.02-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.95v5.66H9.36V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.13 2.06 2.06 0 0 1 0 4.13zM7.12 20.45H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.72v20.56C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.72V1.72C24 .77 23.2 0 22.22 0z"/></svg> },
         { label: 'Resume',   href: D.links.resume.href,   target: '_blank',
           icon: <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg> },
+        { label: 'Buy me a coffee', href: D.links.coffee.href, target: '_blank',
+          icon: <CoffeeIcon size={26} /> },
       ];
       return (
         <section id="contact" style={{ animation: 'fadeUp 0.95s ease-out' }}>
