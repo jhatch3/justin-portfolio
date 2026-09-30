@@ -366,14 +366,22 @@ const D = window.JH_DATA;
     // Contact from a single definition. Stroke geometry matches the email and
     // resume icons already sitting beside it, so it lands in the same optical
     // weight class rather than looking bolder than its neighbors.
-    const CoffeeIcon = ({ size = 18 }) => (
+    //
+    // `steam` animates the three wisps. It is opt-in because only the Contact
+    // cup wants it - a bobbing icon in the nav would be noise - and the rules
+    // for .coffee-steam live in Contact's own <style>, which is the only place
+    // that sets the prop. The <g> is unconditional so the markup shape is the
+    // same at every call site; only the class comes and goes.
+    const CoffeeIcon = ({ size = 18, steam = false }) => (
       <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor"
            strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
         <path d="M17 8h1a4 4 0 1 1 0 8h-1"/>
         <path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/>
-        <line x1="6"  y1="2" x2="6"  y2="5"/>
-        <line x1="10" y1="2" x2="10" y2="5"/>
-        <line x1="14" y1="2" x2="14" y2="5"/>
+        <g className={steam ? 'coffee-steam' : undefined}>
+          <line x1="6"  y1="2" x2="6"  y2="5"/>
+          <line x1="10" y1="2" x2="10" y2="5"/>
+          <line x1="14" y1="2" x2="14" y2="5"/>
+        </g>
       </svg>
     );
 
@@ -833,16 +841,22 @@ const D = window.JH_DATA;
           icon: <XIcon size={26} /> },
         { label: 'Resume',   href: D.links.resume.href,   target: '_blank',
           icon: <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg> },
+        // The only item with a `cue`. Five of these six are profiles; this one
+        // is an ask, and nothing in a row of identical monochrome icons says so.
         { label: 'Buy me a coffee', href: D.links.coffee.href, target: '_blank',
-          icon: <CoffeeIcon size={26} /> },
+          icon: <CoffeeIcon size={26} steam />, cue: 'Buy me a coffee' },
       ];
+      // caption() hard-codes --ink-3. The cue needs its colour to come from CSS
+      // so it can follow the anchor on hover - an inline colour would outrank
+      // the hover rule - so take the type and leave the colour behind.
+      const { color: _cueColor, ...cueType } = caption(11);
       return (
         <section id="contact" style={{ animation: 'fadeUp 0.95s ease-out' }}>
           <Container>
             <SectionHeader eyebrow="Get in touch" title="Always up for talking applied AI." />
             {/* The icon row is the whole way in. Email still opens the chat
                 composer rather than handing off to a mail client. */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 22, flexWrap: 'wrap' }}>
+            <div className="contact-row" style={{ display: 'flex', alignItems: 'center', gap: 22, flexWrap: 'wrap' }}>
               {items.map(item => (
                 <a key={item.label} href={item.href} target={item.target} rel={item.target ? 'noopener noreferrer' : undefined}
                   aria-label={item.label} title={item.label}
@@ -857,10 +871,86 @@ const D = window.JH_DATA;
                   onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--ink-2)'; e.currentTarget.style.transform = ''; }}
                 >
                   {item.icon}
+                  {/* Inside the anchor, not beside it. Two reasons: the label
+                      becomes part of the same click target, and the row wraps
+                      (flexWrap above), so one anchor is one flex item and the
+                      cup can never wrap away from the arrow pointing at it. */}
+                  {item.cue && (
+                    <span className="contact-cue" style={{
+                      display: 'inline-flex', alignItems: 'center', gap: 6, marginLeft: 9,
+                    }}>
+                      {/* The FramerHireMe arrow, mirrored - same 14px box and
+                          2.2 weight as the page's one other arrow. */}
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                           strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                        <line x1="19" y1="12" x2="5" y2="12"/>
+                        <polyline points="11 6 5 12 11 18"/>
+                      </svg>
+                      <span style={cueType}>{item.cue}</span>
+                    </span>
+                  )}
                 </a>
               ))}
             </div>
           </Container>
+          <style>{`
+            /* .coffee-steam is emitted by CoffeeIcon when steam is set, and
+               Contact is the only caller that sets it. Staggered so the three
+               wisps don't pulse in lockstep, which reads mechanical rather
+               than warm.
+
+               Neither keyframe takes a fill-mode, and that is load-bearing:
+               the global reduced-motion rule (landing.html) collapses
+               animation-duration and iteration-count but deliberately leaves
+               fill alone, so a fill mode here would strand the steam at its
+               25%-opacity frame for exactly the people who opted out of
+               motion. Default fill lets them rest at full opacity.
+
+               Nothing here animates the anchor itself. The row's hover
+               handlers own its inline transform, and an animation on the same
+               property would win and silently kill the 1px lift. */
+            @keyframes steamRise {
+              0%, 100% { opacity: 0.25; transform: translateY(1px);  }
+              50%      { opacity: 1;    transform: translateY(-1px); }
+            }
+            @keyframes cueNudgeX {
+              0%, 100% { transform: translateX(0);    }
+              50%      { transform: translateX(-3px); }
+            }
+            #contact .coffee-steam line              { animation: steamRise 2s ease-in-out infinite; }
+            #contact .coffee-steam line:nth-child(2) { animation-delay: 0.25s; }
+            #contact .coffee-steam line:nth-child(3) { animation-delay: 0.5s;  }
+
+            #contact .contact-cue     { color: var(--ink-3); transition: color 0.15s; }
+            #contact .contact-cue svg { animation: cueNudgeX 2s ease-in-out infinite; }
+            /* The row recolours on hover via JS, and that only touches the
+               anchor, not its descendants - so the cue needs its own rule.
+               Both fire together; they don't fight. */
+            #contact a:hover .contact-cue,
+            #contact a:focus-visible .contact-cue { color: var(--accent); }
+
+            /* The chat FAB is fixed, 56px, 16px off the bottom-right corner,
+               and paints over this row at z-index 61. The cue makes the
+               coffee anchor ~171px instead of 26px, which walks the row's
+               right edge under it: measured, the collision runs 450-500px.
+               (The row already lost its tail to the FAB below ~360px before
+               any of this - same bug, older.)
+
+               Reserving the FAB's column is what fixes it. Take 72px off the
+               row's usable width and the coffee item wraps to a second line
+               of its own, left-aligned and nowhere near the corner. The
+               alternative - flex-basis:100% on the anchor - stretches the
+               anchor itself under the FAB and leaves an invisible click
+               target there, which is worse than what it fixes.
+
+               529 rather than 501 because clearance at 505 is 2px: not
+               technically an overlap, but the FAB casts a shadow and text
+               running into it reads broken. 529 is the first width with real
+               air. Above it the row fits on one line with 26px to spare. */
+            @media (max-width: 529px) {
+              #contact .contact-row { padding-right: 72px; }
+            }
+          `}</style>
         </section>
       );
     };
