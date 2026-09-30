@@ -132,12 +132,15 @@
     .nav-hamburger { display: inline-flex !important; }
     .hero-ctas { gap: 8px !important; }
   }
-  /* Below ~400px the name plus five nav targets stop fitting on one 60px row,
+  /* Below ~420px the name plus six nav targets stop fitting on one 60px row,
      so the social icons step aside - they are repeated in the hero and again
-     in Contact, and the hamburger is the affordance that isn't. The cutoff was
-     359px when the row held four; adding the coffee link moved it up, and the
-     drawer picks that link back up so nothing becomes unreachable. */
-  @media (max-width: 399px) {
+     in Contact, and the hamburger is the affordance that isn't. The cutoff
+     tracks the width of the icon row, so it has to move every time that row
+     grows: 359px at four targets, 399px at five, 419px now. Each figure is
+     the width at which the name-to-icons gap drops under ~60px, measured
+     rather than guessed. If a seventh ever gets added, measure again - or
+     read it as the sign that the row is full. */
+  @media (max-width: 419px) {
     .nav-icons { display: none !important; }
     /* The auto margin that pushes the right-hand group over lives on
        .nav-icons; hiding it takes the margin with it and leaves the
@@ -309,6 +312,7 @@
         <li><a href="mailto:jjhatch03@gmail.com" style="color:#1d4ed8">jjhatch03@gmail.com</a></li>
         <li><a href="https://github.com/jhatch3" style="color:#1d4ed8">github.com/jhatch3</a></li>
         <li><a href="https://www.linkedin.com/in/justinhatch/" style="color:#1d4ed8">linkedin.com/in/justinhatch</a></li>
+        <li><a href="https://x.com/jjhatch11" style="color:#1d4ed8">x.com/jjhatch11</a></li>
         <li><a href="https://buymeacoffee.com/hatch" style="color:#1d4ed8">Buy me a coffee</a></li>
       </ul>
     </div>
