@@ -58,7 +58,7 @@ const D = window.JH_DATA;
     };
 
     // ─── Projects list ───────────────────────────────────────────────────────
-    // A compact index: one line per project, title plus sector. The subtitle is
+    // A compact index: one line per project, just the title. The subtitle is
     // hidden until you hover the row (or focus it), so the default state is
     // eleven titles rather than eleven paragraphs. Screenshots live only in the
     // detail panel.
@@ -74,8 +74,6 @@ const D = window.JH_DATA;
       url: p.url || null,
       writeup: p.writeup || null,
       bullets: p.bullets || [],
-      tags: p.tags,
-      sector: p.sector,
       image: p.image,
     }));
 
@@ -136,8 +134,7 @@ const D = window.JH_DATA;
                   )}
                   <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, padding: '22px 24px 0' }}>
                     <div style={{ minWidth: 0 }}>
-                      <SectorBadge sector={active.sector} />
-                      <h3 style={{ fontSize: 19, marginTop: 8 }}>{active.title}</h3>
+                      <h3 style={{ fontSize: 19 }}>{active.title}</h3>
                       <p style={{ fontSize: 13.5, color: 'var(--ink-3)', margin: '6px 0 0', lineHeight: 1.5 }}>
                         {active.description}
                       </p>
@@ -173,12 +170,6 @@ const D = window.JH_DATA;
                         )}
                       </div>
                     )}
-                    <div style={{
-                      fontSize: 11.5, color: 'var(--ink-3)',
-                      fontWeight: 500, letterSpacing: '0.02em', lineHeight: 1.7,
-                    }}>
-                      {active.tags.join(' · ')}
-                    </div>
                   </div>
                 </div>
               </div>
@@ -192,7 +183,6 @@ const D = window.JH_DATA;
                 <div style={{ minWidth: 0, flex: 1 }}>
                   <div style={{ display: 'flex', alignItems: 'baseline', gap: 12, minWidth: 0 }}>
                     <span className="proj-title">{p.title}</span>
-                    <SectorBadge sector={p.sector} />
                   </div>
                   <div className="proj-sub">
                     <div style={{ fontSize: 13, color: 'var(--ink-3)', lineHeight: 1.45, paddingTop: 5 }}>
@@ -331,7 +321,7 @@ const D = window.JH_DATA;
 
     // ─── Captions ─────────────────────────────────────────────────────────────
     // Every small grey caption on this page used to be JetBrains Mono: the
-    // scroll cue, the sector tags, the writing dates, the graduation line. A
+    // scroll cue, the writing dates, the graduation line. A
     // second typeface earning its keep on six captions, and each of them read
     // as code rather than as a label.
     //
@@ -394,15 +384,6 @@ const D = window.JH_DATA;
         <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
       </svg>
     );
-
-    // Sector, as mono uppercase text. No colored dot: five hues competing with
-    // the single blue accent was the loudest thing left on the page.
-    const SectorBadge = ({ sector }) => {
-      if (!sector) return null;
-      return (
-        <span style={{ ...caption(10), whiteSpace: 'nowrap' }}>{sector}</span>
-      );
-    };
 
     // ─── Sticky top nav (with mobile drawer) ─────────────────────────────────
     const Nav = () => {
@@ -557,39 +538,6 @@ const D = window.JH_DATA;
       transition: 'background 0.15s, color 0.15s',
     };
 
-    // ─── FramerHireMe ────────────────────────────────────────────────────────
-    // CSS re-creation of the Framer "Slide-In Button". The original ESM
-    // module from framer.com/m/Slide-In-Button-bb0t.js depends on Framer's
-    // proprietary `framer` runtime, which isn't available standalone on any
-    // public CDN, so the import would never resolve in a vanilla page.
-    // Same visual idea: pill with a colored fill that slides in on hover,
-    // text inverts, arrow icon nudges right.
-    const FramerHireMe = () => (
-      <button type="button" className="slide-in-btn" onClick={() => openChat('hire')}>
-        <span className="slide-in-btn__fill" aria-hidden="true" />
-        <span className="slide-in-btn__text">Hire me</span>
-        <svg className="slide-in-btn__arrow" width="14" height="14" viewBox="0 0 24 24"
-             fill="none" stroke="currentColor" strokeWidth="2.2"
-             strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-          <line x1="5" y1="12" x2="19" y2="12"/>
-          <polyline points="13 6 19 12 13 18"/>
-        </svg>
-      </button>
-    );
-
-    // ─── DiscoBall ────────────────────────────────────────────────────────────
-    // The mirror-ball emoji, not a drawing of one. It already carries the
-    // colour and the facets, which is the thing a monochrome glyph could never
-    // do without either looking flat or shouting over a navy page.
-    //
-    // It hangs rather than sits: the swing pivots from the top edge, so the
-    // ball reads as suspended from something. Hover lights the room up.
-    //
-    // U+1FAA9 is Unicode 14 (2021), so it needs iOS 15.4 / Android 12L or
-    // later. That is a lower bar than the dvh, clamp() and ResizeObserver this
-    // page already depends on, so it is not the thing that will break first.
-    const DiscoBall = () => <span className="disco" aria-hidden="true">🪩</span>;
-
     // ─── Hero ─────────────────────────────────────────────────────────────────
     const Hero = () => (
       <section id="hero" style={{
@@ -642,32 +590,6 @@ const D = window.JH_DATA;
                 Python, FastAPI, agent orchestration. I ship LLM agents on Cortex and the evals that gate them.
                 Previously <strong style={{ color: 'var(--ink)', fontWeight: 600 }}>Modern Amenities</strong>.
               </p>
-              <div className="hero-ctas" style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
-                <FramerHireMe />
-                <a href="desktop.html" className="hero-secondary-cta"
-                  title="Interactive mode" aria-label="Interactive mode" style={iconBtnLg}>
-                  <DiscoBall />
-                </a>
-                <a href={D.links.github.href} target="_blank" rel="noopener noreferrer" title="GitHub" aria-label="GitHub" style={iconBtnLg}>
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                    <path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.1.79-.25.79-.55 0-.27-.01-1.16-.02-2.1-3.2.7-3.87-1.36-3.87-1.36-.52-1.32-1.27-1.67-1.27-1.67-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.02 1.76 2.69 1.25 3.34.95.1-.74.4-1.25.73-1.54-2.55-.29-5.24-1.28-5.24-5.7 0-1.26.45-2.29 1.18-3.1-.12-.29-.51-1.46.11-3.05 0 0 .96-.31 3.15 1.18.91-.25 1.89-.38 2.86-.38.97 0 1.95.13 2.86.38 2.18-1.49 3.14-1.18 3.14-1.18.62 1.59.23 2.76.11 3.05.74.81 1.18 1.84 1.18 3.1 0 4.43-2.69 5.41-5.26 5.69.41.36.78 1.06.78 2.13 0 1.54-.01 2.78-.01 3.16 0 .31.21.66.8.55C20.71 21.39 24 17.07 24 12 24 5.65 18.85.5 12.5.5H12z"/>
-                  </svg>
-                </a>
-                <a href={D.links.resume.href} download="Justin-Hatch-Resume.pdf" title="Resume" aria-label="Resume" style={iconBtnLg}>
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                    <polyline points="14 2 14 8 20 8"/>
-                    <line x1="16" y1="13" x2="8" y2="13"/>
-                    <line x1="16" y1="17" x2="8" y2="17"/>
-                    <line x1="10" y1="9" x2="8" y2="9"/>
-                  </svg>
-                </a>
-                <a href={D.links.linkedin.href} target="_blank" rel="noopener noreferrer" title="LinkedIn" aria-label="LinkedIn" style={iconBtnLg}>
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                    <path d="M20.45 20.45h-3.55v-5.57c0-1.33-.02-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.95v5.66H9.36V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.13 2.06 2.06 0 0 1 0 4.13zM7.12 20.45H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.72v20.56C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.72V1.72C24 .77 23.2 0 22.22 0z"/>
-                  </svg>
-                </a>
-              </div>
               <ContributionGraph />
             </div>
           </div>
@@ -689,15 +611,6 @@ const D = window.JH_DATA;
         `}</style>
       </section>
     );
-
-    // Round icon-only button used in the hero CTA row.
-    const iconBtnLg = {
-      width: 44, height: 44, borderRadius: '50%',
-      display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-      background: 'var(--surface)', color: 'var(--ink-2)',
-      border: '1px solid var(--border-strong)',
-      transition: 'border-color 0.15s, color 0.15s, transform 0.15s',
-    };
 
     // ─── Section header ───────────────────────────────────────────────────────
     // Only the blue eyebrow is shown. It carries the h2 so each section still
@@ -732,7 +645,7 @@ const D = window.JH_DATA;
                     <div style={{
                       ...caption(11), marginBottom: 6,
                     }}>
-                      {w.date}{w.mins ? ` · ${w.mins} min read` : ''}
+                      {w.date}
                     </div>
                     <div style={{ fontSize: 16, fontWeight: 600 }}>{w.title}</div>
                   </div>
@@ -879,8 +792,7 @@ const D = window.JH_DATA;
                     <span className="contact-cue" style={{
                       display: 'inline-flex', alignItems: 'center', gap: 6, marginLeft: 9,
                     }}>
-                      {/* The FramerHireMe arrow, mirrored - same 14px box and
-                          2.2 weight as the page's one other arrow. */}
+                      {/* A left-pointing arrow, 14px box at 2.2 weight. */}
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                            strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                         <line x1="19" y1="12" x2="5" y2="12"/>
@@ -892,16 +804,6 @@ const D = window.JH_DATA;
                 </a>
               ))}
             </div>
-            {/* Borrowed work gets its name on it. Both were ported rather than
-                installed - see the header comments in contribution-skyline.jsx
-                and chat-app.jsx, and Works cited in the README. */}
-            <p style={{ margin: '28px 0 0', fontSize: 12, lineHeight: 1.5, color: 'var(--ink-3)' }}>
-              Contribution skyline by{' '}
-              <a href="https://21st.dev/@kedhareswer/components/contribution-skyline" target="_blank" rel="noopener noreferrer">@kedhareswer</a>
-              {' · '}chat composer after AI Prompt Box by{' '}
-              <a href="https://21st.dev/@jahed/components/ai-prompt-box" target="_blank" rel="noopener noreferrer">@jahed</a>
-              {' '}on 21st.dev
-            </p>
           </Container>
           <style>{`
             /* .coffee-steam is emitted by CoffeeIcon when steam is set, and
@@ -1462,7 +1364,7 @@ const D = window.JH_DATA;
               right: 'var(--fab-right)', bottom: 'var(--fab-bottom)',
               display: 'flex',
               width: 56, height: 56, borderRadius: '50%', border: 0, cursor: 'pointer',
-              background: 'var(--accent)', color: '#fff',   // same blue as Hire me
+              background: 'var(--accent)', color: '#fff',
               alignItems: 'center', justifyContent: 'center',
               boxShadow: '0 10px 26px rgba(29,78,216,0.32)',
             }}

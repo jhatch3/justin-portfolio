@@ -315,13 +315,14 @@
   // just asked it, so they earned their keep by teaching syntax nobody asked
   // to learn. Those are gone. Ask "what has he built" and it answers.
   //
-  // Two things still can't be left to the model, because they aren't answers,
-  // they're actions the window has to take:
+  // Three things still can't be left to the model, because they aren't
+  // answers, they're actions the window has to take:
   //
   //   contact  opens the message form
   //   help     describes what this thing is for
+  //   disco    the easter egg: a disco ball and the way into Interactive Mode
   //
-  // Both are matched on intent. The patterns are deliberately narrow, because
+  // All three are matched on intent. The patterns are deliberately narrow, because
   // a false positive here is worse than a miss: someone asking "did he build
   // an email system?" must not get a contact form. So "email him" matches and
   // a bare "email" in a sentence does not.
@@ -341,6 +342,11 @@
   // is a question, and should go to the model like any other.
   const HELP_RE = /^\s*(?:help|\?+|what can (?:you|i) (?:do|ask|tell me)|what do you do|how does this work|what is this)\s*[.!?]*\s*$/i;
 
+  // The easter egg. "show us something cool", "show me a fact", "surprise
+  // me", "fun fact", or asking for examples. Anchored like HELP_RE, so "show me
+  // a fact about his RAG work" is still a question for the model.
+  const DISCO_RE = /^\s*(?:(?:show|tell|give)\s+(?:me|us)\s+(?:(?:something\s+)?cool|(?:a\s+)?(?:cool|fun|random)?\s*fact|(?:some\s+)?(?:example\s+)?(?:questions|examples))|(?:something|anything)\s+cool|(?:a\s+)?(?:cool|fun|random)\s+fact|surprise\s+(?:me|us)|(?:example\s+)?questions|examples?|disco)\s*[.!?]*\s*$/i;
+
   const HELP_TEXT = [
     "Ask me anything about Justin's work, his projects, or what he's after next.",
     '',
@@ -358,6 +364,7 @@
     'What did he do at Modern Amenities?',
     'Is he open to new roles?',
     'Tell me something surprising about him.',
+    'Show me something cool.',
   ];
   const EXAMPLES_TEXT = 'Things I can answer well:';
 
@@ -474,7 +481,7 @@
   };
 
   // contactRequest is a counter, not a boolean: the page bumps it every time a
-  // visitor clicks "Hire me" or the contact icon, so a second click reopens the
+  // visitor clicks the contact icon, so a second click reopens the
   // composer even if they closed it.
   const ChatApp = ({ theme = 'dark', contactRequest = 0, contactIntent }) => {
     const c = PALETTES[theme] || PALETTES.dark;
@@ -582,6 +589,14 @@
       // documented anywhere any more, it simply still works.
       const intent = text.replace(/^\/+/, '').trim();
       if (HELP_RE.test(intent)) { localReply(HELP_TEXT, 'examples'); return; }
+      if (DISCO_RE.test(intent)) {
+        // On desktop.html the visitor is already in Interactive Mode, so the
+        // ball comes without a link back to where they are standing.
+        localReply(theme === 'light'
+          ? "You found the disco ball. There's a whole other version of this site where it lives."
+          : "You found the disco ball. You're already in Interactive Mode - this is where it lives.", 'disco');
+        return;
+      }
       if (CONTACT_RE.test(intent)) {
         localReply('Fill this in and it goes straight to him.');
         openComposer(/\b(?:hire|work with)\b/i.test(intent) ? 'hire' : 'chat');
@@ -727,6 +742,20 @@
           }
           @keyframes chatDots  { 0%, 60%, 100% { transform: translateY(0); opacity: 0.45 }
                                  30% { transform: translateY(-3px); opacity: 1 } }
+
+          /* The easter-egg disco ball. Hung, so it swings from its top edge,
+             and it drops in on a string when it first appears. */
+          @keyframes jhDiscoDrop { from { transform: translateY(-14px) rotate(0); opacity: 0 }
+                                   to   { transform: translateY(0) rotate(0); opacity: 1 } }
+          @keyframes jhDiscoSway { 0%, 100% { transform: rotate(-10deg) }
+                                   50%      { transform: rotate(10deg) } }
+          .jh-disco {
+            font-size: 34px; line-height: 1; display: inline-block;
+            transform-origin: 50% 0;
+            animation: jhDiscoDrop 0.5s cubic-bezier(.2,.9,.3,1.3) both,
+                       jhDiscoSway 2.2s 0.5s ease-in-out infinite;
+          }
+          .jh-disco-cta:hover { opacity: 1; filter: brightness(1.08); }
 
           /* ── The face is alive ──────────────────────────────────────────
              Three signals, all deliberately small. A slow breath so it is
@@ -952,6 +981,17 @@
                   </span>
                 ) : (mine ? m.content : renderMarkdown(m.content, c))}
 
+                {m.card === 'disco' && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 10 }}>
+                    <span className="jh-disco" aria-hidden="true">🪩</span>
+                    {theme === 'light' && (
+                      <a href="desktop.html" className={`jh-chat-chip-${theme} jh-disco-cta`} style={{
+                        fontSize: 12.5, fontWeight: 600, padding: '8px 14px', borderRadius: 999,
+                        background: c.sendOnBg, color: '#fff', textDecoration: 'none', whiteSpace: 'nowrap',
+                      }}>Try Interactive Mode →</a>
+                    )}
+                  </div>
+                )}
                 {m.card === 'examples' && (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 10 }}>
                     {EXAMPLES.map(q => (
