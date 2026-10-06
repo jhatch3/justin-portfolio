@@ -892,6 +892,16 @@ const D = window.JH_DATA;
                 </a>
               ))}
             </div>
+            {/* Borrowed work gets its name on it. Both were ported rather than
+                installed - see the header comments in contribution-skyline.jsx
+                and chat-app.jsx, and Works cited in the README. */}
+            <p style={{ margin: '28px 0 0', fontSize: 12, lineHeight: 1.5, color: 'var(--ink-3)' }}>
+              Contribution skyline by{' '}
+              <a href="https://21st.dev/@kedhareswer/components/contribution-skyline" target="_blank" rel="noopener noreferrer">@kedhareswer</a>
+              {' · '}chat composer after AI Prompt Box by{' '}
+              <a href="https://21st.dev/@jahed/components/ai-prompt-box" target="_blank" rel="noopener noreferrer">@jahed</a>
+              {' '}on 21st.dev
+            </p>
           </Container>
           <style>{`
             /* .coffee-steam is emitted by CoffeeIcon when steam is set, and
@@ -1011,19 +1021,25 @@ const D = window.JH_DATA;
       </section>
     );
 
-    // ─── GitHub contribution graph (live) ──────────────────────────────────────
-    // Just the 53-week × 7-day square grid of the last year's public
-    // contributions, sitting under the hero text. The whole grid links to the
-    // GitHub profile. Data comes from the open, CORS-enabled jogruber proxy of
-    // GitHub's contributions calendar (no token needed) and is cached in
-    // localStorage for 6h so repeat visits paint instantly.
-    const CONTRIB_LEVELS = [
-      'rgba(10,37,64,0.10)',   // 0 - no contributions
-      'rgba(23,62,170,0.45)',  // 1
-      'rgba(23,62,170,0.66)',  // 2
-      'rgba(23,62,170,0.85)',  // 3
-      'rgba(20,52,140,1)',     // 4 - busiest days, deep navy-blue
-    ];
+    // ─── GitHub contribution skyline (live) ────────────────────────────────────
+    // The last year of public contributions under the hero text, drawn by
+    // window.ContributionSkyline (js/contribution-skyline.jsx): a flat heat map
+    // that rises into an isometric skyline once it is on screen. Data comes from
+    // the open, CORS-enabled jogruber proxy of GitHub's contributions calendar
+    // (no token needed) and is cached in localStorage for 6h so repeat visits
+    // paint instantly.
+    //
+    // The skyline only mounts once real data is in hand. Given no data it
+    // invents a believable sample year, and a made-up graph on a portfolio is
+    // worse than no graph.
+    //
+    // The navy ramp the old square grid used (rgba(23,62,170,.45/.66/.85) and
+    // rgba(20,52,140,1)), flattened onto white so the canvas can ease between
+    // them. Dark is only here because the component asks for it.
+    const CONTRIB_PALETTE = {
+      light: ['#97a8d9', '#6680c7', '#3a5bb7', '#14348c'],
+      dark:  ['#1e2f5c', '#2b4a9a', '#3f6fe0', '#8fb0ff'],
+    };
     const ContributionGraph = () => {
       const handle = ((D.links.github && D.links.github.label) || 'github.com/jhatch3')
         .replace(/^github\.com\//, '').replace(/\/$/, '');
@@ -1056,81 +1072,45 @@ const D = window.JH_DATA;
         return () => { alive = false; };
       }, [handle]);
 
-      // Bucket the flat day list into week-columns (rows = Sun→Sat), padding the
-      // first column so the calendar starts on the right weekday.
-      const weeks = React.useMemo(() => {
-        if (!data || !data.days.length) return [];
-        const out = [];
-        let col = [];
-        const firstDow = new Date(data.days[0].date + 'T00:00:00').getDay();
-        for (let i = 0; i < firstDow; i++) col.push(null);
-        data.days.forEach(d => {
-          col.push(d);
-          if (col.length === 7) { out.push(col); col = []; }
-        });
-        if (col.length) { while (col.length < 7) col.push(null); out.push(col); }
-        return out;
-      }, [data]);
+      // The skyline rebuilds its grid whenever `data` changes identity, so hand
+      // it a stable array rather than a fresh map() on every render.
+      const days = React.useMemo(
+        () => (data ? data.days.map(d => ({ date: d.date, count: d.count })) : null),
+        [data]);
 
-      // Fifty-three columns is a year, and a year does not fit on a phone: at
-      // 343px of usable width the gaps alone eat 156px and each square lands
-      // at 3.5px - a grey smear, not a calendar. So measure the box we were
-      // actually given and keep only as many of the most recent weeks as can
-      // render at a legible size. A phone gets a crisp six months; a desktop
-      // still gets the full year.
-      const boxRef = React.useRef(null);
-      const [boxW, setBoxW] = React.useState(0);
-      React.useEffect(() => {
-        const el = boxRef.current;
-        if (!el || typeof ResizeObserver === 'undefined') return;
-        const ro = new ResizeObserver(([e]) => setBoxW(e.contentRect.width));
-        ro.observe(el);
-        return () => ro.disconnect();
-      }, []);
-
-      const MIN_SQ = 7;   // below this the squares stop reading as squares
-      const GAP = boxW && boxW < 420 ? 2 : 3;
-      const fits = boxW ? Math.max(8, Math.floor((boxW + GAP) / (MIN_SQ + GAP))) : 53;
-
-      const skeleton = !data && !failed;
-      const allCols = skeleton ? Array.from({ length: 53 }) : weeks;
-      const cols = allCols.slice(Math.max(0, allCols.length - Math.min(fits, 53)));
-      const months = Math.round((cols.length / 53) * 12);
+      const Skyline = window.ContributionSkyline;
+      const wrap = { marginTop: 'clamp(18px, 4vw, 28px)', width: '100%', animation: 'fadeUp 0.6s ease-out' };
 
       // Fetch failed and nothing cached: render nothing rather than an empty frame.
-      if (failed && !data) return null;
+      if ((failed && !data) || !Skyline) return null;
+      // In flight with no cache: a quiet block roughly the size of the flat view.
+      if (!days) {
+        return <div aria-hidden="true" style={{
+          ...wrap, height: 130, borderRadius: 8, background: 'rgba(10,37,64,0.04)',
+        }} />;
+      }
 
-      // Just the squares. The whole grid is a subtle link to the GitHub profile.
       return (
-        <a href={githubHref} target="_blank" rel="noopener noreferrer"
-           ref={boxRef}
-           className="contrib-grid"
-           aria-label={data
-             ? `GitHub contributions, last ${months} months (${data.total.toLocaleString()} in the last year)`
-             : 'GitHub contributions'}
-           title={`GitHub contributions · last ${months} months`}
-           style={{
-             display: 'block', marginTop: 'clamp(18px, 4vw, 28px)', width: '100%',
-             opacity: skeleton ? 0.5 : 1, transition: 'opacity 0.3s',
-             animation: 'fadeUp 0.6s ease-out',
-           }}>
-          <div style={{ display: 'flex', gap: GAP, width: '100%' }}>
-            {cols.map((col, ci) => (
-              <div key={ci} style={{ display: 'flex', flexDirection: 'column', gap: GAP, flex: '1 1 0', minWidth: 0 }}>
-                {(skeleton ? Array.from({ length: 7 }) : col).map((d, ri) => (
-                  <div key={ri}
-                    title={(!skeleton && d) ? (d.count + ' contribution' + (d.count === 1 ? '' : 's') + ' on ' + d.date) : undefined}
-                    style={{
-                      width: '100%', aspectRatio: '1', borderRadius: 2,
-                      background: skeleton ? CONTRIB_LEVELS[0] : (d ? CONTRIB_LEVELS[d.level] : 'transparent'),
-                      outline: (!skeleton && d) ? '0.5px solid rgba(10,37,64,0.04)' : 'none',
-                      outlineOffset: -0.5,
-                    }} />
-                ))}
-              </div>
-            ))}
-          </div>
-        </a>
+        <div style={wrap}>
+          <Skyline
+            data={days}
+            palette={CONTRIB_PALETTE}
+            bare
+            defaultView="2d"
+            showStats={false}
+            showLegend={false}
+            footer={null}
+            title={
+              <a href={githubHref} target="_blank" rel="noopener noreferrer" title={'GitHub · ' + handle}
+                 style={{ color: 'var(--ink-2)' }}>
+                <strong style={{ color: 'var(--ink)', fontWeight: 600, fontVariantNumeric: 'tabular-nums' }}>
+                  {data.total.toLocaleString()}
+                </strong>{' '}
+                contributions in the last year <span style={{ color: 'var(--accent)' }}>↗</span>
+              </a>
+            }
+          />
+        </div>
       );
     };
 

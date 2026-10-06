@@ -199,6 +199,10 @@ Third-party components / assets that informed the site:
 
 - **Slide-In Button** by Framer - https://framer.com/m/Slide-In-Button-bb0t.js@AkIIpTKoP29X3k3M6qp2
   - Inspired the "Hire me" CTA in the landing-page hero (`landing.html`). The original Framer ESM module depends on Framer's proprietary `framer` runtime (not published to any public CDN), so the design is re-implemented in plain CSS using a pseudo-fill that slides in on hover.
+- **Contribution Skyline** by kedhareswer - https://21st.dev/@kedhareswer/components/contribution-skyline
+  - The GitHub graph under the landing-page hero (`public/js/contribution-skyline.jsx`): a heat map that rises into an isometric skyline, fed by the live contributions data the old square grid used. The original is a TypeScript + Tailwind React component, so it is ported rather than installed - types stripped, utility classes rewritten as inline styles, colours mapped onto the site's tokens. The canvas engine is unchanged.
+- **AI Prompt Box** by jahed - https://21st.dev/@jahed/components/ai-prompt-box
+  - The look of Justin's Bot composer (`public/js/chat-app.jsx`): one rounded card with the text on top and the actions on a row beneath. Only the look came across - the image upload, voice recorder and Search/Think/Canvas modes are dropped because the bot takes text, and Radix / Framer Motion / lucide are replaced with native elements, CSS transitions and inline SVG, since the site has no bundler.
 
 ---
 

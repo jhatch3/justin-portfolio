@@ -77,6 +77,14 @@
       fieldBorder: '0.5px solid rgba(255,255,255,0.14)',
       fieldFocus: '#0a84ff',
       fieldBad: '1px solid #ff9a95',
+      // The composer card (after jahed's AI Prompt Box - see the Composer
+      // block). These two are the original's own values.
+      boxBg: '#1F2023',
+      boxBorder: '#444444',
+      boxShadow: '0 8px 30px rgba(0,0,0,0.24)',
+      boxFocus: 'rgba(10,132,255,0.55)',
+      boxBusy: 'rgba(10,132,255,0.85)',
+      ghostHover: 'rgba(255,255,255,0.08)',
     },
     light: {
       font: 'inherit',
@@ -125,6 +133,12 @@
       fieldBorder: '0.5px solid rgba(10,37,64,0.13)',
       fieldFocus: 'var(--accent, #1d4ed8)',
       fieldBad: '1px solid #b42318',
+      boxBg: 'var(--surface, #ffffff)',
+      boxBorder: 'rgba(10,37,64,0.14)',
+      boxShadow: 'var(--shadow, 0 1px 2px rgba(10,37,64,0.04), 0 8px 24px rgba(10,37,64,0.06))',
+      boxFocus: 'rgba(29,78,216,0.45)',
+      boxBusy: 'var(--accent, #1d4ed8)',
+      ghostHover: 'rgba(10,37,64,0.06)',
     },
   };
 
@@ -372,7 +386,7 @@
     return matches;
   };
 
-  const COMPOSER_MAX_H = 96;
+  const COMPOSER_MAX_H = 140;
 
   // ─── Contact composer ──────────────────────────────────────────────────────
   // Three fields, in the thread, no page change and no mail client. Posts to
@@ -477,6 +491,9 @@
     const scrollRef = React.useRef(null);
     const inputRef = React.useRef(null);
     const nameRef = React.useRef(null);
+    // The in-flight reply's stop handle, so the composer's stop button can end
+    // it. null whenever nothing is streaming.
+    const stopRef = React.useRef(null);
 
     React.useEffect(() => {
       if (!scrollRef.current) return;
@@ -579,6 +596,7 @@
 
       const ctl = new AbortController();
       let timeoutReason = null;
+      stopRef.current = () => { timeoutReason = 'user_stop'; ctl.abort(); };
       const connectTimer = setTimeout(() => { timeoutReason = 'connect_timeout'; ctl.abort(); }, 15000);
       let stallTimer = null;
       const resetStall = () => {
@@ -630,6 +648,15 @@
           }
         }
       } catch (e) {
+        // Stopped on purpose: keep whatever had arrived, say nothing.
+        if (timeoutReason === 'user_stop') {
+          setMessages(prev => {
+            const copy = prev.slice();
+            if (copy.length && copy[copy.length - 1].role === 'assistant' && !copy[copy.length - 1].content) copy.pop();
+            return copy;
+          });
+          return;
+        }
         const reason = e?.message || String(e);
         const friendly =
           timeoutReason === 'connect_timeout' ? "Couldn't reach the server in 15s." :
@@ -645,6 +672,7 @@
           return copy;
         });
       } finally {
+        stopRef.current = null;
         clearTimeout(connectTimer);
         if (stallTimer) clearTimeout(stallTimer);
         setSending(false);
@@ -744,7 +772,15 @@
           @keyframes chatIn    { from { opacity: 0; transform: translateY(6px) scale(0.97) }
                                  to   { opacity: 1; transform: none } }
           .jh-chat-ta-${theme}::placeholder { color: ${c.placeholder}; }
+          /* Contact-form fields. The composer's textarea has no border of
+             its own; its card takes the focus colour instead. */
           .jh-chat-ta-${theme}:focus { border-color: ${c.fieldFocus}; }
+          .jh-chat-box-${theme} { transition: border-color 0.3s, box-shadow 0.3s; }
+          .jh-chat-box-${theme}:focus-within:not(.jh-busy) {
+            border-color: ${c.boxFocus} !important;
+          }
+          @keyframes jhStopPulse { 0%, 100% { opacity: 1 } 50% { opacity: 0.45 } }
+          .jh-chat-stop { animation: jhStopPulse 1.2s ease-in-out infinite; }
 
           /* Every turn arrives rather than appearing. Short and once - the
              transcript should feel alive, not animated. */
@@ -781,11 +817,15 @@
           @media (hover: hover) and (pointer: fine) {
             .jh-chat-chip-${theme}:hover:not(:disabled) { background: ${c.chipHover}; transform: translateY(-1px); }
             .jh-chat-send-${theme}:not(:disabled):hover { filter: brightness(1.08); }
+            .jh-chat-ghost-${theme}:hover { background: ${c.ghostHover} !important; color: ${c.titleText} !important; }
           }
           .jh-chat-send-${theme} { transition: background 0.16s, color 0.16s, transform 0.16s, filter 0.16s; }
           .jh-chat-send-${theme}:not(:disabled):active { transform: scale(0.92); }
+          .jh-chat-ghost-${theme} { white-space: nowrap; transition: background 0.16s, color 0.16s, transform 0.16s; }
+          .jh-chat-ghost-${theme}:active { transform: scale(0.96); }
 
           @media (prefers-reduced-motion: reduce) {
+            .jh-chat-stop { animation: none !important; }
             .jh-chat-bub-${theme}, .jh-chat-chip-${theme}, .jh-chat-send-${theme} {
               animation-duration: 0.01ms !important; transition-duration: 0.01ms !important;
             }
@@ -811,6 +851,9 @@
             .jh-chat-msg-${theme} { font-size: 15px !important; line-height: 1.5 !important; }
             .jh-chat-send-${theme} { width: 44px !important; height: 44px !important; }
             .jh-chat-tap-${theme} { min-height: 44px !important; }
+            /* The text button grows by height only; a 44px square would
+               fold its label onto two lines. */
+            .jh-chat-ghost-${theme} { height: 44px !important; font-size: 13px !important; }
             /* Chips wrap into a row, so they grow by padding rather than by a
                min-height that would leave a stack of tall slabs. */
             .jh-chat-chip-${theme} { font-size: 14px !important; padding: 9px 14px !important; }
@@ -950,69 +993,94 @@
         </div>
 
         {/* ── Composer ───────────────────────────────────────────────────
-            A pill on a translucent bar, and a send button that is only there
-            when there is something to send - Messages fades its arrow in on
-            the first keystroke rather than parking a dead control beside an
-            empty field. */}
-        <div style={{
-          padding: '9px 10px', display: 'flex', gap: 8, alignItems: 'flex-end',
-          background: c.barBg, borderTop: c.barBorder, flexShrink: 0,
-          backdropFilter: 'blur(20px) saturate(180%)',
-          WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-        }}>
-          {/* The always-there way to the form. With the commands gone, typed
-              intent is one path in and this is the other, so reaching him
-              never depends on guessing the right phrase. */}
-          <button onClick={() => openComposer('chat')}
-            aria-label="Message Justin" title="Message Justin"
-            className={`jh-chat-send-${theme}`} style={{
-              width: 34, height: 34, borderRadius: '50%', border: 0, padding: 0,
-              background: c.sendOffBg, color: c.subText, cursor: 'pointer',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              flexShrink: 0, marginBottom: 1,
-            }}>
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-              strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <rect x="2.5" y="5" width="19" height="14" rx="2.5" />
-              <path d="m21 7.5-8.5 5.4a1.8 1.8 0 0 1-2 0L2 7.5" />
-            </svg>
-          </button>
+            After "AI Prompt Box" by jahed on 21st.dev
+            (https://21st.dev/@jahed/components/ai-prompt-box): one rounded
+            card holding the text, with the actions on a row underneath it
+            instead of crowded either side of a pill. Only the look came
+            across. The original's image upload, voice recorder and
+            Search/Think/Canvas modes are gone, because /api/chat takes text
+            and each of them would have been a button that does nothing, and
+            so is its global *:focus-visible override, which would have taken
+            the focus ring off every control on the page. Framer and Radix are
+            replaced by the CSS transitions and title tooltips this file
+            already uses.
 
-          {/* A one-row textarea clips anything that wraps. The placeholder is
-              short enough to fit on one line in the narrowest place this runs,
-              which is a 380px panel carrying two buttons, so it never needs a
-              width-dependent variant. The box itself grows with what is typed,
-              up to COMPOSER_MAX_H, after which it scrolls. */}
-          <textarea ref={inputRef} className={`jh-chat-ta-${theme}`}
-            value={input} onChange={onInput} onKeyDown={onKey}
-            placeholder="Ask about his work…"
-            rows={1} disabled={sending}
-            style={{
-              flex: 1, minWidth: 0, resize: 'none', border: c.inputBorder, outline: 0,
-              background: c.inputBg, color: c.inputText,
-              padding: '9px 14px', borderRadius: 19, fontSize: 13.5, lineHeight: 1.4,
-              fontFamily: 'inherit', maxHeight: COMPOSER_MAX_H, overflowY: 'auto',
-              transition: 'border-color 0.16s',
-            }} />
-          <button onClick={() => send()} disabled={!input.trim() || sending} aria-label="Send"
-            className={`jh-chat-send-${theme}`} style={{
-            width: 34, height: 34, borderRadius: '50%', border: 0, padding: 0,
-            background: input.trim() && !sending ? c.sendOnBg : c.sendOffBg,
-            color: input.trim() && !sending ? c.sendOnText : c.sendOffText,
-            cursor: input.trim() && !sending ? 'pointer' : 'default',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-            transform: input.trim() && !sending ? 'scale(1)' : 'scale(0.86)',
-            opacity: input.trim() && !sending ? 1 : 0.55,
-            marginBottom: 1,
+            The send button is still only alive when there is something to
+            send. While a reply streams it turns into a stop square, and that
+            one is real: it aborts the stream and keeps what has arrived. */}
+        <div style={{ padding: '8px 10px 10px', background: c.canvas, flexShrink: 0 }}>
+          <div className={`jh-chat-box-${theme}${sending ? ' jh-busy' : ''}`} style={{
+            background: c.boxBg, border: `1px solid ${sending ? c.boxBusy : c.boxBorder}`,
+            borderRadius: 22, padding: '6px 6px 6px', boxShadow: c.boxShadow,
           }}>
-            {/* An arrow, not a paper plane - the plane reads as "email", and
-                this sends a message. */}
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-              strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <line x1="12" y1="19" x2="12" y2="6" />
-              <polyline points="6 12 12 5.6 18 12" />
-            </svg>
-          </button>
+            {/* The box grows with what is typed, up to COMPOSER_MAX_H, after
+                which it scrolls. The placeholder fits on one line in the
+                narrowest place this runs, a 380px panel. */}
+            <textarea ref={inputRef} className={`jh-chat-ta-${theme}`}
+              value={input} onChange={onInput} onKeyDown={onKey}
+              placeholder="Ask about his work…" aria-label="Message Justin's bot"
+              rows={1} disabled={sending}
+              style={{
+                display: 'block', width: '100%', minWidth: 0, resize: 'none', border: 0, outline: 0,
+                background: 'transparent', color: c.inputText,
+                padding: '8px 10px 6px', fontSize: 14, lineHeight: 1.45,
+                fontFamily: 'inherit', maxHeight: COMPOSER_MAX_H, overflowY: 'auto',
+              }} />
+
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, paddingTop: 2 }}>
+              {/* The always-there way to the form. Typed intent is one path
+                  in and this is the other, so reaching him never depends on
+                  guessing the right phrase. */}
+              <button onClick={() => openComposer('chat')}
+                aria-label="Message Justin" title="Message Justin"
+                className={`jh-chat-ghost-${theme}`} style={{
+                  height: 32, borderRadius: 999, border: 0, padding: '0 10px 0 8px',
+                  background: 'transparent', color: c.subText, cursor: 'pointer',
+                  display: 'inline-flex', alignItems: 'center', gap: 6,
+                  fontFamily: 'inherit', fontSize: 12, fontWeight: 500, flexShrink: 0,
+                }}>
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <rect x="2.5" y="5" width="19" height="14" rx="2.5" />
+                  <path d="m21 7.5-8.5 5.4a1.8 1.8 0 0 1-2 0L2 7.5" />
+                </svg>
+                <span>Message Justin</span>
+              </button>
+
+              {(() => {
+                const live = !!input.trim() && !sending;
+                return (
+                  <button
+                    onClick={() => (sending ? stopRef.current?.() : send())}
+                    disabled={!sending && !live}
+                    aria-label={sending ? 'Stop' : 'Send'} title={sending ? 'Stop' : 'Send'}
+                    className={`jh-chat-send-${theme}`} style={{
+                      width: 32, height: 32, borderRadius: '50%', border: 0, padding: 0,
+                      background: live || sending ? c.sendOnBg : c.sendOffBg,
+                      color: live || sending ? c.sendOnText : c.sendOffText,
+                      cursor: live || sending ? 'pointer' : 'default',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+                      transform: live || sending ? 'scale(1)' : 'scale(0.86)',
+                      opacity: live || sending ? 1 : 0.55,
+                    }}>
+                    {sending ? (
+                      <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true" className="jh-chat-stop">
+                        <rect x="1" y="1" width="10" height="10" rx="2" fill="currentColor" />
+                      </svg>
+                    ) : (
+                      /* An arrow, not a paper plane - the plane reads as
+                         "email", and this sends a message. */
+                      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                        <line x1="12" y1="19" x2="12" y2="6" />
+                        <polyline points="6 12 12 5.6 18 12" />
+                      </svg>
+                    )}
+                  </button>
+                );
+              })()}
+            </div>
+          </div>
         </div>
       </div>
     );
